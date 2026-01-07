@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amnesfubbia XX1 - Streaming & Download Film</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #0d0d0d; color: white; }
+        .navbar { background-color: #e50914 !important; }
+        .card-film { background: #1a1a1a; border: none; transition: 0.3s; }
+        .card-film:hover { transform: scale(1.05); }
+        .poster { border-radius: 8px; width: 100%; height: auto; }
+        .btn-stream { background-color: #007bff; color: white; margin-bottom: 5px; }
+        .btn-download { background-color: #28a745; color: white; }
+        .movie-title { font-size: 1.1rem; font-weight: bold; margin-top: 10px; color: #fff; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">AMNESFUBBIA XX1</a>
+        <div class="d-flex">
+            <input id="searchInput" class="form-control me-2" type="search" placeholder="Cari Film Indonesia...">
+            <button onclick="searchMovie()" class="btn btn-outline-light">Cari</button>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h3 class="mb-4">Film Terpopuler</h3>
+    <div id="movieGrid" class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-4">
+        </div>
+</div>
+
+<div class="modal fade" id="movieModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="modalTitle">Judul Film</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <img id="modalPoster" src="" class="img-fluid rounded" alt="poster">
+                    </div>
+                    <div class="col-md-8">
+                        <h6>Sinopsis:</h6>
+                        <p id="modalOverview" class="small text-secondary">Loading...</p>
+                        <hr class="border-secondary">
+                        
+                        <div class="mb-3">
+                            <h6>Streaming:</h6>
+                            <a href="#" id="streamFembed" class="btn btn-sm btn-stream w-100" target="_blank">Stream Server 1 (Fembed)</a>
+                            <a href="#" id="streamDood" class="btn btn-sm btn-stream w-100" target="_blank">Stream Server 2 (Doodstream)</a>
+                        </div>
+                        
+                        <div>
+                            <h6>Download:</h6>
+                            <a href="#" id="downFembed" class="btn btn-sm btn-download w-100" target="_blank">Download Server 1 (Fembed)</a>
+                            <a href="#" id="downDood" class="btn btn-sm btn-download w-100" target="_blank">Download Server 2 (Doodstream)</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const apiKey = 'bfa7df5310c9974f62f26c6789a8c00d';
+    const baseUrl = 'https://api.themoviedb.org/3';
+    const movieGrid = document.getElementById('movieGrid');
+
+    // Ambil Film Populer saat halaman dibuka (Difilter untuk Indonesia)
+    async function loadMovies() {
+        const response = await fetch(`${baseUrl}/discover/movie?api_key=${apiKey}&with_original_language=id&sort_by=popularity.desc`);
+        const data = await response.json();
+        displayMovies(data.results);
+    }
+
+    // Fungsi Cari Film
+    async function searchMovie() {
+        const query = document.getElementById('searchInput').value;
+        if(query) {
+            const response = await fetch(`${baseUrl}/search/movie?api_key=${apiKey}&query=${query}&language=id-ID`);
+            const data = await response.json();
+            displayMovies(data.results);
+        }
+    }
+
+    function displayMovies(movies) {
+        movieGrid.innerHTML = '';
+        movies.forEach(movie => {
+            const card = document.createElement('div');
+            card.classList.add('col');
+            card.innerHTML = `
+                <div class="card card-film h-100 p-2" onclick="showDetail('${movie.id}', '${movie.title}', '${movie.overview}', '${movie.poster_path}')">
+                    <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="poster" alt="${movie.title}">
+                    <a href="#" class="movie-title">${movie.title}</a>
+                    <small class="text-secondary">${movie.release_date ? movie.release_date.split('-')[0] : '-'}</small>
+                </div>
+            `;
+            movieGrid.appendChild(card);
+        });
+    }
+
+    function showDetail(id, title, overview, poster) {
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalOverview').innerText = overview || "Sinopsis tidak tersedia dalam bahasa Indonesia. Silakan cek di FilmIndonesia.or.id";
+        document.getElementById('modalPoster').src = `https://image.tmdb.org/t/p/w500${poster}`;
+        
+        // Simulasi Link (Karena link asli harus diinput manual, kita arahkan ke pencarian/placeholder)
+        // Di aplikasi nyata, Anda butuh database sendiri untuk menyimpan link per ID film.
+        document.getElementById('streamFembed').href = `https://fembed.com/search?keyword=${title}`;
+        document.getElementById('streamDood').href = `https://doodstream.com/search?keyword=${title}`;
+        document.getElementById('downFembed').href = `https://fembed.com/search?keyword=${title}`;
+        document.getElementById('downDood').href = `https://doodstream.com/search?keyword=${title}`;
+
+        new bootstrap.Modal(document.getElementById('movieModal')).show();
+    }
+
+    loadMovies();
+</script>
+</body>
+</html>
