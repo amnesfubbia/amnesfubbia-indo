@@ -84,7 +84,7 @@
             <div class="flex items-center gap-2 mb-3">
                 <div onclick="location.reload()" class="cursor-pointer shrink-0 uppercase font-black italic text-sm">AMNESFUBBIA<span class="text-red-600">FILM</span></div>
                 <div class="relative w-full">
-                    <input type="text" id="inputCari" class="search-input" placeholder="Cari Judul (Contoh: Cinta)..." onkeyup="if(event.key==='Enter') cariFilm()">
+                    <input type="text" id="inputCari" class="search-input" placeholder="Ketik judul (Contoh: Cinta)..." onkeyup="if(event.key==='Enter') cariFilm()">
                 </div>
             </div>
             
@@ -147,21 +147,15 @@
             document.getElementById('loadingBar').style.width = '50%';
             
             let hasil = [];
-            
             try {
                 if (fTipe === 'multi') {
-                    // Ambil gabungan Film & TV secara paralel untuk mode SEMUA
                     const [resM, resT] = await Promise.all([
                         fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API}&with_origin_country=ID&language=id-ID&page=${hal}${fGenre?`&with_genres=${fGenre}`:''}${fTahun?`&primary_release_year=${fTahun}`:''}`),
                         fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API}&with_origin_country=ID&language=id-ID&page=${hal}${fGenre?`&with_genres=${fGenre}`:''}${fTahun?`&first_air_date_year=${fTahun}`:''}`)
                     ]);
                     const dM = await resM.json();
                     const dT = await resT.json();
-                    
-                    // Campur hasil Film dan TV
-                    const movies = (dM.results || []).map(i => ({...i, m_type: 'movie'}));
-                    const tvs = (dT.results || []).map(i => ({...i, m_type: 'tv'}));
-                    hasil = [...movies, ...tvs].sort(() => Math.random() - 0.5);
+                    hasil = [...(dM.results || []).map(i => ({...i, m_type: 'movie'})), ...(dT.results || []).map(i => ({...i, m_type: 'tv'}))].sort(() => Math.random() - 0.5);
                 } else {
                     let endpoint = (fTipe === 'tv') ? 'tv' : 'movie';
                     let url = `https://api.themoviedb.org/3/discover/${endpoint}?api_key=${API}&with_origin_country=ID&language=id-ID&page=${hal}`;
@@ -173,11 +167,8 @@
                     const d = await res.json();
                     hasil = (d.results || []).map(i => ({...i, m_type: fTipe === 'short' ? 'short' : endpoint}));
                 }
-
                 tampilkan(hasil);
-            } catch (e) {
-                console.error("Gagal memuat:", e);
-            }
+            } catch (e) { console.error(e); }
 
             sedangMemuat = false;
             document.getElementById('loadingBar').style.width = '100%';
@@ -187,11 +178,9 @@
         function tampilkan(data) {
             const grid = document.getElementById('gridFilm');
             if(hal === 1) grid.innerHTML = '';
-            
             data.forEach(m => {
                 if(!m.poster_path) return;
                 const tipeActual = m.m_type || (m.title ? 'movie' : 'tv');
-                
                 let bCls = tipeActual === 'tv' ? 'badge-tv' : 'badge-movie';
                 let bTxt = tipeActual === 'tv' ? 'SERIES' : 'FILM';
                 if(tipeActual === 'short') { bCls = 'badge-short'; bTxt = 'SHORT'; }
@@ -207,12 +196,10 @@
         async function bukaModal(id, tipe) {
             curId = id; curTipe = tipe;
             document.getElementById('modalFilm').style.display = 'block';
-            
             const [resID, resEN] = await Promise.all([
                 fetch(`https://api.themoviedb.org/3/${tipe}/${id}?api_key=${API}&language=id-ID&append_to_response=credits,videos`),
                 fetch(`https://api.themoviedb.org/3/${tipe}/${id}?api_key=${API}&language=en-US&append_to_response=videos`)
             ]);
-            
             const dID = await resID.json();
             const dEN = await resEN.json();
             
@@ -223,9 +210,8 @@
             document.getElementById('sinop').innerText = dID.overview || dEN.overview || "Sinopsis tidak tersedia.";
             
             const videos = [...(dID.videos?.results || []), ...(dEN.videos?.results || [])];
-            const trailer = videos.find(v => v.type === 'Trailer') || videos[0];
+            const trailer = videos.find(v => v.type === 'Trailer') || videos.find(v => v.site === 'YouTube');
             
-            // Perbaikan Autoplay yang lebih kompatibel
             if (trailer) {
                 document.getElementById('layar').src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&playlist=${trailer.key}&loop=1`;
             } else {
@@ -235,18 +221,15 @@
             const sBox = document.getElementById('seriesOption');
             if(tipe === 'tv') {
                 sBox.classList.remove('hidden');
-                let sHtml = '';
-                (dID.seasons || []).forEach(s => { if(s.season_number > 0) sHtml += `<option value="${s.season_number}">Season ${s.season_number}</option>`; });
+                let sHtml = (dID.seasons || []).filter(s => s.season_number > 0).map(s => `<option value="${s.season_number}">Season ${s.season_number}</option>`).join('');
                 document.getElementById('selSeason').innerHTML = sHtml;
                 updateEpsList();
-            } else {
-                sBox.classList.add('hidden');
-            }
+            } else { sBox.classList.add('hidden'); }
 
-            document.getElementById('castList').innerHTML = (dID.credits?.cast || []).slice(0, 10).map(c => `
-                <div class="cast-card" onclick="cariPemeran(${c.id})">
+            document.getElementById('castList').innerHTML = (dID.credits?.cast || []).slice(0, 15).map(c => `
+                <div class="cast-card" onclick="cariPemeran(${c.id}, '${c.name.replace(/'/g, "\\'")}')">
                     <img class="cast-img" src="${c.profile_path ? 'https://image.tmdb.org/t/p/w200'+c.profile_path : 'https://via.placeholder.com/100'}">
-                    <p class="text-[7px] font-bold text-gray-300">${c.name}</p>
+                    <p class="text-[7px] font-bold text-gray-300 leading-tight">${c.name}</p>
                 </div>
             `).join('');
 
@@ -255,7 +238,6 @@
                 st('SERVER 1 (UTAMA)', `https://vidsrc.xyz/embed/${tipe}/${id}`) + 
                 st('SERVER 2 (CADANGAN)', `https://vidsrc.to/embed/${tipe}/${id}`) +
                 st('SERVER 3 (ALTERNATIF)', `https://vidsrc.me/embed/${tipe}/${id}`);
-            
             document.getElementById('btnDown').innerHTML = `<a href="https://dl.vidsrc.vip/${tipe}/${id}" target="_blank" class="btn-gray"><span>DOWNLOAD VIP</span> <i class="fa-solid fa-download"></i></a>`;
         }
 
@@ -263,26 +245,28 @@
             const sNum = document.getElementById('selSeason').value;
             const res = await fetch(`https://api.themoviedb.org/3/tv/${curId}/season/${sNum}?api_key=${API}&language=id-ID`);
             const d = await res.json();
-            let eHtml = '';
-            (d.episodes || []).forEach(e => { eHtml += `<option value="${e.episode_number}">Eps ${e.episode_number}: ${e.name}</option>`; });
-            document.getElementById('selEps').innerHTML = eHtml;
+            document.getElementById('selEps').innerHTML = (d.episodes || []).map(e => `<option value="${e.episode_number}">Eps ${e.episode_number}: ${e.name}</option>`).join('');
             playEps();
         }
 
         function playEps() {
-            const s = document.getElementById('selSeason').value;
-            const e = document.getElementById('selEps').value;
+            const s = document.getElementById('selSeason').value, e = document.getElementById('selEps').value;
             document.getElementById('layar').src = `https://vidsrc.xyz/embed/tv/${curId}/${s}/${e}?autoplay=1&mute=1`;
         }
 
-        async function cariPemeran(pId) {
+        // AKURASI PEMERAN: Benar-benar hanya karya pemeran tersebut
+        async function cariPemeran(pId, pNama) {
             tutupModal();
+            document.getElementById('inputCari').value = pNama;
             const res = await fetch(`https://api.themoviedb.org/3/person/${pId}/combined_credits?api_key=${API}&language=id-ID`);
             const d = await res.json();
-            const hasil = (d.cast || []).filter(m => m.original_language === 'id' || (m.origin_country && m.origin_country.includes('ID')));
+            // Filter agar hanya film Indonesia (ID) dari pemeran tersebut
+            const hasil = (d.cast || []).filter(m => (m.original_language === 'id') || (m.origin_country && m.origin_country.includes('ID')));
             hal = 1; tampilkan(hasil);
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
+        // AKURASI PENCARIAN: Harus mengandung kata kunci di judul
         async function cariFilm() {
             const q = document.getElementById('inputCari').value; if(!q) return;
             const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API}&query=${encodeURIComponent(q)}&language=id-ID`);
@@ -290,14 +274,14 @@
             const hasil = (d.results || []).filter(m => {
                 const jdl = (m.title || m.name || '').toLowerCase();
                 const oriID = (m.original_language === 'id') || (m.origin_country && m.origin_country.includes('ID'));
-                return jdl.includes(q.toLowerCase()) && oriID;
+                // Pengecekan kata kunci di dalam judul + Harus Indonesia
+                return jdl.includes(q.toLowerCase()) && oriID && m.media_type !== 'person';
             });
             hal = 1; tampilkan(hasil);
         }
 
         function updateFilter(t, v, el) {
-            const p = t === 'tipe' ? 'tipePills' : (t === 'genre' ? 'genrePills' : 'tahunPills');
-            document.querySelectorAll(`#${p} .pill`).forEach(i => i.classList.remove('active'));
+            document.querySelectorAll(`#${t === 'tipe' ? 'tipePills' : (t === 'genre' ? 'genrePills' : 'tahunPills')} .pill`).forEach(i => i.classList.remove('active'));
             el.classList.add('active');
             if(t==='tipe') fTipe=v; else if(t==='genre') fGenre=v; else fTahun=v;
             hal = 1; memuatFilm();
@@ -318,11 +302,10 @@
 
         function tutupModal() { document.getElementById('modalFilm').style.display='none'; document.getElementById('layar').src=''; }
         function loadLagi() { hal++; memuatFilm(); }
-        
         window.onscroll = () => { 
             const btt = document.getElementById('backToTop');
-            if (window.scrollY > 400) { btt.style.display = 'block'; } else { btt.style.display = 'none'; }
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 600 && !sedangMemuat) loadLagi(); 
+            if (window.scrollY > 400) btt.style.display = 'block'; else btt.style.display = 'none';
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800 && !sedangMemuat) loadLagi(); 
         };
     </script>
 </body>
