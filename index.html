@@ -53,6 +53,14 @@
         .history-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 8px 12px; scrollbar-width: none; background: #000; border-bottom: 1px solid #111; }
         .hist-item { flex: 0 0 45px; aspect-ratio: 2/3; border-radius: 4px; overflow: hidden; border: 1px solid #333; cursor: pointer; }
 
+        /* KEMBALIKAN: Tombol Back to Top */
+        #backToTop {
+            display: none; position: fixed; bottom: 20px; right: 20px;
+            width: 45px; height: 45px; background: #e11d48; color: white;
+            border-radius: 50%; border: none; z-index: 150; cursor: pointer; font-size: 18px;
+            box-shadow: 0 4px 15px rgba(225, 29, 72, 0.4);
+        }
+
         .modal { display: none; position: fixed; inset: 0; z-index: 100; background: black; overflow-y: auto; }
         .modal-box { min-height: 100vh; background: #080808; padding: 15px 15px 50px 15px; padding-top: 50px; }
         
@@ -63,11 +71,13 @@
         .selector-box { background: #1a1a1a; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333; }
         select { background: #000; color: white; border: 1px solid #444; padding: 8px; border-radius: 5px; font-size: 11px; width: 100%; outline: none; margin-top: 5px; }
 
-        .btn-red { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px; margin-bottom: 8px; background: #e11d48; color: white; border-radius: 8px; font-size: 10px; font-weight: 800; border: none; text-decoration: none; }
-        .btn-gray { background: #333; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px; margin-bottom: 8px; color: white; border-radius: 8px; font-size: 10px; font-weight: 800; border: none; text-decoration: none; }
+        .btn-red { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px; margin-bottom: 8px; background: #e11d48; color: white; border-radius: 8px; font-size: 10px; font-weight: 800; border: none; text-decoration: none; cursor: pointer; }
+        .btn-gray { background: #333; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px; margin-bottom: 8px; color: white; border-radius: 8px; font-size: 10px; font-weight: 800; border: none; text-decoration: none; cursor: pointer; }
     </style>
 </head>
 <body>
+
+    <button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"><i class="fa-solid fa-arrow-up"></i></button>
 
     <nav class="nav-fixed">
         <div id="loadingBar"></div>
@@ -172,7 +182,6 @@
             curId = id; curTipe = tipe;
             document.getElementById('modalFilm').style.display = 'block';
             
-            // Ambil data dalam bahasa Indonesia & Inggris sekaligus (untuk backup sinopsis/trailer)
             const [resID, resEN] = await Promise.all([
                 fetch(`https://api.themoviedb.org/3/${tipe}/${id}?api_key=${API}&language=id-ID&append_to_response=credits,videos`),
                 fetch(`https://api.themoviedb.org/3/${tipe}/${id}?api_key=${API}&language=en-US&append_to_response=videos`)
@@ -182,23 +191,18 @@
             const dEN = await resEN.json();
             
             document.getElementById('jdl').innerText = dID.title || dID.name;
-            
-            // Update Info Bar (Tahun + Rating + Genre)
             const thn = (dID.release_date || dID.first_air_date || '').split('-')[0];
             const gnr = dID.genres.map(g => g.name).join(', ');
             document.getElementById('inf').innerText = `${thn} • ⭐ ${dID.vote_average.toFixed(1)} • ${gnr}`;
-            
-            // Backup Sinopsis
             document.getElementById('sinop').innerText = dID.overview || dEN.overview || "Sinopsis tidak tersedia.";
             
-            // Trailer Fix (Cek ID dulu, kalau tidak ada cek EN) + Autoplay
             const videos = [...dID.videos.results, ...dEN.videos.results];
             const trailer = videos.find(v => v.type === 'Trailer') || videos[0];
             
+            // FIX: Autoplay dengan parameter lebih lengkap
             if (trailer) {
-                document.getElementById('layar').src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1`;
+                document.getElementById('layar').src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&rel=0&showinfo=0&enablejsapi=1`;
             } else {
-                // Jika tidak ada trailer sama sekali, tampilkan Server 1
                 document.getElementById('layar').src = `https://vidsrc.xyz/embed/${tipe}/${id}`;
             }
 
@@ -221,7 +225,13 @@
             `).join('');
 
             const st = (n, l) => `<button onclick="document.getElementById('layar').src='${l}'" class="btn-red"><span>${n}</span> <i class="fa-solid fa-play"></i></button>`;
-            document.getElementById('btnStream').innerHTML = st('SERVER 1', `https://vidsrc.xyz/embed/${tipe}/${id}`) + st('SERVER 2', `https://vidsrc.to/embed/${tipe}/${id}`);
+            
+            // KEMBALIKAN: Link Streaming Hilang 1 (Total 3 Server)
+            document.getElementById('btnStream').innerHTML = 
+                st('SERVER 1 (UTAMA)', `https://vidsrc.xyz/embed/${tipe}/${id}`) + 
+                st('SERVER 2 (CADANGAN)', `https://vidsrc.to/embed/${tipe}/${id}`) +
+                st('SERVER 3 (ALTERNATIF)', `https://vidsrc.me/embed/${tipe}/${id}`);
+            
             document.getElementById('btnDown').innerHTML = `<a href="https://dl.vidsrc.vip/${tipe}/${id}" target="_blank" class="btn-gray"><span>DOWNLOAD VIP</span> <i class="fa-solid fa-download"></i></a>`;
         }
 
@@ -280,7 +290,12 @@
 
         function tutupModal() { document.getElementById('modalFilm').style.display='none'; document.getElementById('layar').src=''; }
         function loadLagi() { hal++; memuatFilm(); }
-        window.onscroll = () => { if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 600 && !sedangMemuat) loadLagi(); };
+        
+        window.onscroll = () => { 
+            const btt = document.getElementById('backToTop');
+            if (window.scrollY > 400) { btt.style.display = 'block'; } else { btt.style.display = 'none'; }
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 600 && !sedangMemuat) loadLagi(); 
+        };
     </script>
 </body>
 </html>
