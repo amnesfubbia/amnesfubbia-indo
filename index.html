@@ -50,10 +50,6 @@
         .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s; }
         .card img.loaded { opacity: 1; }
 
-        .history-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 8px 12px; scrollbar-width: none; background: #000; border-bottom: 1px solid #111; }
-        .hist-item { flex: 0 0 45px; aspect-ratio: 2/3; border-radius: 4px; overflow: hidden; border: 1px solid #333; cursor: pointer; }
-
-        /* KEMBALIKAN: Tombol Back to Top */
         #backToTop {
             display: none; position: fixed; bottom: 20px; right: 20px;
             width: 45px; height: 45px; background: #e11d48; color: white;
@@ -73,6 +69,9 @@
 
         .btn-red { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px; margin-bottom: 8px; background: #e11d48; color: white; border-radius: 8px; font-size: 10px; font-weight: 800; border: none; text-decoration: none; cursor: pointer; }
         .btn-gray { background: #333; display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px; margin-bottom: 8px; color: white; border-radius: 8px; font-size: 10px; font-weight: 800; border: none; text-decoration: none; cursor: pointer; }
+        
+        .history-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 8px 12px; scrollbar-width: none; background: #000; border-bottom: 1px solid #111; }
+        .hist-item { flex: 0 0 45px; aspect-ratio: 2/3; border-radius: 4px; overflow: hidden; border: 1px solid #333; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -85,7 +84,7 @@
             <div class="flex items-center gap-2 mb-3">
                 <div onclick="location.reload()" class="cursor-pointer shrink-0 uppercase font-black italic text-sm">AMNESFUBBIA<span class="text-red-600">FILM</span></div>
                 <div class="relative w-full">
-                    <input type="text" id="inputCari" class="search-input" placeholder="Cari Judul / Pemeran..." onkeyup="if(event.key==='Enter') cariFilm()">
+                    <input type="text" id="inputCari" class="search-input" placeholder="Cari Judul (Contoh: Cinta)..." onkeyup="if(event.key==='Enter') cariFilm()">
                 </div>
             </div>
             
@@ -118,7 +117,7 @@
             <p id="inf" class="text-[10px] text-gray-400 font-bold mb-4"></p>
             
             <div class="aspect-video bg-black rounded-lg overflow-hidden mb-4 border border-white/10">
-                <iframe id="layar" class="w-full h-full" allowfullscreen></iframe>
+                <iframe id="layar" class="w-full h-full" allow="autoplay; fullscreen" allowfullscreen></iframe>
             </div>
 
             <div id="seriesOption" class="hidden selector-box">
@@ -147,32 +146,59 @@
             if (sedangMemuat) return; sedangMemuat = true;
             document.getElementById('loadingBar').style.width = '50%';
             
-            let url = `https://api.themoviedb.org/3/discover/${(fTipe==='tv')?'tv':'movie'}?api_key=${API}&with_origin_country=ID&language=id-ID&page=${hal}`;
-            if(fTipe === 'short') url += '&with_runtime.lte=45';
-            if(fGenre) url += `&with_genres=${fGenre}`;
-            if(fTahun) url += (fTipe==='tv'?'&first_air_date_year=':'&primary_release_year=')+fTahun;
+            let hasil = [];
+            
+            try {
+                if (fTipe === 'multi') {
+                    // Ambil gabungan Film & TV secara paralel untuk mode SEMUA
+                    const [resM, resT] = await Promise.all([
+                        fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API}&with_origin_country=ID&language=id-ID&page=${hal}${fGenre?`&with_genres=${fGenre}`:''}${fTahun?`&primary_release_year=${fTahun}`:''}`),
+                        fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API}&with_origin_country=ID&language=id-ID&page=${hal}${fGenre?`&with_genres=${fGenre}`:''}${fTahun?`&first_air_date_year=${fTahun}`:''}`)
+                    ]);
+                    const dM = await resM.json();
+                    const dT = await resT.json();
+                    
+                    // Campur hasil Film dan TV
+                    const movies = (dM.results || []).map(i => ({...i, m_type: 'movie'}));
+                    const tvs = (dT.results || []).map(i => ({...i, m_type: 'tv'}));
+                    hasil = [...movies, ...tvs].sort(() => Math.random() - 0.5);
+                } else {
+                    let endpoint = (fTipe === 'tv') ? 'tv' : 'movie';
+                    let url = `https://api.themoviedb.org/3/discover/${endpoint}?api_key=${API}&with_origin_country=ID&language=id-ID&page=${hal}`;
+                    if(fTipe === 'short') url += '&with_runtime.lte=45';
+                    if(fGenre) url += `&with_genres=${fGenre}`;
+                    if(fTahun) url += (fTipe==='tv'?'&first_air_date_year=':'&primary_release_year=')+fTahun;
+                    
+                    const res = await fetch(url);
+                    const d = await res.json();
+                    hasil = (d.results || []).map(i => ({...i, m_type: fTipe === 'short' ? 'short' : endpoint}));
+                }
 
-            const res = await fetch(url);
-            const d = await res.json();
-            tampilkan(d.results, fTipe);
+                tampilkan(hasil);
+            } catch (e) {
+                console.error("Gagal memuat:", e);
+            }
+
             sedangMemuat = false;
             document.getElementById('loadingBar').style.width = '100%';
             setTimeout(()=>document.getElementById('loadingBar').style.width='0', 300);
         }
 
-        function tampilkan(data, filter) {
+        function tampilkan(data) {
             const grid = document.getElementById('gridFilm');
             if(hal === 1) grid.innerHTML = '';
+            
             data.forEach(m => {
                 if(!m.poster_path) return;
-                const tipeItem = m.title ? 'movie' : 'tv';
-                let bCls = tipeItem === 'movie' ? 'badge-movie' : 'badge-tv';
-                let bTxt = tipeItem === 'movie' ? 'FILM' : 'SERIES';
-                if(filter === 'short') { bCls = 'badge-short'; bTxt = 'SHORT'; }
+                const tipeActual = m.m_type || (m.title ? 'movie' : 'tv');
+                
+                let bCls = tipeActual === 'tv' ? 'badge-tv' : 'badge-movie';
+                let bTxt = tipeActual === 'tv' ? 'SERIES' : 'FILM';
+                if(tipeActual === 'short') { bCls = 'badge-short'; bTxt = 'SHORT'; }
 
                 const k = document.createElement('div');
                 k.className = 'card';
-                k.onclick = () => { saveHistory(m.id, tipeItem, m.poster_path); bukaModal(m.id, tipeItem); };
+                k.onclick = () => { saveHistory(m.id, (tipeActual === 'short' ? 'movie' : tipeActual), m.poster_path); bukaModal(m.id, (tipeActual === 'short' ? 'movie' : tipeActual)); };
                 k.innerHTML = `<div class="badge ${bCls}">${bTxt}</div><img src="https://image.tmdb.org/t/p/w500${m.poster_path}" onload="this.classList.add('loaded')">`;
                 grid.appendChild(k);
             });
@@ -196,12 +222,12 @@
             document.getElementById('inf').innerText = `${thn} • ⭐ ${dID.vote_average.toFixed(1)} • ${gnr}`;
             document.getElementById('sinop').innerText = dID.overview || dEN.overview || "Sinopsis tidak tersedia.";
             
-            const videos = [...dID.videos.results, ...dEN.videos.results];
+            const videos = [...(dID.videos?.results || []), ...(dEN.videos?.results || [])];
             const trailer = videos.find(v => v.type === 'Trailer') || videos[0];
             
-            // FIX: Autoplay dengan parameter lebih lengkap
+            // Perbaikan Autoplay yang lebih kompatibel
             if (trailer) {
-                document.getElementById('layar').src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&rel=0&showinfo=0&enablejsapi=1`;
+                document.getElementById('layar').src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&playlist=${trailer.key}&loop=1`;
             } else {
                 document.getElementById('layar').src = `https://vidsrc.xyz/embed/${tipe}/${id}`;
             }
@@ -210,14 +236,14 @@
             if(tipe === 'tv') {
                 sBox.classList.remove('hidden');
                 let sHtml = '';
-                dID.seasons.forEach(s => { if(s.season_number > 0) sHtml += `<option value="${s.season_number}">Season ${s.season_number}</option>`; });
+                (dID.seasons || []).forEach(s => { if(s.season_number > 0) sHtml += `<option value="${s.season_number}">Season ${s.season_number}</option>`; });
                 document.getElementById('selSeason').innerHTML = sHtml;
                 updateEpsList();
             } else {
                 sBox.classList.add('hidden');
             }
 
-            document.getElementById('castList').innerHTML = dID.credits.cast.slice(0, 10).map(c => `
+            document.getElementById('castList').innerHTML = (dID.credits?.cast || []).slice(0, 10).map(c => `
                 <div class="cast-card" onclick="cariPemeran(${c.id})">
                     <img class="cast-img" src="${c.profile_path ? 'https://image.tmdb.org/t/p/w200'+c.profile_path : 'https://via.placeholder.com/100'}">
                     <p class="text-[7px] font-bold text-gray-300">${c.name}</p>
@@ -225,8 +251,6 @@
             `).join('');
 
             const st = (n, l) => `<button onclick="document.getElementById('layar').src='${l}'" class="btn-red"><span>${n}</span> <i class="fa-solid fa-play"></i></button>`;
-            
-            // KEMBALIKAN: Link Streaming Hilang 1 (Total 3 Server)
             document.getElementById('btnStream').innerHTML = 
                 st('SERVER 1 (UTAMA)', `https://vidsrc.xyz/embed/${tipe}/${id}`) + 
                 st('SERVER 2 (CADANGAN)', `https://vidsrc.to/embed/${tipe}/${id}`) +
@@ -240,7 +264,7 @@
             const res = await fetch(`https://api.themoviedb.org/3/tv/${curId}/season/${sNum}?api_key=${API}&language=id-ID`);
             const d = await res.json();
             let eHtml = '';
-            d.episodes.forEach(e => { eHtml += `<option value="${e.episode_number}">Eps ${e.episode_number}: ${e.name}</option>`; });
+            (d.episodes || []).forEach(e => { eHtml += `<option value="${e.episode_number}">Eps ${e.episode_number}: ${e.name}</option>`; });
             document.getElementById('selEps').innerHTML = eHtml;
             playEps();
         }
@@ -255,16 +279,20 @@
             tutupModal();
             const res = await fetch(`https://api.themoviedb.org/3/person/${pId}/combined_credits?api_key=${API}&language=id-ID`);
             const d = await res.json();
-            const hasil = d.cast.filter(m => m.original_language === 'id' || (m.origin_country && m.origin_country.includes('ID')));
-            hal = 1; tampilkan(hasil, 'multi');
+            const hasil = (d.cast || []).filter(m => m.original_language === 'id' || (m.origin_country && m.origin_country.includes('ID')));
+            hal = 1; tampilkan(hasil);
         }
 
         async function cariFilm() {
             const q = document.getElementById('inputCari').value; if(!q) return;
             const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API}&query=${encodeURIComponent(q)}&language=id-ID`);
             const d = await res.json();
-            const hasil = d.results.filter(m => (m.original_language === 'id') || (m.origin_country && m.origin_country.includes('ID')));
-            hal = 1; tampilkan(hasil, 'multi');
+            const hasil = (d.results || []).filter(m => {
+                const jdl = (m.title || m.name || '').toLowerCase();
+                const oriID = (m.original_language === 'id') || (m.origin_country && m.origin_country.includes('ID'));
+                return jdl.includes(q.toLowerCase()) && oriID;
+            });
+            hal = 1; tampilkan(hasil);
         }
 
         function updateFilter(t, v, el) {
