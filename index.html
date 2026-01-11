@@ -43,6 +43,11 @@
         .story-border { padding: 2.5px; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); border-radius: 50%; display: inline-block; }
         .story-inner { background: #000; padding: 2px; border-radius: 50%; }
         .story-img { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; display: block; }
+        
+        /* Style tambahan untuk Grid Download Series */
+        .download-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px; }
+        .dl-item { background: #1c1c1c; border: 1px solid #333; color: #fff; font-size: 10px; font-weight: 700; padding: 10px 0; border-radius: 8px; text-align: center; cursor: pointer; }
+        .dl-item:active { background: #fff; color: #000; }
 
         @keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
@@ -127,11 +132,11 @@
                         <select id="seasonSel" class="bg-zinc-900 text-white text-[10px] font-bold p-3 rounded-xl" onchange="loadEpisodes()"></select>
                         <select id="episodeSel" class="bg-zinc-900 text-white text-[10px] font-bold p-3 rounded-xl" onchange="playEpisode()"></select>
                     </div>
-                    <button id="btnDownloadSeries" class="server-btn border-zinc-800 text-zinc-100 bg-zinc-900 w-full"><i class="fa-solid fa-download mr-2"></i> Download Episode Ini</button>
+                    <h4 class="text-[8px] font-black text-zinc-600 uppercase mb-2">Download Episode</h4>
+                    <div id="downloadGrid" class="download-grid"></div>
                 </div>
 
                 <div id="serverList" class="grid grid-cols-2 gap-2 mt-4"></div>
-                
                 <button id="btnDownloadMain" class="server-btn border-zinc-800 text-zinc-400 mt-4"><i class="fa-solid fa-download mr-2"></i> Download Sinema</button>
             </div>
         </div>
@@ -274,9 +279,20 @@
 
         async function loadEpisodes() {
             const s = document.getElementById('seasonSel').value;
-            const res = await fetch(`https://api.themoviedb.org/3/tv/${window.currentMediaId}/season/${s}?api_key=${API_KEY}`);
+            const id = window.currentMediaId;
+            const res = await fetch(`https://api.themoviedb.org/3/tv/${id}/season/${s}?api_key=${API_KEY}`);
             const d = await res.json();
+            
+            // Render Dropdown Episode untuk Player
             document.getElementById('episodeSel').innerHTML = (d.episodes||[]).map(e => `<option value="${e.episode_number}">EPISODE ${e.episode_number}</option>`).join('');
+            
+            // Render Grid Angka Episode untuk Download
+            document.getElementById('downloadGrid').innerHTML = (d.episodes||[]).map(e => `
+                <div class="dl-item" onclick="window.open('https://dl.vidsrc.vip/tv/${id}/${s}/${e.episode_number}', '_blank')">
+                    ${e.episode_number}
+                </div>
+            `).join('');
+            
             playEpisode();
         }
 
@@ -289,8 +305,6 @@
                 <button class="server-btn bg-zinc-950 text-zinc-400" onclick="document.getElementById('videoPlayer').src='https://vidrock.net/embed/tv/${id}/${s}/${e}'">Server 1</button>
                 <button class="server-btn bg-zinc-950 text-zinc-400" onclick="document.getElementById('videoPlayer').src='https://vidstorm.ru/embed/tv/${id}/${s}/${e}'">Server 2</button>
             `;
-            // Link download khusus series tepat di bawah episode
-            document.getElementById('btnDownloadSeries').onclick = () => window.open(`https://dl.vidsrc.vip/tv/${id}/${s}/${e}`, '_blank');
         }
 
         function closeModal() { document.getElementById('movieModal').style.display = 'none'; document.getElementById('videoPlayer').src = ''; document.body.style.overflow = 'auto'; }
