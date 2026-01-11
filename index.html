@@ -19,8 +19,11 @@
         .year-item { padding: 12px; font-size: 11px; font-weight: 600; text-align: center; border-bottom: 1px solid #1c1c1c; color: #888; cursor: pointer; }
         .category-wrapper { padding: 5px 15px 12px 15px; }
         .pill-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-        .pill { background: transparent; border: 1px solid #1c1c1c; color: #fff; padding: 8px 0; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; }
-        .pill.active { background: #fff; color: #000; border-color: #fff; }
+        
+        /* PERBAIKAN STYLE PILL SESUAI PERMINTAAN */
+        .pill { background: transparent; border: 1px solid #1c1c1c; color: #fff; padding: 8px 0; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; transition: border-color 0.2s; }
+        .pill.active { background: transparent; color: #fff; border-color: #fff; }
+        
         .highlights-section { padding: 15px 0; border-bottom: 1px solid #1c1c1c; background: #000; }
         .highlights-container { display: flex; gap: 15px; overflow-x: auto; padding: 0 15px; scrollbar-width: none; }
         .highlight-item { flex: 0 0 75px; text-align: center; cursor: pointer; }
@@ -44,7 +47,6 @@
         .story-inner { background: #000; padding: 2px; border-radius: 50%; }
         .story-img { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; display: block; }
         
-        /* Style tambahan untuk Grid Download Series */
         .download-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px; }
         .dl-item { background: #1c1c1c; border: 1px solid #333; color: #fff; font-size: 10px; font-weight: 700; padding: 10px 0; border-radius: 8px; text-align: center; cursor: pointer; }
         .dl-item:active { background: #fff; color: #000; }
@@ -282,17 +284,12 @@
             const id = window.currentMediaId;
             const res = await fetch(`https://api.themoviedb.org/3/tv/${id}/season/${s}?api_key=${API_KEY}`);
             const d = await res.json();
-            
-            // Render Dropdown Episode untuk Player
             document.getElementById('episodeSel').innerHTML = (d.episodes||[]).map(e => `<option value="${e.episode_number}">EPISODE ${e.episode_number}</option>`).join('');
-            
-            // Render Grid Angka Episode untuk Download
             document.getElementById('downloadGrid').innerHTML = (d.episodes||[]).map(e => `
                 <div class="dl-item" onclick="window.open('https://dl.vidsrc.vip/tv/${id}/${s}/${e.episode_number}', '_blank')">
                     ${e.episode_number}
                 </div>
             `).join('');
-            
             playEpisode();
         }
 
