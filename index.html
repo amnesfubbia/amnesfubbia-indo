@@ -121,14 +121,18 @@
                     <h4 class="text-[9px] font-black text-zinc-600 uppercase mb-2">Pemeran Utama</h4>
                     <div id="mCast" class="flex gap-4 overflow-x-auto no-scrollbar py-2"></div>
                 </div>
+                
                 <div id="seriesControl" class="hidden mb-6 p-4 bg-zinc-950 rounded-2xl border border-zinc-900">
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
                         <select id="seasonSel" class="bg-zinc-900 text-white text-[10px] font-bold p-3 rounded-xl" onchange="loadEpisodes()"></select>
                         <select id="episodeSel" class="bg-zinc-900 text-white text-[10px] font-bold p-3 rounded-xl" onchange="playEpisode()"></select>
                     </div>
+                    <button id="btnDownloadSeries" class="server-btn border-zinc-800 text-zinc-100 bg-zinc-900 w-full"><i class="fa-solid fa-download mr-2"></i> Download Episode Ini</button>
                 </div>
+
                 <div id="serverList" class="grid grid-cols-2 gap-2 mt-4"></div>
-                <button id="btnDownload" class="server-btn border-zinc-800 text-zinc-400 mt-4"><i class="fa-solid fa-download mr-2"></i> Download Sinema</button>
+                
+                <button id="btnDownloadMain" class="server-btn border-zinc-800 text-zinc-400 mt-4"><i class="fa-solid fa-download mr-2"></i> Download Sinema</button>
             </div>
         </div>
     </div>
@@ -214,7 +218,7 @@
             window.currentMediaId = id;
             window.currentMediaType = type;
             
-            const actualType = (type === 'short') ? 'movie' : type;
+            const actualType = (type === 'short' || type === 'movie') ? 'movie' : 'tv';
 
             try {
                 const [resId, resEn] = await Promise.all([
@@ -227,14 +231,13 @@
                 document.getElementById('mMeta').innerText = `${(d.release_date||d.first_air_date||'').split('-')[0]} // ${type.toUpperCase()}`;
                 document.getElementById('mDesc').innerText = d.overview || dEn.overview || "Sinopsis tidak tersedia.";
                 
-                // Logic Trailer: Jika SHORT, langsung putar film. Jika MOVIE/TV cari trailer.
                 const allVideos = [...(d.videos?.results || []), ...(dEn.videos?.results || [])];
                 const trailer = allVideos.find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser'));
                 
                 if(type === 'short') {
                     document.getElementById('videoPlayer').src = `https://vidrock.net/embed/movie/${id}`;
-                } else {
-                    document.getElementById('videoPlayer').src = trailer ? `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=0&rel=0` : `https://vidrock.net/embed/${actualType}/${id}`;
+                } else if(type === 'movie') {
+                    document.getElementById('videoPlayer').src = trailer ? `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=0&rel=0` : `https://vidrock.net/embed/movie/${id}`;
                 }
 
                 document.getElementById('mCast').innerHTML = (d.credits?.cast || []).slice(0, 10).map(c => `
@@ -248,18 +251,19 @@
 
                 if(type === 'tv') {
                     document.getElementById('seriesControl').classList.remove('hidden');
+                    document.getElementById('btnDownloadMain').classList.add('hidden');
                     document.getElementById('seasonSel').innerHTML = (d.seasons || []).filter(s=>s.season_number > 0).map(s=>`<option value="${s.season_number}">SEASON ${s.season_number}</option>`).join('');
                     loadEpisodes();
                 } else {
                     document.getElementById('seriesControl').classList.add('hidden');
+                    document.getElementById('btnDownloadMain').classList.remove('hidden');
                     document.getElementById('serverList').innerHTML = `
                         <button class="server-btn bg-zinc-950 text-zinc-400" onclick="document.getElementById('videoPlayer').src='https://vidrock.net/embed/movie/${id}'">Server 1</button>
                         <button class="server-btn bg-zinc-950 text-zinc-400" onclick="document.getElementById('videoPlayer').src='https://vidstorm.ru/embed/movie/${id}'">Server 2</button>
                     `;
-                    document.getElementById('btnDownload').onclick = () => window.open(`https://dl.vidsrc.vip/movie/${id}`, '_blank');
+                    document.getElementById('btnDownloadMain').onclick = () => window.open(`https://dl.vidsrc.vip/movie/${id}`, '_blank');
                 }
 
-                // Tombol Like & Bookmark Fix
                 const mData = {id: d.id, poster_path: d.poster_path, m_type: type, vote_average: d.vote_average};
                 document.getElementById('btnLikeModal').onclick = () => toggleItem('likes', mData);
                 document.getElementById('btnBookModal').onclick = () => toggleItem('bookmarks', mData);
@@ -285,7 +289,8 @@
                 <button class="server-btn bg-zinc-950 text-zinc-400" onclick="document.getElementById('videoPlayer').src='https://vidrock.net/embed/tv/${id}/${s}/${e}'">Server 1</button>
                 <button class="server-btn bg-zinc-950 text-zinc-400" onclick="document.getElementById('videoPlayer').src='https://vidstorm.ru/embed/tv/${id}/${s}/${e}'">Server 2</button>
             `;
-            document.getElementById('btnDownload').onclick = () => window.open(`https://dl.vidsrc.vip/tv/${id}/${s}/${e}`, '_blank');
+            // Link download khusus series tepat di bawah episode
+            document.getElementById('btnDownloadSeries').onclick = () => window.open(`https://dl.vidsrc.vip/tv/${id}/${s}/${e}`, '_blank');
         }
 
         function closeModal() { document.getElementById('movieModal').style.display = 'none'; document.getElementById('videoPlayer').src = ''; document.body.style.overflow = 'auto'; }
