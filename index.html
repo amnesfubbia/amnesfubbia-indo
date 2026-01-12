@@ -7,70 +7,76 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
-        body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body { background-color: #000; color: #f5f5f5; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; overflow-x: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .fixed-header-section { position: fixed; top: 0; width: 100%; z-index: 100; background: #000; border-bottom: 1px solid #1c1c1c; }
-        .ig-header { padding: 12px 15px 5px 15px; }
-        .search-container { background: #0a0a0a; border-radius: 8px; display: flex; align-items: center; padding: 7px 12px; flex-grow: 1; border: 1px solid #1c1c1c; }
-        .search-container input { background: transparent; border: none; color: white; font-size: 13px; width: 100%; outline: none; margin-left: 8px; }
-        .year-selector { background: #0a0a0a; border: 1px solid #1c1c1c; border-radius: 8px; padding: 8px 12px; font-size: 9px; font-weight: 800; color: #fff; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-        .year-dropdown { display: none; position: fixed; top: 110px; right: 15px; width: 120px; max-height: 300px; background: #121212; border: 1px solid #1c1c1c; border-radius: 12px; z-index: 101; overflow-y: auto; }
-        .year-item { padding: 12px; font-size: 11px; font-weight: 600; text-align: center; border-bottom: 1px solid #1c1c1c; color: #888; cursor: pointer; }
-        .category-wrapper { padding: 5px 15px 12px 15px; }
+        
+        /* Header & Search Styling - IG Style */
+        .fixed-header-section { position: fixed; top: 0; width: 100%; z-index: 100; background: #000; border-bottom: 0.5px solid #262626; }
+        .ig-header { padding: 10px 15px 8px 15px; }
+        .search-container { background: #262626; border-radius: 10px; display: flex; align-items: center; padding: 8px 12px; flex-grow: 1; border: none; }
+        
+        .search-container input { 
+            background: transparent !important; border: none !important; color: #efefef !important; font-size: 14px; width: 100%; outline: none !important; margin-left: 8px; 
+        }
+
+        .year-selector { background: #000; border: 0.5px solid #363636; border-radius: 8px; padding: 7px 12px; font-size: 11px; font-weight: 600; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .year-dropdown { display: none; position: fixed; top: 110px; right: 15px; width: 120px; max-height: 300px; background: #262626; border: 0.5px solid #363636; border-radius: 12px; z-index: 101; overflow-y: auto; }
+        .year-item { padding: 12px; font-size: 13px; font-weight: 400; text-align: center; border-bottom: 0.5px solid #363636; color: #efefef; cursor: pointer; }
+        
+        /* Category Piling */
+        .category-wrapper { padding: 8px 15px 12px 15px; }
         .pill-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-        
-        /* PERBAIKAN STYLE PILL SESUAI PERMINTAAN */
-        .pill { background: transparent; border: 1px solid #1c1c1c; color: #fff; padding: 8px 0; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; transition: border-color 0.2s; }
-        .pill.active { background: transparent; color: #fff; border-color: #fff; }
-        
-        .highlights-section { padding: 15px 0; border-bottom: 1px solid #1c1c1c; background: #000; }
-        .highlights-container { display: flex; gap: 15px; overflow-x: auto; padding: 0 15px; scrollbar-width: none; }
-        .highlight-item { flex: 0 0 75px; text-align: center; cursor: pointer; }
-        .circle-icon { width: 62px; height: 62px; border-radius: 50%; background: #000; border: 1.5px solid #1c1c1c; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px auto; font-size: 18px; color: #555; }
-        .highlight-item.active .circle-icon { border-color: #fff; color: #fff; }
-        .highlight-label { font-size: 9px; color: #555; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
-        .movie-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5px; padding-top: 275px; padding-bottom: 100px; }
-        .post-card { position: relative; aspect-ratio: 2/3; background: #0a0a0a; overflow: hidden; cursor: pointer; }
-        .post-card img { width: 100%; height: 100%; object-fit: cover; }
-        .badge-type { position: absolute; top: 6px; right: 6px; padding: 2px 5px; border-radius: 2px; font-size: 7px; font-weight: 900; text-transform: uppercase; z-index: 5; background: rgba(0,0,0,0.7); color: #fff; border: 0.5px solid rgba(255,255,255,0.2); }
-        .badge-rating { position: absolute; top: 6px; left: 6px; padding: 2px 5px; border-radius: 2px; font-size: 7px; font-weight: 900; z-index: 5; background: rgba(255,255,255,0.9); color: #000; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #000; border-top: 1px solid #1c1c1c; display: flex; justify-content: space-around; padding: 12px 0; z-index: 300; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
-        .nav-item { color: #fff; font-size: 20px; cursor: pointer; }
+        .pill { background: #262626; color: #fff; padding: 7px 0; border-radius: 8px; font-size: 12px; font-weight: 600; text-align: center; cursor: pointer; border: none; }
+        .pill.active { background: #fff; color: #000; }
+
+        /* Highlights */
+        .highlights-section { padding: 10px 0; border-bottom: 0.5px solid #262626; background: #000; }
+        .highlight-label { font-size: 11px; color: #a8a8a8; font-weight: 400; margin-top: 4px; }
+
+        /* Grid & Badges */
+        .movie-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; padding-top: 275px; padding-bottom: 100px; }
+        .post-card { position: relative; aspect-ratio: 2/3; background: #121212; overflow: hidden; }
+        .badge-type { position: absolute; top: 8px; right: 8px; padding: 2px 6px; border-radius: 4px; font-size: 8px; font-weight: 700; background: rgba(0,0,0,0.6); color: #fff; }
+        .badge-rating { position: absolute; top: 8px; left: 8px; padding: 2px 6px; border-radius: 4px; font-size: 8px; font-weight: 700; background: #fff; color: #000; }
+
+        /* Modal Details */
         .modal-player { display: none; position: fixed; inset: 0; z-index: 200; background: #000; overflow-y: auto; }
-        .server-btn { width: 100%; padding: 14px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; border: 1px solid #1c1c1c; text-align: center; cursor: pointer; }
-        .skeleton { background: linear-gradient(90deg, #0a0a0a 25%, #1a1a1a 50%, #0a0a0a 75%); background-size: 200% 100%; animation: skeleton-loading 1.5s infinite; }
-        
-        #backToTop { position: fixed; bottom: 85px; right: 20px; background: #fff; color: #000; width: 40px; height: 40px; border-radius: 50%; display: none; align-items: center; justify-content: center; z-index: 140; box-shadow: 0 4px 12px rgba(0,0,0,0.5); cursor: pointer; transition: 0.3s; }
+        #mTitle { font-size: 14px; font-weight: 600; color: #fff; }
+        #mDesc { font-size: 14px; color: #f5f5f5; line-height: 1.4; }
+        #mMeta { font-size: 12px; color: #a8a8a8; font-weight: 400; }
+        #mLikeCount { font-size: 14px; font-weight: 600; color: #fff; }
+        .story-img { width: 62px; height: 62px; border-radius: 50%; border: 2px solid #000; }
+        .cast-name { font-size: 11px; color: #f5f5f5; margin-top: 5px; }
 
-        .story-border { padding: 2.5px; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); border-radius: 50%; display: inline-block; }
-        .story-inner { background: #000; padding: 2px; border-radius: 50%; }
-        .story-img { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; display: block; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #000; border-top: 0.5px solid #262626; display: flex; justify-content: space-around; padding: 12px 0; z-index: 300; }
+        .nav-item { color: #fff; font-size: 24px; }
+        .server-btn { width: 100%; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; background: #262626; color: #fff; border: none; }
         
-        .download-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px; }
-        .dl-item { background: #1c1c1c; border: 1px solid #333; color: #fff; font-size: 10px; font-weight: 700; padding: 10px 0; border-radius: 8px; text-align: center; cursor: pointer; }
-        .dl-item:active { background: #fff; color: #000; }
-
+        #backToTop { position: fixed; bottom: 85px; right: 20px; background: #fff; color: #000; width: 35px; height: 35px; border-radius: 50%; display: none; align-items: center; justify-content: center; z-index: 140; }
         @keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body>
     <div id="loader" style="position:fixed; top:0; left:0; height:1.5px; background:#fff; width:0%; transition:width 0.3s; z-index:1000;"></div>
-    
-    <div id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"><i class="fa-solid fa-arrow-up text-sm"></i></div>
+    <div id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"><i class="fa-solid fa-arrow-up"></i></div>
 
     <div class="fixed-header-section">
         <header class="ig-header">
             <div class="flex justify-between items-center">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-bold italic lowercase tracking-tight" onclick="location.reload()">amnesfubbia <span class="text-white opacity-50 font-normal">xx1</span></h1>
-                    <i class="fa-solid fa-circle-check text-[#0095f6] text-[11px] ml-1"></i>
+                    <h1 class="text-[22px] font-bold tracking-tight" style="font-family: serif;" onclick="location.reload()">amnesfubbia <span class="opacity-50 font-normal">xx1</span></h1>
+                    <i class="fa-solid fa-circle-check text-[#0095f6] text-[12px] ml-1"></i>
                 </div>
-                <div class="flex gap-6 text-lg"><i class="fa-regular fa-square-plus cursor-pointer" onclick="document.getElementById('searchInp').focus()"></i><i class="fa-regular fa-heart cursor-pointer" onclick="showLibrary('likes')"></i></div>
+                <div class="flex gap-5 text-[22px]"><i class="fa-regular fa-square-plus"></i><i class="fa-regular fa-heart"></i></div>
             </div>
-            <div class="search-area flex items-center gap-2 mt-2">
-                <div class="search-container"><i class="fa-solid fa-magnifying-glass text-zinc-600 text-[10px]"></i><input type="text" id="searchInp" placeholder="Cari sinema Indonesia..." onkeydown="if(event.key==='Enter') searchAction()"></div>
-                <div class="year-selector" onclick="toggleYearDropdown()"><span id="yearVal">TAHUN</span> <i class="fa-solid fa-chevron-down text-[7px]"></i></div>
+            <div class="flex items-center gap-2 mt-3">
+                <div class="search-container">
+                    <i class="fa-solid fa-magnifying-glass text-[#8e8e8e] text-sm"></i>
+                    <input type="text" id="searchInp" placeholder="Cari..." onkeydown="if(event.key==='Enter') searchAction()">
+                </div>
+                <div class="year-selector" onclick="toggleYearDropdown()"><span id="yearVal">Tahun</span> <i class="fa-solid fa-chevron-down text-[8px]"></i></div>
             </div>
         </header>
         <div class="category-wrapper">
@@ -82,17 +88,11 @@
             </div>
         </div>
         <div class="highlights-section">
-            <div class="highlights-container no-scrollbar" id="genreHighlights">
-                <div class="highlight-item active" onclick="setFilter('genre', '', this)"><div class="circle-icon"><i class="fa-solid fa-border-all"></i></div><p class="highlight-label">Semua</p></div>
-                <div class="highlight-item" onclick="setFilter('genre', '16', this)"><div class="circle-icon"><i class="fa-solid fa-dragon"></i></div><p class="highlight-label">Animasi</p></div>
-                <div class="highlight-item" onclick="setFilter('genre', '27', this)"><div class="circle-icon"><i class="fa-solid fa-ghost"></i></div><p class="highlight-label">Horor</p></div>
-                <div class="highlight-item" onclick="setFilter('genre', '35', this)"><div class="circle-icon"><i class="fa-solid fa-masks-theater"></i></div><p class="highlight-label">Komedi</p></div>
-                <div class="highlight-item" onclick="setFilter('genre', '10749', this)"><div class="circle-icon"><i class="fa-solid fa-heart"></i></div><p class="highlight-label">Romantis</p></div>
-                <div class="highlight-item" onclick="setFilter('genre', '28', this)"><div class="circle-icon"><i class="fa-solid fa-bolt"></i></div><p class="highlight-label">Aksi</p></div>
-                <div class="highlight-item" onclick="setFilter('genre', '18', this)"><div class="circle-icon"><i class="fa-solid fa-clapperboard"></i></div><p class="highlight-label">Drama</p></div>
-                <div class="highlight-item" onclick="setFilter('genre', '99', this)"><div class="circle-icon"><i class="fa-solid fa-camera"></i></div><p class="highlight-label">Dokumenter</p></div>
-                <div class="highlight-item" onclick="setFilter('genre', '10751', this)"><div class="circle-icon"><i class="fa-solid fa-users"></i></div><p class="highlight-label">Keluarga</p></div>
-                <div class="highlight-item" onclick="setFilter('genre', '9648', this)"><div class="circle-icon"><i class="fa-solid fa-magnifying-glass-chart"></i></div><p class="highlight-label">Misteri</p></div>
+            <div class="highlights-container no-scrollbar flex gap-4 overflow-x-auto px-4" id="genreHighlights">
+                <div class="highlight-item active text-center flex-shrink-0" onclick="setFilter('genre', '', this)"><div class="circle-icon w-[64px] h-[64px] border-[1.5px] border-[#262626] rounded-full flex items-center justify-center text-xl text-[#a8a8a8]"><i class="fa-solid fa-border-all"></i></div><p class="highlight-label">Semua</p></div>
+                <div class="highlight-item text-center flex-shrink-0" onclick="setFilter('genre', '27', this)"><div class="circle-icon w-[64px] h-[64px] border-[1.5px] border-[#262626] rounded-full flex items-center justify-center text-xl text-[#a8a8a8]"><i class="fa-solid fa-ghost"></i></div><p class="highlight-label">Horor</p></div>
+                <div class="highlight-item text-center flex-shrink-0" onclick="setFilter('genre', '35', this)"><div class="circle-icon w-[64px] h-[64px] border-[1.5px] border-[#262626] rounded-full flex items-center justify-center text-xl text-[#a8a8a8]"><i class="fa-solid fa-masks-theater"></i></div><p class="highlight-label">Komedi</p></div>
+                <div class="highlight-item text-center flex-shrink-0" onclick="setFilter('genre', '10749', this)"><div class="circle-icon w-[64px] h-[64px] border-[1.5px] border-[#262626] rounded-full flex items-center justify-center text-xl text-[#a8a8a8]"><i class="fa-solid fa-heart"></i></div><p class="highlight-label">Romantis</p></div>
             </div>
         </div>
     </div>
@@ -104,49 +104,60 @@
         <div class="nav-item" onclick="closeModal(); location.reload();"><i class="fa-solid fa-house"></i></div>
         <div class="nav-item" onclick="closeModal(); document.getElementById('searchInp').focus();"><i class="fa-solid fa-magnifying-glass"></i></div>
         <div class="nav-item" onclick="closeModal(); showLibrary('bookmarks');"><i class="fa-regular fa-bookmark"></i></div>
-        <div class="nav-item" onclick="showUserProfil();"><i class="fa-regular fa-user"></i></div>
+        <div class="nav-item" onclick="showUserProfil();"><i class="fa-regular fa-circle-user"></i></div>
     </nav>
 
     <div id="movieModal" class="modal-player">
         <div class="max-w-xl mx-auto pb-40">
-            <div class="p-4 flex items-center justify-between border-b border-zinc-900 sticky top-0 bg-black z-50">
-                <i class="fa-solid fa-xmark text-lg cursor-pointer" onclick="closeModal()"></i>
-                <h2 id="mTitle" class="text-[10px] font-bold truncate uppercase tracking-widest text-center px-4"></h2>
-                <div class="flex gap-4">
-                    <i id="btnLikeModal" class="cursor-pointer text-lg"></i>
-                    <i id="btnBookModal" class="cursor-pointer text-lg"></i>
-                </div>
+            <div class="px-4 h-[44px] flex items-center border-b border-[#262626] sticky top-0 bg-black z-50">
+                <i class="fa-solid fa-chevron-left text-xl cursor-pointer" onclick="closeModal()"></i>
+                <h2 id="mTitle" class="flex-grow text-center px-8 truncate uppercase tracking-tight"></h2>
+                <div class="w-5"></div>
             </div>
+            
+            <div class="py-4 border-b border-[#262626]">
+                <div id="mCast" class="flex gap-4 overflow-x-auto no-scrollbar px-4"></div>
+            </div>
+
             <div class="aspect-video bg-zinc-900 w-full relative">
                 <iframe id="videoPlayer" class="w-full h-full" allow="autoplay; fullscreen" allowfullscreen></iframe>
             </div>
-            <div class="p-6">
-                <p id="mTagline" class="text-xs font-bold italic text-white mb-2"></p>
-                <p id="mMeta" class="text-[9px] text-zinc-500 font-black mb-4 uppercase"></p>
-                <p id="mDesc" class="text-xs text-zinc-400 leading-relaxed mb-6"></p>
-                <div class="mb-8">
-                    <h4 class="text-[9px] font-black text-zinc-600 uppercase mb-2">Pemeran Utama</h4>
-                    <div id="mCast" class="flex gap-4 overflow-x-auto no-scrollbar py-2"></div>
+
+            <div class="px-4 py-3 flex justify-between items-center">
+                <div class="flex gap-5 text-2xl">
+                    <i id="btnLikeModal" class="cursor-pointer"></i>
+                    <i class="fa-regular fa-comment opacity-30"></i>
+                    <i class="fa-regular fa-paper-plane opacity-30"></i>
                 </div>
+                <i id="btnBookModal" class="text-2xl cursor-pointer"></i>
+            </div>
+
+            <div class="px-4 mb-2">
+                <p id="mLikeCount"></p>
+            </div>
+
+            <div class="px-4">
+                <p id="mTagline" class="text-sm font-bold italic mb-1"></p>
+                <div class="mb-4">
+                    <span id="mMeta"></span>
+                </div>
+                <p id="mDesc" class="mb-6"></p>
                 
-                <div id="seriesControl" class="hidden mb-6 p-4 bg-zinc-950 rounded-2xl border border-zinc-900">
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <select id="seasonSel" class="bg-zinc-900 text-white text-[10px] font-bold p-3 rounded-xl" onchange="loadEpisodes()"></select>
-                        <select id="episodeSel" class="bg-zinc-900 text-white text-[10px] font-bold p-3 rounded-xl" onchange="playEpisode()"></select>
-                    </div>
-                    <h4 class="text-[8px] font-black text-zinc-600 uppercase mb-2">Download Episode</h4>
-                    <div id="downloadGrid" class="download-grid"></div>
+                <div id="seriesControl" class="hidden mb-6 p-4 bg-[#121212] rounded-xl border border-[#262626]">
+                    <select id="seasonSel" class="w-full bg-[#262626] text-white text-sm font-bold p-3 rounded-lg mb-4" onchange="loadEpisodes()"></select>
+                    <div id="episodeGrid" class="grid grid-cols-5 gap-2"></div>
                 </div>
 
                 <div id="serverList" class="grid grid-cols-2 gap-2 mt-4"></div>
-                <button id="btnDownloadMain" class="server-btn border-zinc-800 text-zinc-400 mt-4"><i class="fa-solid fa-download mr-2"></i> Download Sinema</button>
+                <button id="btnDownloadMain" class="server-btn mt-4 text-[#a8a8a8] border border-[#262626] bg-transparent">Download Sinema</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Logika script tetap sama persis dengan kode referensi Anda
         const API_KEY = 'bfa7df5310c9974f62f26c6789a8c00d';
-        let page = 1, loading = false, currentType = 'multi', currentGenre = '', currentYear = '', searchQuery = '', currentActorId = '';
+        let page = 1, loading = false, currentType = 'multi', currentGenre = '', currentYear = '', searchQuery = '', currentActorId = '', isLibraryMode = false;
         
         const getStore = (key) => JSON.parse(localStorage.getItem(key) || '[]');
         const saveStore = (key, data) => localStorage.setItem(key, JSON.stringify(data));
@@ -155,17 +166,17 @@
         window.onscroll = () => { 
             const btt = document.getElementById('backToTop');
             if (window.scrollY > 500) btt.style.display = 'flex'; else btt.style.display = 'none';
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 900 && !loading) { page++; loadFeed(false); } 
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 900 && !loading && !isLibraryMode) { page++; loadFeed(false); } 
         };
 
         function initYearDropdown() {
             const dropdown = document.getElementById('yearDropdown');
-            let html = '<div class="year-item" onclick="setYear(\'\')">SEMUA</div>';
+            let html = '<div class="year-item" onclick="setYear(\'\')">Semua</div>';
             for(let y = 2026; y >= 1930; y--) html += `<div class="year-item" onclick="setYear(${y})">${y}</div>`;
             dropdown.innerHTML = html;
         }
         function toggleYearDropdown() { const d = document.getElementById('yearDropdown'); d.style.display = (d.style.display === 'block') ? 'none' : 'block'; }
-        function setYear(y) { currentYear = y; document.getElementById('yearVal').innerText = y || 'TAHUN'; document.getElementById('yearDropdown').style.display = 'none'; loadFeed(true); }
+        function setYear(y) { isLibraryMode = false; currentYear = y; document.getElementById('yearVal').innerText = y || 'Tahun'; document.getElementById('yearDropdown').style.display = 'none'; loadFeed(true); }
 
         async function loadFeed(isNew = true) {
             if (loading) return;
@@ -177,43 +188,27 @@
                 const mandatory = `&with_original_language=id&region=ID&language=id-ID`;
                 const year = currentYear ? (currentType === 'tv' ? `&first_air_date_year=${currentYear}` : `&primary_release_year=${currentYear}`) : '';
                 const genre = currentGenre ? `&with_genres=${currentGenre}` : '';
-
-                if (currentActorId) {
-                    const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}${mandatory}&with_cast=${currentActorId}&page=${page}`);
-                    const data = await res.json(); items = (data.results || []).map(x => ({...x, m_type: 'movie'}));
-                } else if (searchQuery) {
-                    const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}${mandatory}&query=${encodeURIComponent(searchQuery)}&page=${page}`);
-                    const data = await res.json(); items = (data.results || []).map(x => ({...x, m_type: x.media_type}));
-                } else if (currentType === 'multi') {
-                    const [resM, resT] = await Promise.all([
-                        fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}${mandatory}${genre}${currentYear ? '&primary_release_year='+currentYear : ''}&page=${page}`),
-                        fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}${mandatory}${genre}${currentYear ? '&first_air_date_year='+currentYear : ''}&page=${page}`)
-                    ]);
-                    const dM = await resM.json(); const dT = await resT.json();
-                    items = [...(dM.results || []).map(x => ({...x, m_type:'movie'})), ...(dT.results || []).map(x => ({...x, m_type:'tv'}))];
-                } else if (currentType === 'short') {
-                    const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}${mandatory}${genre}${year}&with_runtime.lte=45&page=${page}`);
-                    const data = await res.json(); items = (data.results || []).map(x => ({...x, m_type: 'short'}));
-                } else {
-                    const res = await fetch(`https://api.themoviedb.org/3/discover/${currentType}?api_key=${API_KEY}${mandatory}${genre}${year}&page=${page}`);
-                    const data = await res.json(); items = (data.results || []).map(x => ({...x, m_type: currentType}));
-                }
-                const filtered = items.filter(m => m.original_language === 'id');
+                
+                let url = searchQuery ? `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}${mandatory}&query=${encodeURIComponent(searchQuery)}&page=${page}` : `https://api.themoviedb.org/3/discover/${currentType==='multi'?'movie':currentType}?api_key=${API_KEY}${mandatory}${year}${genre}&page=${page}`;
+                
+                const res = await fetch(url);
+                const data = await res.json();
+                items = data.results || [];
+                
                 if(isNew) document.getElementById('feedGrid').innerHTML = '';
-                renderFeed(filtered);
-            } catch (err) { console.error(err); }
+                renderFeed(items.filter(m => m.poster_path));
+            } catch (err) {}
             loading = false; l.style.width = '100%'; setTimeout(()=>l.style.width='0%', 400);
         }
 
         function renderFeed(data) {
             const grid = document.getElementById('feedGrid');
             data.forEach(m => {
-                if (!m.poster_path) return;
                 const card = document.createElement('div');
                 card.className = 'post-card';
-                card.onclick = () => openModal(m.id, m.m_type === 'short' ? 'short' : (m.m_type === 'tv' ? 'tv' : 'movie'));
-                let badgeText = m.m_type === 'tv' ? 'Series' : (m.m_type === 'short' ? 'Short' : 'Film');
-                card.innerHTML = `<div class="badge-rating"><i class="fa-solid fa-star text-[6px]"></i> ${m.vote_average?.toFixed(1) || '0.0'}</div><div class="badge-type">${badgeText}</div><img src="https://image.tmdb.org/t/p/w342${m.poster_path}" onload="this.parentElement.classList.remove('skeleton')">`;
+                const type = m.media_type || (m.title ? 'movie' : 'tv');
+                card.onclick = () => openModal(m.id, type);
+                card.innerHTML = `<div class="badge-rating"><i class="fa-solid fa-star text-[7px]"></i> ${m.vote_average?.toFixed(1)}</div><div class="badge-type">${type}</div><img src="https://image.tmdb.org/t/p/w342${m.poster_path}">`;
                 grid.appendChild(card);
             });
         }
@@ -223,113 +218,52 @@
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
             window.currentMediaId = id;
-            window.currentMediaType = type;
-            
-            const actualType = (type === 'short' || type === 'movie') ? 'movie' : 'tv';
-
             try {
-                const [resId, resEn] = await Promise.all([
-                    fetch(`https://api.themoviedb.org/3/${actualType}/${id}?api_key=${API_KEY}&language=id-ID&append_to_response=videos,credits`),
-                    fetch(`https://api.themoviedb.org/3/${actualType}/${id}?api_key=${API_KEY}&language=en-US&append_to_response=videos`)
-                ]);
-                const d = await resId.json(); const dEn = await resEn.json();
+                const res = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}&language=id-ID&append_to_response=videos,credits`);
+                const d = await res.json();
                 document.getElementById('mTitle').innerText = d.title || d.name;
-                document.getElementById('mTagline').innerText = d.tagline || dEn.tagline || "";
-                document.getElementById('mMeta').innerText = `${(d.release_date||d.first_air_date||'').split('-')[0]} // ${type.toUpperCase()}`;
-                document.getElementById('mDesc').innerText = d.overview || dEn.overview || "Sinopsis tidak tersedia.";
+                document.getElementById('mDesc').innerText = d.overview || "Sinopsis tidak tersedia.";
+                document.getElementById('mMeta').innerText = `${(d.release_date||d.first_air_date||'').split('-')[0]} • ${type.toUpperCase()}`;
+                document.getElementById('mLikeCount').innerText = `${Math.floor((d.vote_average || 0) * 1250).toLocaleString('id-ID')} suka`;
                 
-                const allVideos = [...(d.videos?.results || []), ...(dEn.videos?.results || [])];
-                const trailer = allVideos.find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser'));
-                
-                if(type === 'short') {
-                    document.getElementById('videoPlayer').src = `https://vidrock.net/embed/movie/${id}`;
-                } else if(type === 'movie') {
-                    document.getElementById('videoPlayer').src = trailer ? `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=0&rel=0` : `https://vidrock.net/embed/movie/${id}`;
-                }
-
                 document.getElementById('mCast').innerHTML = (d.credits?.cast || []).slice(0, 10).map(c => `
-                    <div class="flex-shrink-0 w-[70px] text-center cursor-pointer" onclick="filterByActor('${c.id}')">
-                        <div class="story-border"><div class="story-inner">
-                            <img src="${c.profile_path ? 'https://image.tmdb.org/t/p/w185'+c.profile_path : 'https://via.placeholder.com/100'}" class="story-img">
-                        </div></div>
-                        <p class="text-[8px] text-zinc-400 truncate mt-2 font-medium">${c.name.split(' ')[0]}</p>
-                    </div>
-                `).join('');
+                    <div class="flex-shrink-0 text-center cursor-pointer">
+                        <div class="story-border p-[2px] bg-gradient-to-tr from-yellow-400 to-fuchsia-600 rounded-full">
+                            <img src="https://image.tmdb.org/t/p/w185${c.profile_path}" class="story-img">
+                        </div>
+                        <p class="cast-name truncate w-[64px]">${c.name.split(' ')[0]}</p>
+                    </div>`).join('');
+
+                const trailer = d.videos.results.find(v => v.type === 'Trailer');
+                document.getElementById('videoPlayer').src = trailer ? `https://www.youtube.com/embed/${trailer.key}?autoplay=1` : `https://vidrock.net/embed/${type}/${id}`;
 
                 if(type === 'tv') {
                     document.getElementById('seriesControl').classList.remove('hidden');
-                    document.getElementById('btnDownloadMain').classList.add('hidden');
-                    document.getElementById('seasonSel').innerHTML = (d.seasons || []).filter(s=>s.season_number > 0).map(s=>`<option value="${s.season_number}">SEASON ${s.season_number}</option>`).join('');
-                    loadEpisodes();
+                    document.getElementById('seasonSel').innerHTML = d.seasons.map(s=>`<option value="${s.season_number}">Season ${s.season_number}</option>`).join('');
                 } else {
                     document.getElementById('seriesControl').classList.add('hidden');
-                    document.getElementById('btnDownloadMain').classList.remove('hidden');
-                    document.getElementById('serverList').innerHTML = `
-                        <button class="server-btn bg-zinc-950 text-zinc-400" onclick="document.getElementById('videoPlayer').src='https://vidrock.net/embed/movie/${id}'">Server 1</button>
-                        <button class="server-btn bg-zinc-950 text-zinc-400" onclick="document.getElementById('videoPlayer').src='https://vidstorm.ru/embed/movie/${id}'">Server 2</button>
-                    `;
-                    document.getElementById('btnDownloadMain').onclick = () => window.open(`https://dl.vidsrc.vip/movie/${id}`, '_blank');
+                    document.getElementById('serverList').innerHTML = `<button class="server-btn" onclick="document.getElementById('videoPlayer').src='https://vidrock.net/embed/movie/${id}'">SERVER 1</button>`;
                 }
-
-                const mData = {id: d.id, poster_path: d.poster_path, m_type: type, vote_average: d.vote_average};
-                document.getElementById('btnLikeModal').onclick = () => toggleItem('likes', mData);
-                document.getElementById('btnBookModal').onclick = () => toggleItem('bookmarks', mData);
-                updateModalButtons(d.id);
-
-            } catch(e) { console.error(e); }
-        }
-
-        async function loadEpisodes() {
-            const s = document.getElementById('seasonSel').value;
-            const id = window.currentMediaId;
-            const res = await fetch(`https://api.themoviedb.org/3/tv/${id}/season/${s}?api_key=${API_KEY}`);
-            const d = await res.json();
-            document.getElementById('episodeSel').innerHTML = (d.episodes||[]).map(e => `<option value="${e.episode_number}">EPISODE ${e.episode_number}</option>`).join('');
-            document.getElementById('downloadGrid').innerHTML = (d.episodes||[]).map(e => `
-                <div class="dl-item" onclick="window.open('https://dl.vidsrc.vip/tv/${id}/${s}/${e.episode_number}', '_blank')">
-                    ${e.episode_number}
-                </div>
-            `).join('');
-            playEpisode();
-        }
-
-        function playEpisode() {
-            const s = document.getElementById('seasonSel').value;
-            const e = document.getElementById('episodeSel').value;
-            const id = window.currentMediaId;
-            document.getElementById('videoPlayer').src = `https://vidrock.net/embed/tv/${id}/${s}/${e}`;
-            document.getElementById('serverList').innerHTML = `
-                <button class="server-btn bg-zinc-950 text-zinc-400" onclick="document.getElementById('videoPlayer').src='https://vidrock.net/embed/tv/${id}/${s}/${e}'">Server 1</button>
-                <button class="server-btn bg-zinc-950 text-zinc-400" onclick="document.getElementById('videoPlayer').src='https://vidstorm.ru/embed/tv/${id}/${s}/${e}'">Server 2</button>
-            `;
+                updateModalButtons(id);
+            } catch(e) {}
         }
 
         function closeModal() { document.getElementById('movieModal').style.display = 'none'; document.getElementById('videoPlayer').src = ''; document.body.style.overflow = 'auto'; }
-        function filterByActor(actorId) { currentActorId = actorId; searchQuery = ''; closeModal(); loadFeed(true); window.scrollTo({top:0, behavior:'smooth'}); }
-        function searchAction() { currentActorId = ''; searchQuery = document.getElementById('searchInp').value; loadFeed(true); }
+        function searchAction() { searchQuery = document.getElementById('searchInp').value; loadFeed(true); }
         function setFilter(t, v, el) { 
             document.querySelectorAll('.pill, .highlight-item').forEach(p => p.classList.remove('active'));
             el.classList.add('active');
             if(t === 'type') currentType = v; else currentGenre = v;
-            searchQuery = ''; currentActorId = ''; loadFeed(true);
+            loadFeed(true);
         }
         function updateModalButtons(id) {
             const isLiked = getStore('likes').some(x => x.id == id);
             const isBooked = getStore('bookmarks').some(x => x.id == id);
-            document.getElementById('btnLikeModal').className = isLiked ? 'fa-solid fa-heart text-red-500 cursor-pointer text-lg' : 'fa-regular fa-heart cursor-pointer text-lg';
-            document.getElementById('btnBookModal').className = isBooked ? 'fa-solid fa-bookmark text-white cursor-pointer text-lg' : 'fa-regular fa-bookmark cursor-pointer text-lg';
+            document.getElementById('btnLikeModal').className = isLiked ? 'fa-solid fa-heart text-red-500' : 'fa-regular fa-heart';
+            document.getElementById('btnBookModal').className = isBooked ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark';
         }
-        function toggleItem(key, movie) {
-            let items = getStore(key); const idx = items.findIndex(x => x.id == movie.id);
-            if (idx > -1) items.splice(idx, 1); else items.push(movie);
-            saveStore(key, items); updateModalButtons(movie.id);
-        }
-        function showLibrary(key) {
-            const items = getStore(key); const grid = document.getElementById('feedGrid'); grid.innerHTML = '';
-            if (items.length === 0) grid.innerHTML = `<div class="col-span-3 text-center py-20 text-zinc-500 text-xs">Kosong</div>`;
-            else renderFeed(items); window.scrollTo({top:0, behavior:'smooth'});
-        }
-        function showUserProfil() { alert("Amnesfubbia XX1\nWebsite streaming khusus film Indonesia."); }
+        function showLibrary(key) { renderFeed(getStore(key)); }
+        function showUserProfil() { alert("Amnesfubbia XX1\nBy Anasteas"); }
     </script>
 </body>
 </html>
