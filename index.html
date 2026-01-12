@@ -6,25 +6,18 @@
     <title>amnesfubbia xx1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@1,700&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
         body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .fixed-header-section { position: fixed; top: 0; width: 100%; z-index: 100; background: #000; border-bottom: 1px solid #1c1c1c; }
         .ig-header { padding: 12px 15px 5px 15px; }
-        .search-container { background: #0a0a0a; border-radius: 8px; display: flex; align-items: center; padding: 7px 12px; flex-grow: 1; border: 1px solid #1c1c1c; }
-        
-        .search-container input { 
-            background: transparent !important; border: none !important; color: white !important; font-size: 13px; width: 100%; outline: none !important; box-shadow: none !important; -webkit-appearance: none; -moz-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent !important; margin-left: 8px; 
-        }
 
-        .search-container input:-webkit-autofill,
-        .search-container input:-webkit-autofill:hover, 
-        .search-container input:-webkit-autofill:focus {
-            -webkit-text-fill-color: white !important;
-            -webkit-box-shadow: 0 0 0px 1000px #0a0a0a inset !important;
-            transition: background-color 5000s ease-in-out 0s;
-        }
+        .ig-logo { font-family: 'DM Sans', sans-serif; font-weight: 700; font-style: italic; font-size: 24px; letter-spacing: -0.8px; text-transform: lowercase; cursor: pointer; }
+        .verified-icon { font-size: 13px; color: #0095f6; margin-left: 5px; }
+
+        .search-container { background: #0a0a0a; border-radius: 8px; display: flex; align-items: center; padding: 7px 12px; flex-grow: 1; border: 1px solid #1c1c1c; }
+        .search-container input { background: transparent !important; border: none !important; color: white !important; font-size: 13px; width: 100%; outline: none !important; box-shadow: none !important; margin-left: 8px; }
 
         .year-selector { background: #0a0a0a; border: 1px solid #1c1c1c; border-radius: 8px; padding: 8px 12px; font-size: 9px; font-weight: 800; color: #fff; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; gap: 5px; }
         .year-dropdown { display: none; position: fixed; top: 110px; right: 15px; width: 120px; max-height: 300px; background: #121212; border: 1px solid #1c1c1c; border-radius: 12px; z-index: 101; overflow-y: auto; }
@@ -40,7 +33,6 @@
         .highlight-item.active .circle-icon { border-color: #fff; color: #fff; }
         .highlight-label { font-size: 9px; color: #555; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
         
-        /* Grid Utama (Rasio Tetap 2/3) */
         .movie-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5px; padding-top: 275px; padding-bottom: 100px; }
         .post-card { position: relative; aspect-ratio: 2/3; background: #0a0a0a; overflow: hidden; cursor: pointer; }
         .post-card img { width: 100%; height: 100%; object-fit: cover; }
@@ -49,16 +41,22 @@
         
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #000; border-top: 1px solid #1c1c1c; display: flex; justify-content: space-around; padding: 12px 0; z-index: 300; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
         .nav-item { color: #fff; font-size: 20px; cursor: pointer; }
+        
         .modal-player { display: none; position: fixed; inset: 0; z-index: 200; background: #000; overflow-y: auto; }
+        #mTitle { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: -0.2px; }
+        #mMeta { font-size: 11px; color: #a8a8a8; font-weight: 400; margin-bottom: 4px; }
+        #mDesc { font-size: 13.5px; color: #fff; line-height: 1.4; font-weight: 400; }
+        .interaction-icon { font-size: 24px; cursor: pointer; color: #fff; transition: transform 0.1s; }
+        .interaction-icon:active { transform: scale(1.1); }
+        .like-count { font-size: 14px; font-weight: 700; color: #fff; margin-top: 2px; }
+        
         .server-btn { width: 100%; padding: 14px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; border: 1px solid #1c1c1c; text-align: center; cursor: pointer; }
         .skeleton { background: linear-gradient(90deg, #0a0a0a 25%, #1a1a1a 50%, #0a0a0a 75%); background-size: 200% 100%; animation: skeleton-loading 1.5s infinite; }
         #backToTop { position: fixed; bottom: 85px; right: 20px; background: #fff; color: #000; width: 40px; height: 40px; border-radius: 50%; display: none; align-items: center; justify-content: center; z-index: 140; box-shadow: 0 4px 12px rgba(0,0,0,0.5); cursor: pointer; transition: 0.3s; }
         
-        /* Modal Cast & Icons */
         .story-border { padding: 2.5px; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); border-radius: 50%; display: inline-block; }
         .story-inner { background: #000; padding: 2px; border-radius: 50%; }
         .story-img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; display: block; }
-        .interaction-icon { font-size: 24px; cursor: pointer; }
 
         .series-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px; }
         .ep-box { background: #111; border: 1px solid #1c1c1c; color: #555; font-size: 10px; font-weight: 800; padding: 12px 0; border-radius: 8px; text-align: center; cursor: pointer; transition: 0.2s; }
@@ -75,10 +73,10 @@
         <header class="ig-header">
             <div class="flex justify-between items-center">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-bold italic lowercase tracking-tight" onclick="location.reload()">amnesfubbia <span class="text-white opacity-50 font-normal">xx1</span></h1>
-                    <i class="fa-solid fa-circle-check text-[#0095f6] text-[11px] ml-1"></i>
+                    <h1 class="ig-logo" onclick="location.reload()">amnesfubbia <span class="text-white opacity-40 font-normal italic">xx1</span></h1>
+                    <i class="fa-solid fa-circle-check verified-icon"></i>
                 </div>
-                <div class="flex gap-6 text-lg"><i class="fa-regular fa-square-plus cursor-pointer" onclick="document.getElementById('searchInp').focus()"></i><i class="fa-regular fa-heart cursor-pointer" onclick="showLibrary('likes')"></i></div>
+                <div class="flex gap-6 text-xl"><i class="fa-regular fa-square-plus cursor-pointer" onclick="document.getElementById('searchInp').focus()"></i><i class="fa-regular fa-heart cursor-pointer" onclick="showLibrary('likes')"></i></div>
             </div>
             <div class="search-area flex items-center gap-2 mt-2">
                 <div class="search-container">
@@ -124,13 +122,16 @@
 
     <div id="movieModal" class="modal-player">
         <div class="max-w-xl mx-auto pb-40">
-            <div class="p-4 flex items-center border-b border-zinc-900 sticky top-0 bg-black z-50">
-                <i class="fa-solid fa-xmark text-lg cursor-pointer" onclick="closeModal()"></i>
-                <h2 id="mTitle" class="flex-grow text-[10px] font-bold truncate uppercase tracking-widest text-center px-4"></h2>
+            <div class="px-4 h-[54px] flex items-center border-b border-zinc-900 sticky top-0 bg-black z-50">
+                <i class="fa-solid fa-chevron-left text-xl cursor-pointer" onclick="closeModal()"></i>
+                <div class="flex-grow flex flex-col items-center justify-center px-8">
+                    <span class="text-[11px] font-bold text-zinc-500 uppercase tracking-widest leading-none mb-1">Sinema</span>
+                    <h2 id="mTitle" class="truncate w-full text-center leading-none"></h2>
+                </div>
                 <div class="w-5"></div> 
             </div>
             
-            <div class="py-4 border-b border-zinc-900">
+            <div class="py-4 bg-black">
                 <div id="mCast" class="flex gap-4 overflow-x-auto no-scrollbar px-4"></div>
             </div>
 
@@ -139,23 +140,25 @@
             </div>
 
             <div class="px-4 py-3 flex justify-between items-center">
-                <div class="flex gap-5">
+                <div class="flex gap-4">
                     <i id="btnLikeModal" class="interaction-icon"></i>
-                    <i class="fa-regular fa-comment interaction-icon opacity-20"></i>
-                    <i class="fa-regular fa-paper-plane interaction-icon opacity-20"></i>
+                    <i class="fa-regular fa-comment interaction-icon"></i>
+                    <i class="fa-regular fa-paper-plane interaction-icon"></i>
                 </div>
                 <i id="btnBookModal" class="interaction-icon"></i>
             </div>
 
-            <div class="px-4 mb-3">
-                <p id="mLikeCount" class="text-sm font-bold text-white"></p>
+            <div class="px-4 mb-2">
+                <p id="mLikeCount" class="like-count"></p>
             </div>
 
-            <div class="p-4 pt-0">
-                <p id="mTagline" class="text-xs font-bold italic text-white mb-2"></p>
-                <p id="mMeta" class="text-[9px] text-zinc-500 font-black mb-4 uppercase"></p>
-                <p id="mDesc" class="text-xs text-zinc-400 leading-relaxed mb-6"></p>
-                
+            <div class="px-4">
+                <p class="mb-1"><span class="font-bold text-sm mr-2" id="mTitleAlt"></span><span id="mTagline" class="text-sm text-zinc-300"></span></p>
+                <p id="mDesc" class="mb-2"></p>
+                <p id="mMeta"></p>
+            </div>
+            
+            <div class="px-4 pt-2">
                 <div id="seriesControl" class="hidden mb-6 p-4 bg-zinc-950 rounded-2xl border border-zinc-900">
                     <div class="flex justify-between items-center mb-4">
                         <h4 class="text-[9px] font-black text-zinc-400 uppercase">Pilih Episode</h4>
@@ -207,6 +210,7 @@
                 const mandatory = `&with_original_language=id&region=ID&language=id-ID`;
                 const year = currentYear ? (currentType === 'tv' ? `&first_air_date_year=${currentYear}` : `&primary_release_year=${currentYear}`) : '';
                 const genre = currentGenre ? `&with_genres=${currentGenre}` : '';
+                
                 if (currentActorId) {
                     const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}${mandatory}&with_cast=${currentActorId}&page=${page}`);
                     const data = await res.json(); items = (data.results || []).map(x => ({...x, m_type: 'movie'}));
@@ -214,7 +218,7 @@
                     const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}${mandatory}&query=${encodeURIComponent(searchQuery)}&page=${page}`);
                     const data = await res.json(); items = (data.results || []).map(x => ({...x, m_type: x.media_type}));
                 } else if (currentType === 'short') {
-                    const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}${mandatory}${genre}${year}&with_runtime.lte=45&page=${page}`);
+                    const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}${mandatory}${genre}${year}&with_runtime.lte=40&page=${page}`);
                     const data = await res.json(); items = (data.results || []).map(x => ({...x, m_type: 'short'}));
                 } else if (currentType === 'multi') {
                     const [resM, resT] = await Promise.all([
@@ -261,20 +265,30 @@
                     fetch(`https://api.themoviedb.org/3/${actualType}/${id}?api_key=${API_KEY}&language=en-US&append_to_response=videos`)
                 ]);
                 const d = await resId.json(); const dEn = await resEn.json();
-                document.getElementById('mTitle').innerText = d.title || d.name;
+                const title = d.title || d.name;
+                document.getElementById('mTitle').innerText = title;
+                document.getElementById('mTitleAlt').innerText = title.toLowerCase().replace(/\s+/g, '');
                 document.getElementById('mTagline').innerText = d.tagline || dEn.tagline || "";
                 document.getElementById('mMeta').innerText = `${(d.release_date||d.first_air_date||'').split('-')[0]} // ${type.toUpperCase()}`;
-                document.getElementById('mDesc').innerText = d.overview || dEn.overview || "Sinopsis tidak tersedia.";
+                document.getElementById('mDesc').innerText = d.overview || dEn.overview || "Sinopsis untuk sinema ini belum tersedia secara resmi.";
                 
-                // Dynamic Fake Likes
                 const rating = d.vote_average || 0;
                 const fakeLikes = Math.floor(rating * 1250);
                 document.getElementById('mLikeCount').innerText = `${fakeLikes.toLocaleString('id-ID')} suka`;
 
-                const allVideos = [...(d.videos?.results || []), ...(dEn.videos?.results || [])];
-                const trailer = allVideos.find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser'));
-                if(type === 'short') document.getElementById('videoPlayer').src = `https://vidrock.net/embed/movie/${id}`;
-                else if(type === 'movie') document.getElementById('videoPlayer').src = trailer ? `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=0&rel=0` : `https://vidrock.net/embed/movie/${id}`;
+                // Logika Video Khusus Short
+                if (type === 'short') {
+                    // Jika Short, lupakan trailer, langsung jalankan player utama
+                    document.getElementById('videoPlayer').src = `https://vidrock.net/embed/movie/${id}`;
+                } else {
+                    const allVideos = [...(d.videos?.results || []), ...(dEn.videos?.results || [])];
+                    const trailer = allVideos.find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser' || v.type === 'Clip'));
+                    if (trailer) {
+                        document.getElementById('videoPlayer').src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=0&rel=0`;
+                    } else {
+                        document.getElementById('videoPlayer').src = type === 'tv' ? `https://vidrock.net/embed/tv/${id}/1/1` : `https://vidrock.net/embed/movie/${id}`;
+                    }
+                }
                 
                 document.getElementById('mCast').innerHTML = (d.credits?.cast || []).slice(0, 10).map(c => `
                     <div class="flex-shrink-0 text-center cursor-pointer" onclick="filterByActor('${c.id}')">
@@ -332,8 +346,8 @@
         function updateModalButtons(id) {
             const isLiked = getStore('likes').some(x => x.id == id);
             const isBooked = getStore('bookmarks').some(x => x.id == id);
-            document.getElementById('btnLikeModal').className = isLiked ? 'fa-solid fa-heart text-red-500 cursor-pointer' : 'fa-regular fa-heart cursor-pointer';
-            document.getElementById('btnBookModal').className = isBooked ? 'fa-solid fa-bookmark text-white cursor-pointer' : 'fa-regular fa-bookmark cursor-pointer';
+            document.getElementById('btnLikeModal').className = isLiked ? 'fa-solid fa-heart text-red-500 interaction-icon' : 'fa-regular fa-heart interaction-icon';
+            document.getElementById('btnBookModal').className = isBooked ? 'fa-solid fa-bookmark text-white interaction-icon' : 'fa-regular fa-bookmark interaction-icon';
         }
         function toggleItem(key, movie) {
             let items = getStore(key); const idx = items.findIndex(x => x.id == movie.id);
