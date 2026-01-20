@@ -19,25 +19,17 @@
         .pill-grid { display: grid; gap: 6px; margin-bottom: 8px; }
         .pill { background: transparent; border: 1px solid #1c1c1c; color: #fff; padding: 7px 0; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; }
         .pill.active { border-color: #fff; background: rgba(255,255,255,0.1); }
-        
-        /* Indikator Filter Monokrom Soft */
         .pill.filter-selected { border-color: #52525b; color: #fff; background: #27272a; }
-
         .movie-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; padding-top: 255px; padding-bottom: 80px; }
         .post-card { position: relative; aspect-ratio: 2/3; background: #0a0a0a; overflow: hidden; }
         .post-card img { width: 100%; height: 100%; object-fit: cover; }
         .badge-rating { position: absolute; top: 6px; left: 6px; padding: 2px 5px; border-radius: 2px; font-size: 7px; font-weight: 900; z-index: 5; background: rgba(255,255,255,0.9); color: #000; }
         .badge-type { position: absolute; top: 6px; right: 6px; padding: 2px 5px; border-radius: 2px; font-size: 7px; font-weight: 900; z-index: 5; background: rgba(0,0,0,0.7); color: #fff; text-transform: uppercase; border: 0.5px solid rgba(255,255,255,0.3); }
-        
-        /* Dropdown Monokrom Profesional */
         .filter-dropdown { display: none; position: fixed; background: #0a0a0a; border: 1px solid #1c1c1c; border-radius: 12px; z-index: 200; width: 160px; max-height: 350px; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
         .dropdown-sticky-header { position: sticky; top: 0; background: #0a0a0a; z-index: 10; border-bottom: 1px solid #1c1c1c; }
         .filter-item { padding: 14px; font-size: 11px; text-align: center; border-bottom: 1px solid #1c1c1c; color: #a1a1aa; cursor: pointer; }
         .filter-item:active { background: #18181b; }
-        
-        /* Reset Color Soft */
         .filter-item.reset { color: #f4f4f5; font-weight: 900; background: #18181b; text-transform: uppercase; letter-spacing: 0.5px; }
-
         .modal-player { display: none; position: fixed; inset: 0; z-index: 400; background: #000; overflow-y: auto; }
         .interaction-icon { font-size: 24px; cursor: pointer; color: #fff; }
         .server-btn { width: 100%; padding: 14px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; border: 1px solid #1c1c1c; text-align: center; cursor: pointer; background: #0a0a0a; color: #fff; transition: all 0.2s; }
@@ -163,11 +155,9 @@
             const yD = document.getElementById('yearDropdown');
             yD.innerHTML = '<div class="dropdown-sticky-header"><div class="filter-item reset" onclick="setYear(\'\')">Semua Tahun</div></div>';
             for(let y=2026; y>=1900; y--) yD.innerHTML += `<div class="filter-item" onclick="setYear(${y})">${y}</div>`;
-            
             const cD = document.getElementById('countryDropdown');
             cD.innerHTML = '<div class="dropdown-sticky-header"><div class="filter-item reset" onclick="setCountry(\'\',\'Negara\')">Semua Negara</div></div>';
             [['IN','India'],['TH','Thailand'],['KR','Korea'],['JP','Jepang'],['ID','Indonesia'],['US','USA'],['CN','China'],['FR','Prancis'],['ES','Spanyol']].forEach(c => cD.innerHTML += `<div class="filter-item" onclick="setCountry('${c[0]}','${c[1]}')">${c[1]}</div>`);
-            
             const gD = document.getElementById('genreDropdown');
             gD.innerHTML = '<div class="dropdown-sticky-header"><div class="filter-item reset" onclick="setGenre(\'\',\'Genre\')">Semua Genre</div></div>';
             [[28,'Action'],[12,'Adventure'],[16,'Animasi'],[35,'Comedy'],[80,'Crime'],[99,'Documentary'],[18,'Drama'],[10751,'Family'],[14,'Fantasy'],[36,'History'],[27,'Horror'],[10402,'Music'],[9648,'Mystery'],[10749,'Romance'],[878,'Sci-Fi'],[10770,'TV Movie'],[53,'Thriller'],[10752,'War'],[37,'Western']].forEach(g => gD.innerHTML += `<div class="filter-item" onclick="setGenre('${g[0]}','${g[1]}')">${g[1]}</div>`);
@@ -179,11 +169,8 @@
             let params = `api_key=${API_KEY}&language=id-ID&page=${page}&include_adult=false`;
             let endpoint = (currentType === 'tv' || currentType === 'anime') ? 'discover/tv' : 'discover/movie';
             let queryUrl = `https://api.themoviedb.org/3/${endpoint}?${params}`;
-            const today = new Date().toISOString().split('T')[0];
             if (currentSchedule === 'trending') queryUrl += `&sort_by=trending.desc`;
             else if (currentSchedule === 'popular') queryUrl += `&sort_by=popularity.desc`;
-            else if (currentSchedule === 'now_playing') { const sixty = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; queryUrl += `&release_date.gte=${sixty}&release_date.lte=${today}&sort_by=release_date.desc`; }
-            else if (currentSchedule === 'upcoming') { const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]; queryUrl += `&primary_release_date.gte=${tomorrow}&sort_by=primary_release_date.asc`; }
             if(currentType === 'anime') queryUrl = `https://api.themoviedb.org/3/discover/tv?${params}&with_genres=16&with_original_language=ja&sort_by=popularity.desc`;
             else if(currentType === 'short') queryUrl = `https://api.themoviedb.org/3/discover/movie?${params}&with_runtime.lte=45&with_runtime.gte=2&sort_by=popularity.desc`;
             if(currentCountry) queryUrl += (currentCountry === 'IN' ? `&with_origin_country=IN&with_original_language=hi|ta|te|kn|ml` : `&with_origin_country=${currentCountry}`);
@@ -210,25 +197,9 @@
             });
         }
 
-        // FUNGSI FILTER MONOKROM
-        function setYear(y) { 
-            currentYear=y; const btn = document.getElementById('yearBtn');
-            btn.innerText=y || 'Tahun'; 
-            y ? btn.classList.add('filter-selected') : btn.classList.remove('filter-selected');
-            closeD(); loadFeed(true); 
-        }
-        function setCountry(c, n) { 
-            currentCountry=c; const btn = document.getElementById('btnCountry');
-            btn.innerText=n; 
-            c ? btn.classList.add('filter-selected') : btn.classList.remove('filter-selected');
-            closeD(); loadFeed(true); 
-        }
-        function setGenre(g, n) { 
-            currentGenre=g; const btn = document.getElementById('btnGenre');
-            btn.innerText=n; 
-            g ? btn.classList.add('filter-selected') : btn.classList.remove('filter-selected');
-            closeD(); loadFeed(true); 
-        }
+        function setYear(y) { currentYear=y; const btn = document.getElementById('yearBtn'); btn.innerText=y || 'Tahun'; y ? btn.classList.add('filter-selected') : btn.classList.remove('filter-selected'); closeD(); loadFeed(true); }
+        function setCountry(c, n) { currentCountry=c; const btn = document.getElementById('btnCountry'); btn.innerText=n; c ? btn.classList.add('filter-selected') : btn.classList.remove('filter-selected'); closeD(); loadFeed(true); }
+        function setGenre(g, n) { currentGenre=g; const btn = document.getElementById('btnGenre'); btn.innerText=n; g ? btn.classList.add('filter-selected') : btn.classList.remove('filter-selected'); closeD(); loadFeed(true); }
 
         async function openModal(id, type) {
             window.currentMediaId = id; window.currentMediaType = type;
@@ -242,19 +213,25 @@
             globalFullDesc = dId.overview || dEn.overview || "Sinopsis tidak tersedia.";
             isExpanded = false; renderSynopsis();
             const rel = dId.release_date || dId.first_air_date || "";
-            const genres = (dId.genres || []).slice(0, 2).map(g => "#" + g.name.replace(/\s+/g, '')).join(" ");
-            document.getElementById('mHashtags').innerText = `#${title.replace(/\s+/g, '')} #${rel.split('-')[0]} ${genres}`;
+            const genresArr = (dId.genres || []).slice(0, 2);
+            document.getElementById('mHashtags').innerText = `#${title.replace(/\s+/g, '')} #${rel.split('-')[0]} ${genresArr.map(g => "#" + g.name.replace(/\s+/g, '')).join(" ")}`;
             document.getElementById('mDateDisplay').innerText = rel ? new Date(rel).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
-            document.getElementById('videoPlayer').src = `https://vidrock.net/embed/${type}/${id}${type==='tv'?'/1/1':''}`;
-            document.getElementById('serverList').innerHTML = `<button class="server-btn btn-main-server" onclick="playVid('https://vidrock.net/embed/${type}/${id}${type==='tv'?'/1/1':''}', this)">Server Utama</button><button class="server-btn" onclick="playVid('https://vidsrc.me/embed/${type}?tmdb=${id}', this)">Server 2</button><button class="server-btn col-span-2" onclick="playVid('https://embed.smashystream.com/playere.php?tmdb=${id}', this)">Server 3</button>`;
+            
+            // Mode Autoplay Aktif & Unmuted
+            const mainUrl = `https://vidrock.net/embed/${type}/${id}${type==='tv'?'/1/1':''}?autoplay=1`;
+            document.getElementById('videoPlayer').src = mainUrl;
+            
+            document.getElementById('serverList').innerHTML = `<button class="server-btn btn-main-server active-link" onclick="playVid('${mainUrl}', this)">Server Utama</button><button class="server-btn" onclick="playVid('https://vidsrc.me/embed/${type}?tmdb=${id}&autoplay=1', this)">Server 2</button><button class="server-btn col-span-2" onclick="playVid('https://embed.smashystream.com/playere.php?tmdb=${id}', this)">Server 3</button>`;
+            
             if(type === 'tv') { document.getElementById('seriesControl').classList.remove('hidden'); document.getElementById('seasonSel').innerHTML = (dId.seasons||[]).filter(s=>s.season_number>0).map(s=>`<option value="${s.season_number}">Season ${s.season_number}</option>`).join(''); loadEpisodes(); } else { document.getElementById('seriesControl').classList.add('hidden'); }
             updateLibButtons(id);
         }
+
         function renderSynopsis() { const descEl = document.getElementById('mDesc'); const toggleBtn = document.getElementById('mToggleBtn'); if (globalFullDesc.length > 90) { toggleBtn.classList.remove('hidden'); if (isExpanded) { descEl.innerText = globalFullDesc; toggleBtn.innerText = "ringkas"; } else { descEl.innerText = globalFullDesc.substring(0, 90) + "..."; toggleBtn.innerText = "selengkapnya"; } } else { descEl.innerText = globalFullDesc; toggleBtn.classList.add('hidden'); } }
         function handleToggleDesc() { isExpanded = !isExpanded; renderSynopsis(); }
         function playVid(url, el) { document.getElementById('videoPlayer').src = url; highlightBtn(el); }
         function highlightBtn(el) { document.querySelectorAll('.server-btn, .dl-link-btn').forEach(b => b.classList.remove('active-link')); el.classList.add('active-link'); }
-        async function loadEpisodes() { const s = document.getElementById('seasonSel').value; const res = await fetch(`https://api.themoviedb.org/3/tv/${window.currentMediaId}/season/${s}?api_key=${API_KEY}`); const d = await res.json(); document.getElementById('episodeGrid').innerHTML = (d.episodes||[]).map(e => `<div class="pill text-[10px]" onclick="playVid('https://vidrock.net/embed/tv/${window.currentMediaId}/${s}/${e.episode_number}', this)">${e.episode_number}</div>`).join(''); }
+        async function loadEpisodes() { const s = document.getElementById('seasonSel').value; const res = await fetch(`https://api.themoviedb.org/3/tv/${window.currentMediaId}/season/${s}?api_key=${API_KEY}`); const d = await res.json(); document.getElementById('episodeGrid').innerHTML = (d.episodes||[]).map(e => `<div class="pill text-[10px]" onclick="playVid('https://vidrock.net/embed/tv/${window.currentMediaId}/${s}/${e.episode_number}?autoplay=1', this)">${e.episode_number}</div>`).join(''); }
         function closeModal() { document.getElementById('movieModal').style.display = 'none'; document.getElementById('videoPlayer').src = ''; document.body.style.overflow = 'auto'; }
         function setFilter(t, v, el) { currentType = v; updatePill(el); loadFeed(true); }
         function setSchedule(v, el) { updatePill(el); currentSchedule=v; loadFeed(true); }
