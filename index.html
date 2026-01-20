@@ -13,8 +13,28 @@
         .fixed-header-section { position: fixed; top: 0; width: 100%; z-index: 100; background: #000; border-bottom: 1px solid #1c1c1c; padding-bottom: 10px; }
         .ig-header { padding: 12px 15px 5px 15px; }
         .ig-logo { font-family: 'DM Sans', sans-serif; font-weight: 700; font-style: italic; font-size: 22px; letter-spacing: -0.5px; text-transform: lowercase; cursor: pointer; }
+        
+        /* PERBAIKAN KOLOM PENCARIAN AGAR WARNA TIDAK BERUBAH */
         .search-container { background: #0a0a0a; border-radius: 8px; display: flex; align-items: center; padding: 7px 12px; border: 1px solid #1c1c1c; margin: 0 15px 10px 15px; }
-        .search-container input { background: transparent !important; border: none !important; color: white !important; font-size: 13px; width: 100%; outline: none !important; margin-left: 8px; }
+        .search-container input { 
+            background: transparent !important; 
+            border: none !important; 
+            color: white !important; 
+            font-size: 13px; 
+            width: 100%; 
+            outline: none !important; 
+            margin-left: 8px;
+            box-shadow: none !important;
+        }
+        /* Mengunci warna saat autofill browser aktif */
+        .search-container input:-webkit-autofill,
+        .search-container input:-webkit-autofill:hover, 
+        .search-container input:-webkit-autofill:focus {
+            -webkit-text-fill-color: white !important;
+            -webkit-box-shadow: 0 0 0px 1000px #0a0a0a inset !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
         .category-wrapper { padding: 0 15px; }
         .pill-grid { display: grid; gap: 6px; margin-bottom: 8px; }
         .pill { background: transparent; border: 1px solid #1c1c1c; color: #fff; padding: 7px 0; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; }
@@ -38,10 +58,8 @@
         .interaction-icon { font-size: 24px; cursor: pointer; color: #fff; }
         .server-btn { width: 100%; padding: 12px 5px; border-radius: 8px; font-size: 8px; font-weight: 800; text-transform: uppercase; border: 1px solid #1c1c1c; text-align: center; cursor: pointer; background: #0a0a0a; color: #fff; transition: all 0.2s; }
         .server-btn.active-link { border: 2px solid #fff !important; }
-        .btn-main-server { background: #18181b !important; color: #fff; }
         .dl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 15px; }
         .dl-link-btn { width: 100%; padding: 14px; border-radius: 12px; background: #000; color: #a1a1aa; font-size: 10px; font-weight: 800; text-transform: uppercase; text-align: center; border: 1px solid #1c1c1c; cursor: pointer; }
-        .dl-link-btn.active-link { border: 2px solid #fff !important; color: #fff; }
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #000; border-top: 1px solid #1c1c1c; display: flex; justify-content: space-around; padding: 12px 0; z-index: 300; }
         .ig-post-content { padding: 0 15px; margin-top: 5px; }
         .ig-likes-count { font-weight: 700; font-size: 13px; margin-bottom: 5px; color: #fff; display: block; }
@@ -61,14 +79,14 @@
                 <i class="fa-solid fa-circle-check text-[#0095f6] ml-1 text-[10px]"></i>
             </div>
             <div class="flex gap-4">
-                <i id="navLike" class="fa-regular fa-heart text-xl cursor-pointer" onclick="showLibrary('likes', this)"></i>
-                <i id="navBook" class="fa-regular fa-bookmark text-xl cursor-pointer" onclick="showLibrary('bookmarks', this)"></i>
+                <i id="navLike" class="fa-regular fa-heart text-xl cursor-pointer" onclick="showLibrary('likes')"></i>
+                <i id="navBook" class="fa-regular fa-bookmark text-xl cursor-pointer" onclick="showLibrary('bookmarks')"></i>
             </div>
         </header>
 
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass text-zinc-600 text-[10px]"></i>
-            <input type="text" id="searchInp" placeholder="Cari film, series, anime..." onkeydown="if(event.key==='Enter') searchAction()">
+            <input type="text" id="searchInp" placeholder="Cari film, series, anime..." onkeydown="if(event.key==='Enter') searchAction()" autocomplete="off">
         </div>
 
         <div class="category-wrapper">
@@ -131,14 +149,11 @@
                 <p id="mTranslateBtn" class="text-[11px] text-zinc-500 font-bold mb-2 cursor-pointer hidden">Lihat Terjemahan...</p>
                 <div id="mHashtags" class="ig-hashtags"></div>
                 <div id="mDateDisplay" class="ig-date"></div>
-
                 <div id="seriesControl" class="hidden mt-6 p-4 bg-zinc-950 rounded-2xl border border-zinc-900">
                     <div class="flex justify-between items-center mb-4"><h4 class="text-[9px] font-black text-zinc-400 uppercase">Episode</h4><select id="seasonSel" class="bg-zinc-900 text-white text-[10px] px-2 py-1 rounded" onchange="loadEpisodes()"></select></div>
                     <div id="episodeGrid" class="grid grid-cols-5 gap-2"></div>
                 </div>
-                
                 <div id="serverList" class="grid grid-cols-3 gap-2 mt-6"></div>
-                
                 <div class="dl-grid">
                     <button id="btnDownload1" class="dl-link-btn" onclick="highlightBtn(this); window.open(`https://dl.vidsrc.vip/${window.currentMediaType}/${window.currentMediaId}`)">Download 1</button>
                     <button id="btnDownload2" class="dl-link-btn" onclick="highlightBtn(this); window.open(`https://multiembed.mov/directstream.php?video_id=${window.currentMediaId}&tmdb=1`)">Download 2</button>
@@ -175,10 +190,13 @@
 
         async function loadFeed(isNew = true) {
             if(loading) return; loading = true;
-            if(isNew) { page = 1; document.getElementById('feedGrid').innerHTML = ''; }
+            const grid = document.getElementById('feedGrid');
+            if(isNew) { page = 1; grid.innerHTML = ''; }
+            
             let params = `api_key=${API_KEY}&language=id-ID&page=${page}&include_adult=false`;
             let endpoint = (currentType === 'tv' || currentType === 'anime') ? 'discover/tv' : 'discover/movie';
             let queryUrl = `https://api.themoviedb.org/3/${endpoint}?${params}`;
+            
             const today = new Date().toISOString().split('T')[0];
             if (currentSchedule === 'trending') queryUrl += `&sort_by=trending.desc`;
             else if (currentSchedule === 'popular') queryUrl += `&sort_by=popularity.desc`;
@@ -189,29 +207,40 @@
                 const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
                 queryUrl += `&primary_release_date.gte=${tomorrow}&sort_by=primary_release_date.asc`;
             }
+            
             if(currentType === 'anime') queryUrl = `https://api.themoviedb.org/3/discover/tv?${params}&with_genres=16&with_original_language=ja&sort_by=popularity.desc`;
             else if(currentType === 'short') queryUrl = `https://api.themoviedb.org/3/discover/movie?${params}&with_runtime.lte=45&with_runtime.gte=2&sort_by=popularity.desc`;
             if(currentCountry) queryUrl += (currentCountry === 'IN' ? `&with_origin_country=IN&with_original_language=hi|ta|te|kn|ml` : `&with_origin_country=${currentCountry}`);
             if(currentGenre) queryUrl += `&with_genres=${currentGenre}`;
             if(currentYear) queryUrl += (endpoint.includes('tv') ? `&first_air_date_year=${currentYear}` : `&primary_release_year=${currentYear}`);
             if(searchQuery) queryUrl = `https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(searchQuery)}&api_key=${API_KEY}&language=en-US&page=${page}`;
-            try { const res = await fetch(queryUrl); const data = await res.json(); renderGrid(data.results || []); } catch (e) { console.error(e); }
+            
+            try { 
+                const res = await fetch(queryUrl); 
+                const data = await res.json(); 
+                renderGrid(data.results || []); 
+            } catch (e) { console.error(e); }
             loading = false;
         }
 
         function renderGrid(items) {
+            const grid = document.getElementById('feedGrid');
             items.forEach(m => {
                 if(!m.poster_path) return;
+                if (document.querySelector(`[data-id="${m.id}"]`)) return;
+
                 const mType = m.media_type || (currentType.includes('tv')||currentType==='anime'?'tv':'movie');
                 let displayType = 'FILM';
                 if(mType === 'tv') displayType = 'SERIES';
                 if(currentType === 'anime') displayType = 'ANIME';
                 if(currentType === 'short') displayType = 'SHORT';
+                
                 const card = document.createElement('div');
                 card.className = 'post-card';
+                card.setAttribute('data-id', m.id);
                 card.onclick = () => openModal(m.id, mType);
                 card.innerHTML = `<div class="badge-rating">★ ${m.vote_average ? m.vote_average.toFixed(1) : '0'}</div><div class="badge-type">${displayType}</div><img src="https://image.tmdb.org/t/p/w342${m.poster_path}">`;
-                document.getElementById('feedGrid').appendChild(card);
+                grid.appendChild(card);
             });
         }
 
@@ -261,14 +290,14 @@
         async function searchActorMovies(actorId, name) {
             closeModal();
             document.getElementById('searchInp').value = name;
-            searchQuery = ""; loading = true;
+            searchQuery = ""; loading = true; page = 1;
             document.getElementById('feedGrid').innerHTML = '';
             try {
-                // Mencari film (movie) dan tv yang diperankan aktor secara akurat
                 const res = await fetch(`https://api.themoviedb.org/3/person/${actorId}/combined_credits?api_key=${API_KEY}&language=id-ID`);
                 const data = await res.json();
-                const sorted = (data.cast || []).sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-                renderGrid(sorted.slice(0, 20));
+                const filtered = (data.cast || []).filter(m => m.poster_path);
+                const sorted = filtered.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+                renderGrid(sorted.slice(0, 60)); 
                 window.scrollTo({top: 0, behavior: 'smooth'});
             } catch (e) { console.error(e); }
             loading = false;
@@ -287,7 +316,11 @@
         window.onscroll = () => {
             const btt = document.getElementById('backToTop');
             btt.style.display = window.scrollY > 500 ? 'flex' : 'none';
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000 && !loading) { page++; loadFeed(false); }
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000 && !loading) { 
+                if(searchQuery !== "" || currentGenre !== "" || currentYear !== "" || currentCountry !== "") {
+                    page++; loadFeed(false); 
+                }
+            }
         };
 
         function handleToggleDesc() { isExpanded = !isExpanded; renderSynopsis(); }
@@ -306,7 +339,25 @@
         function searchAction() { searchQuery = document.getElementById('searchInp').value; loadFeed(true); }
         function toggleLib(k) { let items = JSON.parse(localStorage.getItem(k) || '[]'); const idx = items.findIndex(x => x.id == window.currentMediaId); idx > -1 ? items.splice(idx,1) : items.push({id: window.currentMediaId, type: window.currentMediaType}); localStorage.setItem(k, JSON.stringify(items)); updateLibButtons(window.currentMediaId); }
         function updateLibButtons(id) { const isL = JSON.parse(localStorage.getItem('likes') || '[]').some(x=>x.id==id); const isB = JSON.parse(localStorage.getItem('bookmarks') || '[]').some(x=>x.id==id); document.getElementById('btnLikeModal').className = isL ? 'fa-solid fa-heart text-red-500 interaction-icon' : 'fa-regular fa-heart interaction-icon'; document.getElementById('btnBookModal').className = isB ? 'fa-solid fa-bookmark text-white interaction-icon' : 'fa-regular fa-bookmark interaction-icon'; document.getElementById('btnLikeModal').onclick = () => toggleLib('likes'); document.getElementById('btnBookModal').onclick = () => toggleLib('bookmarks'); }
-        async function showLibrary(k, el) { const items = JSON.parse(localStorage.getItem(k) || '[]'); const grid = document.getElementById('feedGrid'); grid.innerHTML = items.length ? '' : '<div class="col-span-3 text-center py-20 opacity-40">Daftar Kosong</div>'; for (const item of items) { const res = await fetch(`https://api.themoviedb.org/3/${item.type}/${item.id}?api_key=${API_KEY}&language=id-ID`); const m = await res.json(); renderGrid([m]); } }
+        
+        async function showLibrary(k) {
+            loading = true;
+            const items = JSON.parse(localStorage.getItem(k) || '[]');
+            const grid = document.getElementById('feedGrid');
+            grid.innerHTML = ''; 
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            
+            if (!items.length) {
+                grid.innerHTML = '<div class="col-span-3 text-center py-20 opacity-40 text-sm">Belum ada daftar di sini.</div>';
+                loading = false;
+                return;
+            }
+
+            const promises = items.map(item => fetch(`https://api.themoviedb.org/3/${item.type}/${item.id}?api_key=${API_KEY}&language=id-ID`).then(r => r.json()));
+            const results = await Promise.all(promises);
+            renderGrid(results.filter(m => m.id));
+            loading = false;
+        }
     </script>
 </body>
 </html>
