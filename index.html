@@ -20,8 +20,8 @@
         .pill { background: transparent; border: 1px solid #1c1c1c; color: #fff; padding: 7px 0; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; }
         .pill.active { border-color: #fff; background: rgba(255,255,255,0.1); }
         
-        /* Indikator Filter Aktif (Lebih Profesional) */
-        .pill.filter-selected { border-color: #0095f6; color: #0095f6; background: rgba(0, 149, 246, 0.1); }
+        /* Indikator Filter Monokrom Soft */
+        .pill.filter-selected { border-color: #52525b; color: #fff; background: #27272a; }
 
         .movie-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; padding-top: 255px; padding-bottom: 80px; }
         .post-card { position: relative; aspect-ratio: 2/3; background: #0a0a0a; overflow: hidden; }
@@ -29,12 +29,14 @@
         .badge-rating { position: absolute; top: 6px; left: 6px; padding: 2px 5px; border-radius: 2px; font-size: 7px; font-weight: 900; z-index: 5; background: rgba(255,255,255,0.9); color: #000; }
         .badge-type { position: absolute; top: 6px; right: 6px; padding: 2px 5px; border-radius: 2px; font-size: 7px; font-weight: 900; z-index: 5; background: rgba(0,0,0,0.7); color: #fff; text-transform: uppercase; border: 0.5px solid rgba(255,255,255,0.3); }
         
-        /* Dropdown Profesional dengan Sticky Reset */
-        .filter-dropdown { display: none; position: fixed; background: #121212; border: 1px solid #333; border-radius: 12px; z-index: 200; width: 160px; max-height: 350px; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,1); }
-        .dropdown-sticky-header { position: sticky; top: 0; background: #121212; z-index: 10; border-bottom: 1px solid #333; }
-        .filter-item { padding: 14px; font-size: 11px; text-align: center; border-bottom: 1px solid #1c1c1c; color: #bbb; cursor: pointer; }
-        .filter-item:active { background: #1c1c1c; }
-        .filter-item.reset { color: #ff4d4d; font-weight: 900; background: #1a1a1a; }
+        /* Dropdown Monokrom Profesional */
+        .filter-dropdown { display: none; position: fixed; background: #0a0a0a; border: 1px solid #1c1c1c; border-radius: 12px; z-index: 200; width: 160px; max-height: 350px; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        .dropdown-sticky-header { position: sticky; top: 0; background: #0a0a0a; z-index: 10; border-bottom: 1px solid #1c1c1c; }
+        .filter-item { padding: 14px; font-size: 11px; text-align: center; border-bottom: 1px solid #1c1c1c; color: #a1a1aa; cursor: pointer; }
+        .filter-item:active { background: #18181b; }
+        
+        /* Reset Color Soft */
+        .filter-item.reset { color: #f4f4f5; font-weight: 900; background: #18181b; text-transform: uppercase; letter-spacing: 0.5px; }
 
         .modal-player { display: none; position: fixed; inset: 0; z-index: 400; background: #000; overflow-y: auto; }
         .interaction-icon { font-size: 24px; cursor: pointer; color: #fff; }
@@ -153,61 +155,42 @@
     <script>
         const API_KEY = 'bfa7df5310c9974f62f26c6789a8c00d';
         let page = 1, loading = false, currentType = 'multi', currentGenre = '', currentYear = '', currentCountry = '', currentSchedule = 'trending', searchQuery = '';
-        let isExpanded = false;
-        let globalFullDesc = "";
+        let isExpanded = false, globalFullDesc = "";
 
         window.onload = () => { initFilters(); loadFeed(); };
 
         function initFilters() {
-            // Membangun Dropdown Tahun dengan Sticky Reset
             const yD = document.getElementById('yearDropdown');
-            yD.innerHTML = '<div class="dropdown-sticky-header"><div class="filter-item reset" onclick="setYear(\'\')">SEMUA TAHUN</div></div>';
+            yD.innerHTML = '<div class="dropdown-sticky-header"><div class="filter-item reset" onclick="setYear(\'\')">Semua Tahun</div></div>';
             for(let y=2026; y>=1900; y--) yD.innerHTML += `<div class="filter-item" onclick="setYear(${y})">${y}</div>`;
             
-            // Membangun Dropdown Negara dengan Sticky Reset
             const cD = document.getElementById('countryDropdown');
-            cD.innerHTML = '<div class="dropdown-sticky-header"><div class="filter-item reset" onclick="setCountry(\'\',\'Negara\')">SEMUA NEGARA</div></div>';
+            cD.innerHTML = '<div class="dropdown-sticky-header"><div class="filter-item reset" onclick="setCountry(\'\',\'Negara\')">Semua Negara</div></div>';
             [['IN','India'],['TH','Thailand'],['KR','Korea'],['JP','Jepang'],['ID','Indonesia'],['US','USA'],['CN','China'],['FR','Prancis'],['ES','Spanyol']].forEach(c => cD.innerHTML += `<div class="filter-item" onclick="setCountry('${c[0]}','${c[1]}')">${c[1]}</div>`);
             
-            // Membangun Dropdown Genre dengan Sticky Reset
             const gD = document.getElementById('genreDropdown');
-            gD.innerHTML = '<div class="dropdown-sticky-header"><div class="filter-item reset" onclick="setGenre(\'\',\'Genre\')">SEMUA GENRE</div></div>';
+            gD.innerHTML = '<div class="dropdown-sticky-header"><div class="filter-item reset" onclick="setGenre(\'\',\'Genre\')">Semua Genre</div></div>';
             [[28,'Action'],[12,'Adventure'],[16,'Animasi'],[35,'Comedy'],[80,'Crime'],[99,'Documentary'],[18,'Drama'],[10751,'Family'],[14,'Fantasy'],[36,'History'],[27,'Horror'],[10402,'Music'],[9648,'Mystery'],[10749,'Romance'],[878,'Sci-Fi'],[10770,'TV Movie'],[53,'Thriller'],[10752,'War'],[37,'Western']].forEach(g => gD.innerHTML += `<div class="filter-item" onclick="setGenre('${g[0]}','${g[1]}')">${g[1]}</div>`);
         }
 
         async function loadFeed(isNew = true) {
             if(loading) return; loading = true;
             if(isNew) { page = 1; document.getElementById('feedGrid').innerHTML = ''; }
-            
             let params = `api_key=${API_KEY}&language=id-ID&page=${page}&include_adult=false`;
             let endpoint = (currentType === 'tv' || currentType === 'anime') ? 'discover/tv' : 'discover/movie';
             let queryUrl = `https://api.themoviedb.org/3/${endpoint}?${params}`;
-
             const today = new Date().toISOString().split('T')[0];
-
             if (currentSchedule === 'trending') queryUrl += `&sort_by=trending.desc`;
             else if (currentSchedule === 'popular') queryUrl += `&sort_by=popularity.desc`;
-            else if (currentSchedule === 'now_playing') {
-                const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                queryUrl += `&release_date.gte=${sixtyDaysAgo}&release_date.lte=${today}&sort_by=release_date.desc`;
-            } else if (currentSchedule === 'upcoming') {
-                const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                queryUrl += `&primary_release_date.gte=${tomorrow}&sort_by=primary_release_date.asc`;
-            }
-
+            else if (currentSchedule === 'now_playing') { const sixty = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; queryUrl += `&release_date.gte=${sixty}&release_date.lte=${today}&sort_by=release_date.desc`; }
+            else if (currentSchedule === 'upcoming') { const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]; queryUrl += `&primary_release_date.gte=${tomorrow}&sort_by=primary_release_date.asc`; }
             if(currentType === 'anime') queryUrl = `https://api.themoviedb.org/3/discover/tv?${params}&with_genres=16&with_original_language=ja&sort_by=popularity.desc`;
             else if(currentType === 'short') queryUrl = `https://api.themoviedb.org/3/discover/movie?${params}&with_runtime.lte=45&with_runtime.gte=2&sort_by=popularity.desc`;
-
             if(currentCountry) queryUrl += (currentCountry === 'IN' ? `&with_origin_country=IN&with_original_language=hi|ta|te|kn|ml` : `&with_origin_country=${currentCountry}`);
             if(currentGenre) queryUrl += `&with_genres=${currentGenre}`;
             if(currentYear) queryUrl += (endpoint.includes('tv') ? `&first_air_date_year=${currentYear}` : `&primary_release_year=${currentYear}`);
             if(searchQuery) queryUrl = `https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(searchQuery)}&api_key=${API_KEY}&language=en-US&page=${page}`;
-
-            try {
-                const res = await fetch(queryUrl);
-                const data = await res.json();
-                renderGrid(data.results || []);
-            } catch (e) { console.error(e); }
+            try { const res = await fetch(queryUrl); const data = await res.json(); renderGrid(data.results || []); } catch (e) { console.error(e); }
             loading = false;
         }
 
@@ -227,30 +210,26 @@
             });
         }
 
-        // LOGIKA FILTER DENGAN INDIKATOR
+        // FUNGSI FILTER MONOKROM
         function setYear(y) { 
-            currentYear=y; 
-            const btn = document.getElementById('yearBtn');
+            currentYear=y; const btn = document.getElementById('yearBtn');
             btn.innerText=y || 'Tahun'; 
             y ? btn.classList.add('filter-selected') : btn.classList.remove('filter-selected');
             closeD(); loadFeed(true); 
         }
         function setCountry(c, n) { 
-            currentCountry=c; 
-            const btn = document.getElementById('btnCountry');
+            currentCountry=c; const btn = document.getElementById('btnCountry');
             btn.innerText=n; 
             c ? btn.classList.add('filter-selected') : btn.classList.remove('filter-selected');
             closeD(); loadFeed(true); 
         }
         function setGenre(g, n) { 
-            currentGenre=g; 
-            const btn = document.getElementById('btnGenre');
+            currentGenre=g; const btn = document.getElementById('btnGenre');
             btn.innerText=n; 
             g ? btn.classList.add('filter-selected') : btn.classList.remove('filter-selected');
             closeD(); loadFeed(true); 
         }
 
-        // Script Modal & Lainnya (TETAP SAMA)
         async function openModal(id, type) {
             window.currentMediaId = id; window.currentMediaType = type;
             document.getElementById('movieModal').style.display = 'block';
