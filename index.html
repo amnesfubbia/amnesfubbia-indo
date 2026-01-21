@@ -15,8 +15,9 @@
         .ig-logo { font-family: 'DM Sans', sans-serif; font-weight: 700; font-style: italic; font-size: 22px; letter-spacing: -0.5px; text-transform: lowercase; cursor: pointer; }
         
         .search-container { background: #0a0a0a; border-radius: 8px; display: flex; align-items: center; padding: 7px 12px; border: 1px solid #1c1c1c; margin: 0 15px 10px 15px; }
-        .search-container input { background: transparent !important; border: none !important; color: white !important; font-size: 13px; width: 100%; outline: none !important; margin-left: 8px; box-shadow: none !important; }
-        
+        .search-container input { 
+            background: transparent !important; border: none !important; color: white !important; font-size: 13px; width: 100%; outline: none !important; margin-left: 8px; box-shadow: none !important;
+        }
         .search-container input:-webkit-autofill,
         .search-container input:-webkit-autofill:hover, 
         .search-container input:-webkit-autofill:focus {
@@ -59,13 +60,13 @@
         .ig-hashtags { color: #e0f1ff; display: block; margin-top: 10px; font-size: 13px; word-break: break-word; }
         .ig-date { color: #a8a8a8; font-size: 11px; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.2px; }
 
-        /* MODIFIKASI AREA VIDEO UNTUK CAROUSEL */
-        .carousel-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; }
-        .carousel-track { display: flex; transition: transform 0.3s ease-out; height: 100%; }
-        .carousel-item { min-width: 100%; height: 100%; }
-        .carousel-dots { display: flex; gap: 4px; align-items: center; justify-content: center; margin-top: 2px; }
-        .dot { width: 6px; height: 6px; background: #333; border-radius: 50%; transition: 0.3s; }
-        .dot.active { background: #0095f6; transform: scale(1.2); }
+        /* CAROUSEL LOGIC */
+        .carousel-container { position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; background: #000; }
+        .carousel-track { display: flex; height: 100%; transition: transform 0.3s ease-out; }
+        .carousel-slide { min-width: 100%; height: 100%; flex-shrink: 0; }
+        .carousel-dots { position: absolute; bottom: 10px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; z-index: 20; pointer-events: none; }
+        .dot { width: 6px; height: 6px; background: rgba(255,255,255,0.3); border-radius: 50%; transition: 0.3s; }
+        .dot.active { background: #fff; transform: scale(1.2); }
     </style>
 </head>
 <body>
@@ -125,10 +126,11 @@
 
             <div id="castContainer" class="cast-wrapper px-4 no-scrollbar"></div>
 
-            <div class="carousel-wrapper bg-zinc-900" id="videoArea">
+            <div class="carousel-container" id="carouselArea">
                 <div class="carousel-track" id="carouselTrack">
                     <iframe id="videoPlayer" class="w-full h-full" allow="autoplay; fullscreen" allowfullscreen></iframe>
                 </div>
+                <div class="carousel-dots" id="carouselDots"></div>
             </div>
 
             <div class="px-4 py-3 flex justify-between items-center">
@@ -137,7 +139,6 @@
                     <i class="fa-regular fa-comment interaction-icon"></i>
                     <i class="fa-regular fa-paper-plane interaction-icon"></i>
                 </div>
-                <div id="carouselDots" class="carousel-dots"></div>
                 <i id="btnBookModal" class="interaction-icon"></i>
             </div>
             
@@ -173,8 +174,7 @@
     <script>
         const API_KEY = 'bfa7df5310c9974f62f26c6789a8c00d';
         let page = 1, loading = false, currentType = 'multi', currentGenre = '', currentYear = '', currentCountry = '', currentSchedule = 'trending', searchQuery = '';
-        let isExpanded = false, globalFullDesc = "";
-        let currentSlide = 0, slidesData = [];
+        let isExpanded = false, globalFullDesc = "", currentSlide = 0, trailerCount = 0;
 
         window.onload = () => { initFilters(); loadFeed(); };
 
@@ -197,9 +197,18 @@
             let params = `api_key=${API_KEY}&language=id-ID&page=${page}&include_adult=false`;
             let endpoint = (currentType === 'tv' || currentType === 'anime') ? 'discover/tv' : 'discover/movie';
             let queryUrl = `https://api.themoviedb.org/3/${endpoint}?${params}`;
+            const today = new Date().toISOString().split('T')[0];
             if (currentSchedule === 'trending') queryUrl += `&sort_by=trending.desc`;
             else if (currentSchedule === 'popular') queryUrl += `&sort_by=popularity.desc`;
+            else if (currentSchedule === 'now_playing') {
+                const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                queryUrl += `&release_date.gte=${sixtyDaysAgo}&release_date.lte=${today}&sort_by=release_date.desc`;
+            } else if (currentSchedule === 'upcoming') {
+                const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                queryUrl += `&primary_release_date.gte=${tomorrow}&sort_by=primary_release_date.asc`;
+            }
             if(currentType === 'anime') queryUrl = `https://api.themoviedb.org/3/discover/tv?${params}&with_genres=16&with_original_language=ja&sort_by=popularity.desc`;
+            else if(currentType === 'short') queryUrl = `https://api.themoviedb.org/3/discover/movie?${params}&with_runtime.lte=45&with_runtime.gte=2&sort_by=popularity.desc`;
             if(currentCountry) queryUrl += (currentCountry === 'IN' ? `&with_origin_country=IN&with_original_language=hi|ta|te|kn|ml` : `&with_origin_country=${currentCountry}`);
             if(currentGenre) queryUrl += `&with_genres=${currentGenre}`;
             if(currentYear) queryUrl += (endpoint.includes('tv') ? `&first_air_date_year=${currentYear}` : `&primary_release_year=${currentYear}`);
@@ -216,7 +225,8 @@
                 const card = document.createElement('div');
                 card.className = 'post-card';
                 card.onclick = () => openModal(m.id, mType);
-                card.innerHTML = `<div class="badge-rating">★ ${m.vote_average?.toFixed(1) || '0'}</div><div class="badge-type uppercase">${mType}</div><img src="https://image.tmdb.org/t/p/w342${m.poster_path}">`;
+                let dType = mType === 'tv' ? 'SERIES' : (currentType === 'short' ? 'SHORT' : (currentType === 'anime' ? 'ANIME' : 'FILM'));
+                card.innerHTML = `<div class="badge-rating">★ ${m.vote_average?.toFixed(1) || '0'}</div><div class="badge-type">${dType}</div><img src="https://image.tmdb.org/t/p/w342${m.poster_path}">`;
                 grid.appendChild(card);
             });
         }
@@ -225,91 +235,58 @@
             window.currentMediaId = id; window.currentMediaType = type;
             document.getElementById('movieModal').style.display = 'block';
             document.body.style.overflow = 'hidden';
-            
             const [rId, rEn, rCast] = await Promise.all([
                 fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}&language=id-ID&append_to_response=videos`),
                 fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}&language=en-US&append_to_response=videos`),
                 fetch(`https://api.themoviedb.org/3/${type}/${id}/credits?api_key=${API_KEY}`)
             ]);
             const dId = await rId.json(), dEn = await rEn.json(), dCast = await rCast.json();
-
-            // RENDER CAST ASLI
-            document.getElementById('castContainer').innerHTML = (dCast.cast || []).slice(0, 10).map(c => `
-                <div class="cast-item" onclick="searchActorMovies(${c.id}, '${c.name.replace(/'/g, "\\'")}')">
-                    <div class="cast-img-border"><img src="${c.profile_path ? 'https://image.tmdb.org/t/p/w185' + c.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-3245c3f3347706a035c9744ffaa5d174e48be3b860667e406723f3bc8160f47e.svg'}"></div>
-                    <span class="cast-name">${c.name}</span>
-                </div>`).join('');
-
+            document.getElementById('castContainer').innerHTML = (dCast.cast || []).slice(0, 10).map(c => `<div class="cast-item" onclick="searchActorMovies(${c.id}, '${c.name.replace(/'/g, "\\'")}')"><div class="cast-img-border"><img src="${c.profile_path ? 'https://image.tmdb.org/t/p/w185' + c.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-3245c3f3347706a035c9744ffaa5d174e48be3b860667e406723f3bc8160f47e.svg'}"></div><span class="cast-name">${c.name}</span></div>`).join('');
             document.getElementById('mTitle').innerText = dId.title || dId.name || dEn.title || dEn.name;
             globalFullDesc = dId.overview || dEn.overview || "Sinopsis tidak tersedia.";
             isExpanded = false; renderSynopsis();
             document.getElementById('mLikeDisplay').innerText = `${Math.floor((dId.vote_average || 0) * 1234).toLocaleString('id-ID')} suka`;
             const rel = dId.release_date || dId.first_air_date || "";
             document.getElementById('mDateDisplay').innerText = rel ? new Date(rel).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
-            
-            const hashtags = (dId.genres || []).slice(0,2).map(g => "#" + g.name.replace(/\s+/g, '')).join(" ");
-            document.getElementById('mHashtags').innerText = `#${(dId.title||dId.name||"").replace(/\s+/g, '')} ${hashtags}`;
+            document.getElementById('mHashtags').innerText = `#${(dId.title||dId.name||"").replace(/\s+/g, '')} ${(dId.genres||[]).slice(0,2).map(g=>'#'+g.name.replace(/\s+/g,'')).join(' ')}`;
 
-            // LOGIKA CAROUSEL
-            const allVids = [...(dId.videos?.results || []), ...(dEn.videos?.results || [])].filter(v => v.type === "Trailer" || v.type === "Teaser");
-            setupCarousel(allVids, type, id);
+            // --- CAROUSEL LOGIC ---
+            const trailers = [...(dId.videos?.results || []), ...(dEn.videos?.results || [])].filter(v => v.type === "Trailer" || v.type === "Teaser").slice(0, 5);
+            const track = document.getElementById('carouselTrack');
+            const dotsCont = document.getElementById('carouselDots');
+            track.innerHTML = ''; dotsCont.innerHTML = ''; currentSlide = 0; trailerCount = trailers.length;
+            track.style.transform = 'translateX(0)';
 
-            document.getElementById('serverList').innerHTML = `
-                <button class="server-btn" onclick="playVid('https://vidrock.net/embed/${type}/${id}${type==='tv'?'/1/1':''}', this)">Server 1</button>
-                <button class="server-btn" onclick="playVid('https://vidsrc.me/embed/${type}?tmdb=${id}', this)">Server 2</button>
-                <button class="server-btn" onclick="playVid('https://embed.smashystream.com/playere.php?tmdb=${id}', this)">Server 3</button>`;
-            
-            if(type === 'tv') { document.getElementById('seriesControl').classList.remove('hidden'); loadSeasons(dId.seasons); }
-            else { document.getElementById('seriesControl').classList.add('hidden'); }
+            if(trailers.length > 0) {
+                trailers.forEach((v, i) => {
+                    track.innerHTML += `<div class="carousel-slide"><iframe id="yt-${i}" class="w-full h-full" src="https://www.youtube.com/embed/${v.key}?enablejsapi=1&rel=0&autoplay=${i===0?1:0}&mute=1"></iframe></div>`;
+                    if(trailers.length > 1) dotsCont.innerHTML += `<div class="dot ${i===0?'active':''}"></div>`;
+                });
+                let startX = 0;
+                track.ontouchstart = e => startX = e.touches[0].clientX;
+                track.ontouchend = e => { let diff = startX - e.changedTouches[0].clientX; if(Math.abs(diff) > 50) moveSlide(diff > 0 ? 1 : -1); };
+            } else {
+                track.innerHTML = `<div class="carousel-slide"><iframe id="videoPlayer" class="w-full h-full" src="https://vidrock.net/embed/${type}/${id}${type==='tv'?'/1/1':''}" allowfullscreen></iframe></div>`;
+            }
+
+            document.getElementById('serverList').innerHTML = `<button class="server-btn" onclick="playVid('https://vidrock.net/embed/${type}/${id}${type==='tv'?'/1/1':''}', this)">Server 1</button><button class="server-btn" onclick="playVid('https://vidsrc.me/embed/${type}?tmdb=${id}', this)">Server 2</button><button class="server-btn" onclick="playVid('https://embed.smashystream.com/playere.php?tmdb=${id}', this)">Server 3</button>`;
+            if(type === 'tv') { document.getElementById('seriesControl').classList.remove('hidden'); loadSeasons(dId.seasons); } else { document.getElementById('seriesControl').classList.add('hidden'); }
             updateLibButtons(id);
         }
 
-        function setupCarousel(vids, type, id) {
-            const track = document.getElementById('carouselTrack');
-            const dots = document.getElementById('carouselDots');
-            track.innerHTML = ''; dots.innerHTML = ''; currentSlide = 0;
-            track.style.transform = `translateX(0)`;
-
-            if (vids.length === 0) {
-                track.innerHTML = `<div class="carousel-item"><iframe class="w-full h-full" src="https://vidrock.net/embed/${type}/${id}${type==='tv'?'/1/1':''}"></iframe></div>`;
-                return;
-            }
-
-            slidesData = vids.slice(0, 5); // Maksimal 5 slide
-            slidesData.forEach((v, i) => {
-                track.innerHTML += `<div class="carousel-item"><iframe id="slide-${i}" class="w-full h-full" src="https://www.youtube.com/embed/${v.key}?enablejsapi=1&rel=0&autoplay=${i===0?1:0}&mute=1" allow="autoplay; fullscreen"></iframe></div>`;
-                if(slidesData.length > 1) dots.innerHTML += `<div class="dot ${i===0?'active':''}"></div>`;
-            });
-
-            // Swipe Handler
-            let startX = 0;
-            track.ontouchstart = e => startX = e.touches[0].clientX;
-            track.ontouchend = e => {
-                let diff = startX - e.changedTouches[0].clientX;
-                if (Math.abs(diff) > 50) moveSlide(diff > 0 ? 1 : -1);
-            };
-        }
-
         function moveSlide(dir) {
-            if (slidesData.length <= 1) return;
-            // Stop video lama
-            const oldVid = document.getElementById(`slide-${currentSlide}`);
+            if(trailerCount <= 1) return;
+            const oldVid = document.getElementById(`yt-${currentSlide}`);
             if(oldVid) oldVid.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-
-            currentSlide = (currentSlide + dir + slidesData.length) % slidesData.length;
+            currentSlide = (currentSlide + dir + trailerCount) % trailerCount;
             document.getElementById('carouselTrack').style.transform = `translateX(-${currentSlide * 100}%)`;
-            
-            // Play video baru
-            const newVid = document.getElementById(`slide-${currentSlide}`);
+            const newVid = document.getElementById(`yt-${currentSlide}`);
             if(newVid) newVid.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-
             document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === currentSlide));
         }
 
         function playVid(url, el) { 
-            // Transisi: Ganti Carousel jadi Player Tunggal
-            document.getElementById('videoArea').innerHTML = `<iframe id="videoPlayer" class="w-full h-full" src="${url}" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
-            document.getElementById('carouselDots').innerHTML = '';
+            document.getElementById('carouselArea').innerHTML = `<iframe id="videoPlayer" class="w-full h-full" src="${url}" allowfullscreen></iframe>`;
             highlightBtn(el); 
         }
 
@@ -323,16 +300,16 @@
             } else { descEl.innerText = globalFullDesc; toggleBtn.classList.add('hidden'); }
         }
 
+        function closeModal() { 
+            document.getElementById('movieModal').style.display = 'none'; 
+            document.body.style.overflow = 'auto'; 
+            document.getElementById('carouselArea').innerHTML = `<div class="carousel-track" id="carouselTrack"><iframe id="videoPlayer" class="w-full h-full" allowfullscreen></iframe></div><div class="carousel-dots" id="carouselDots"></div>`;
+        }
+
         function handleToggleDesc() { isExpanded = !isExpanded; renderSynopsis(); }
         function highlightBtn(el) { document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active-link')); el.classList.add('active-link'); }
         async function loadSeasons(s) { document.getElementById('seasonSel').innerHTML = (s||[]).filter(x=>x.season_number>0).map(x=>`<option value="${x.season_number}">Season ${x.season_number}</option>`).join(''); loadEpisodes(); }
         async function loadEpisodes() { const s = document.getElementById('seasonSel').value; const res = await fetch(`https://api.themoviedb.org/3/tv/${window.currentMediaId}/season/${s}?api_key=${API_KEY}`); const d = await res.json(); document.getElementById('episodeGrid').innerHTML = (d.episodes||[]).map(e => `<div class="pill text-[10px]" onclick="playVid('https://vidrock.net/embed/tv/${window.currentMediaId}/${s}/${e.episode_number}', this)">${e.episode_number}</div>`).join(''); }
-        function closeModal() { 
-            document.getElementById('movieModal').style.display = 'none'; 
-            document.body.style.overflow = 'auto';
-            // Reset modal ke state awal (carousel track)
-            document.getElementById('videoArea').innerHTML = `<div class="carousel-track" id="carouselTrack"><iframe id="videoPlayer" class="w-full h-full" allowfullscreen></iframe></div>`;
-        }
         function setFilter(t, v, el) { currentType = v; updatePill(el); loadFeed(true); }
         function setSchedule(v, el) { updatePill(el); currentSchedule=v; loadFeed(true); }
         function updatePill(el) { el.parentElement.querySelectorAll('.pill').forEach(p=>p.classList.remove('active')); el.classList.add('active'); }
