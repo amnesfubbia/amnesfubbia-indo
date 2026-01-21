@@ -67,13 +67,13 @@
         .ig-hashtags { color: #e0f1ff; display: block; margin-top: 10px; font-size: 13px; word-break: break-word; }
         .ig-date { color: #a8a8a8; font-size: 11px; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.2px; }
 
-        /* CAROUSEL STYLES */
+        /* CAROUSEL FIXED */
         .carousel-container { position: relative; width: 100%; overflow: hidden; background: #000; touch-action: pan-y; }
-        .carousel-track { display: flex; transition: transform 0.3s ease-out; width: 100%; }
-        .carousel-slide { min-width: 100%; aspect-video: 16/9; background: #000; }
-        .carousel-dots { display: flex; justify-content: center; gap: 4px; padding: 10px 0; }
+        .carousel-track { display: flex; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); width: 100%; will-change: transform; }
+        .carousel-slide { min-width: 100%; aspect-ratio: 16/9; background: #000; }
+        .carousel-dots { display: flex; justify-content: center; gap: 6px; padding: 10px 0; }
         .dot { width: 6px; height: 6px; border-radius: 50%; background: #333; transition: 0.3s; }
-        .dot.active { background: #0095f6; transform: scale(1.2); }
+        .dot.active { background: #0095f6; transform: scale(1.3); }
     </style>
 </head>
 <body>
@@ -183,13 +183,12 @@
     <script>
         const API_KEY = 'bfa7df5310c9974f62f26c6789a8c00d';
         let page = 1, loading = false, currentType = 'multi', currentGenre = '', currentYear = '', currentCountry = '', currentSchedule = 'trending', searchQuery = '';
-        let isExpanded = false;
-        let globalFullDesc = "";
+        let isExpanded = false, globalFullDesc = "";
         
-        // Carousel Variables
+        // Carousel State
         let startX = 0, currentIdx = 0, isDragging = false;
 
-        window.onload = () => { initFilters(); loadFeed(); initCarouselLogic(); };
+        window.onload = () => { initFilters(); loadFeed(); setupSwipe(); };
 
         function initFilters() {
             const yD = document.getElementById('yearDropdown');
@@ -207,11 +206,9 @@
             if(loading) return; loading = true;
             const grid = document.getElementById('feedGrid');
             if(isNew) { page = 1; grid.innerHTML = ''; }
-            
             let params = `api_key=${API_KEY}&language=id-ID&page=${page}&include_adult=false`;
             let endpoint = (currentType === 'tv' || currentType === 'anime') ? 'discover/tv' : 'discover/movie';
             let queryUrl = `https://api.themoviedb.org/3/${endpoint}?${params}`;
-            
             const today = new Date().toISOString().split('T')[0];
             if (currentSchedule === 'trending') queryUrl += `&sort_by=trending.desc`;
             else if (currentSchedule === 'popular') queryUrl += `&sort_by=popularity.desc`;
@@ -222,19 +219,13 @@
                 const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
                 queryUrl += `&primary_release_date.gte=${tomorrow}&sort_by=primary_release_date.asc`;
             }
-            
             if(currentType === 'anime') queryUrl = `https://api.themoviedb.org/3/discover/tv?${params}&with_genres=16&with_original_language=ja&sort_by=popularity.desc`;
             else if(currentType === 'short') queryUrl = `https://api.themoviedb.org/3/discover/movie?${params}&with_runtime.lte=45&with_runtime.gte=2&sort_by=popularity.desc`;
             if(currentCountry) queryUrl += (currentCountry === 'IN' ? `&with_origin_country=IN&with_original_language=hi|ta|te|kn|ml` : `&with_origin_country=${currentCountry}`);
             if(currentGenre) queryUrl += `&with_genres=${currentGenre}`;
             if(currentYear) queryUrl += (endpoint.includes('tv') ? `&first_air_date_year=${currentYear}` : `&primary_release_year=${currentYear}`);
             if(searchQuery) queryUrl = `https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(searchQuery)}&api_key=${API_KEY}&language=en-US&page=${page}`;
-            
-            try { 
-                const res = await fetch(queryUrl); 
-                const data = await res.json(); 
-                renderGrid(data.results || []); 
-            } catch (e) { console.error(e); }
+            try { const res = await fetch(queryUrl); const data = await res.json(); renderGrid(data.results || []); } catch (e) { console.error(e); }
             loading = false;
         }
 
@@ -243,18 +234,15 @@
             items.forEach(m => {
                 if(!m.poster_path) return;
                 if (document.querySelector(`[data-id="${m.id}"]`)) return;
-
                 const mType = m.media_type || (currentType.includes('tv')||currentType==='anime'?'tv':'movie');
-                let displayType = 'FILM';
-                if(mType === 'tv') displayType = 'SERIES';
-                if(currentType === 'anime') displayType = 'ANIME';
-                if(currentType === 'short') displayType = 'SHORT';
-                
+                let dType = 'FILM';
+                if(mType === 'tv') dType = 'SERIES';
+                if(currentType === 'anime') dType = 'ANIME';
                 const card = document.createElement('div');
                 card.className = 'post-card';
                 card.setAttribute('data-id', m.id);
                 card.onclick = () => openModal(m.id, mType);
-                card.innerHTML = `<div class="badge-rating">★ ${m.vote_average ? m.vote_average.toFixed(1) : '0'}</div><div class="badge-type">${displayType}</div><img src="https://image.tmdb.org/t/p/w342${m.poster_path}">`;
+                card.innerHTML = `<div class="badge-rating">★ ${m.vote_average ? m.vote_average.toFixed(1) : '0'}</div><div class="badge-type">${dType}</div><img src="https://image.tmdb.org/t/p/w342${m.poster_path}">`;
                 grid.appendChild(card);
             });
         }
@@ -263,10 +251,7 @@
             window.currentMediaId = id; window.currentMediaType = type;
             document.getElementById('movieModal').style.display = 'block';
             document.body.style.overflow = 'hidden';
-            
-            // Reset Carousel
-            currentIdx = 0;
-            updateCarouselPos();
+            currentIdx = 0; updateCarousel();
 
             const [rId, rEn, rCast] = await Promise.all([
                 fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}&language=id-ID&append_to_response=videos`),
@@ -276,29 +261,20 @@
             
             const dId = await rId.json(), dEn = await rEn.json(), dCast = await rCast.json();
             
-            // Render Cast
-            const castCont = document.getElementById('castContainer');
-            castCont.innerHTML = (dCast.cast || []).slice(0, 10).map(c => `
-                <div class="cast-item" onclick="searchActorMovies(${c.id}, '${c.name.replace(/'/g, "\\'")}')">
-                    <div class="cast-img-border"><img src="${c.profile_path ? 'https://image.tmdb.org/t/p/w185' + c.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-3245c3f3347706a035c9744ffaa5d174e48be3b860667e406723f3bc8160f47e.svg'}"></div>
-                    <span class="cast-name">${c.name}</span>
-                </div>
-            `).join('');
+            // Filter Official Trailer/Teaser Only (Limit 3 trailer + 1 main player = 4 dots)
+            const vids = [...(dId.videos?.results || []), ...(dEn.videos?.results || [])]
+                .filter(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser'))
+                .filter((v, i, self) => i === self.findIndex(t => t.key === v.key))
+                .slice(0, 3);
 
-            // Setup Carousel Traillers
             const track = document.getElementById('carouselTrack');
             const dots = document.getElementById('carouselDots');
-            const vids = [...(dId.videos?.results || []), ...(dEn.videos?.results || [])].filter(v => v.site === 'YouTube');
             
-            // Filter hanya trailer unik
-            const trailers = vids.filter((v, i, self) => i === self.findIndex((t) => t.key === v.key));
-            
-            // Reset track (Slide 0 selalu player utama)
-            track.innerHTML = `<div class="carousel-slide"><iframe id="videoPlayer" class="w-full h-full" allow="autoplay; fullscreen" allowfullscreen></iframe></div>`;
+            track.innerHTML = `<div class="carousel-slide"><iframe id="videoPlayer" class="w-full h-full" allowfullscreen></iframe></div>`;
             dots.innerHTML = `<div class="dot active"></div>`;
 
-            trailers.forEach(t => {
-                track.innerHTML += `<div class="carousel-slide"><iframe src="https://www.youtube.com/embed/${t.key}?rel=0" class="w-full h-full" allowfullscreen></iframe></div>`;
+            vids.forEach(v => {
+                track.innerHTML += `<div class="carousel-slide"><iframe src="https://www.youtube.com/embed/${v.key}?rel=0" class="w-full h-full" allowfullscreen loading="lazy"></iframe></div>`;
                 dots.innerHTML += `<div class="dot"></div>`;
             });
 
@@ -307,23 +283,26 @@
             globalFullDesc = dId.overview || dEn.overview || "Sinopsis tidak tersedia.";
             isExpanded = false; renderSynopsis();
             
-            const btnT = document.getElementById('mTranslateBtn');
-            btnT.classList.toggle('hidden', dId.overview || !dEn.overview);
-            btnT.onclick = () => window.open(`https://translate.google.com/?sl=en&tl=id&text=${encodeURIComponent(dEn.overview)}&op=translate`);
-            
             const rel = dId.release_date || dId.first_air_date || "";
             const genresArr = (dId.genres || []).slice(0, 2);
             document.getElementById('mHashtags').innerText = `#${(dId.title||dId.name||"").replace(/\s+/g, '')} #${rel.split('-')[0]} ${genresArr.map(g => "#" + g.name.replace(/\s+/g, '')).join(" ")}`;
             document.getElementById('mDateDisplay').innerText = rel ? new Date(rel).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
             
-            // Play Main Video
             playVid(`https://vidrock.net/embed/${type}/${id}${type==='tv'?'/1/1':''}`, null);
             
             document.getElementById('serverList').innerHTML = `
-                <button class="server-btn btn-main-server active-link" onclick="playVid('https://vidrock.net/embed/${type}/${id}${type==='tv'?'/1/1':''}', this)">Server 1</button>
+                <button class="server-btn active-link" onclick="playVid('https://vidrock.net/embed/${type}/${id}${type==='tv'?'/1/1':''}', this)">Server 1</button>
                 <button class="server-btn" onclick="playVid('https://vidsrc.me/embed/${type}?tmdb=${id}', this)">Server 2</button>
                 <button class="server-btn" onclick="playVid('https://embed.smashystream.com/playere.php?tmdb=${id}', this)">Server 3</button>`;
             
+            const castCont = document.getElementById('castContainer');
+            castCont.innerHTML = (dCast.cast || []).slice(0, 10).map(c => `
+                <div class="cast-item" onclick="searchActorMovies(${c.id}, '${c.name.replace(/'/g, "\\'")}')">
+                    <div class="cast-img-border"><img src="${c.profile_path ? 'https://image.tmdb.org/t/p/w185' + c.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-3245c3f3347706a035c9744ffaa5d174e48be3b860667e406723f3bc8160f47e.svg'}"></div>
+                    <span class="cast-name">${c.name}</span>
+                </div>
+            `).join('');
+
             if(type === 'tv') {
                 document.getElementById('seriesControl').classList.remove('hidden');
                 document.getElementById('seasonSel').innerHTML = (dId.seasons||[]).filter(s=>s.season_number>0).map(s=>`<option value="${s.season_number}">Season ${s.season_number}</option>`).join('');
@@ -332,82 +311,37 @@
             updateLibButtons(id);
         }
 
-        function initCarouselLogic() {
+        function setupSwipe() {
             const container = document.getElementById('carouselMain');
             container.addEventListener('touchstart', e => { startX = e.touches[0].clientX; isDragging = true; }, {passive: true});
-            container.addEventListener('touchmove', e => {
-                if(!isDragging) return;
-                let moveX = e.touches[0].clientX - startX;
-                if(Math.abs(moveX) > 5) { // Prevent vertical scroll interference
-                    isDragging = true;
-                }
-            }, {passive: true});
             container.addEventListener('touchend', e => {
                 if(!isDragging) return;
-                let endX = e.changedTouches[0].clientX;
-                let diff = startX - endX;
-                const slides = document.querySelectorAll('.carousel-slide');
-                if(diff > 50 && currentIdx < slides.length - 1) currentIdx++;
-                else if(diff < -50 && currentIdx > 0) currentIdx--;
-                updateCarouselPos();
-                isDragging = false;
+                let diff = startX - e.changedTouches[0].clientX;
+                const total = document.querySelectorAll('.carousel-slide').length;
+                if(diff > 60 && currentIdx < total - 1) currentIdx++;
+                else if(diff < -60 && currentIdx > 0) currentIdx--;
+                updateCarousel(); isDragging = false;
             });
         }
 
-        function updateCarouselPos() {
+        function updateCarousel() {
             const track = document.getElementById('carouselTrack');
             const dots = document.querySelectorAll('.dot');
             track.style.transform = `translateX(-${currentIdx * 100}%)`;
             dots.forEach((d, i) => d.classList.toggle('active', i === currentIdx));
         }
 
-        async function searchActorMovies(actorId, name) {
-            closeModal();
-            document.getElementById('searchInp').value = name;
-            searchQuery = ""; loading = true; page = 1;
-            document.getElementById('feedGrid').innerHTML = '';
-            try {
-                const res = await fetch(`https://api.themoviedb.org/3/person/${actorId}/combined_credits?api_key=${API_KEY}&language=id-ID`);
-                const data = await res.json();
-                const filtered = (data.cast || []).filter(m => m.poster_path);
-                const sorted = filtered.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-                renderGrid(sorted.slice(0, 60)); 
-                window.scrollTo({top: 0, behavior: 'smooth'});
-            } catch (e) { console.error(e); }
-            loading = false;
-        }
-
-        function renderSynopsis() {
-            const descEl = document.getElementById('mDesc');
-            const toggleBtn = document.getElementById('mToggleBtn');
-            if (globalFullDesc.length > 90) {
-                toggleBtn.classList.remove('hidden');
-                descEl.innerText = isExpanded ? globalFullDesc : globalFullDesc.substring(0, 90) + "...";
-                toggleBtn.innerText = isExpanded ? "ringkas" : "selengkapnya";
-            } else { descEl.innerText = globalFullDesc; toggleBtn.classList.add('hidden'); }
-        }
-
-        window.onscroll = () => {
-            const btt = document.getElementById('backToTop');
-            btt.style.display = window.scrollY > 500 ? 'flex' : 'none';
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000 && !loading) { 
-                if(searchQuery !== "" || currentGenre !== "" || currentYear !== "" || currentCountry !== "") {
-                    page++; loadFeed(false); 
-                }
-            }
-        };
-
-        function handleToggleDesc() { isExpanded = !isExpanded; renderSynopsis(); }
         function playVid(url, el) { 
             document.getElementById('videoPlayer').src = url; 
             if(el) highlightBtn(el);
-            // Kembali ke slide 1 jika server diklik
-            currentIdx = 0;
-            updateCarouselPos();
+            currentIdx = 0; updateCarousel();
         }
-        function highlightBtn(el) { document.querySelectorAll('.server-btn, .dl-link-btn').forEach(b => b.classList.remove('active-link')); el.classList.add('active-link'); }
-        async function loadEpisodes() { const s = document.getElementById('seasonSel').value; const res = await fetch(`https://api.themoviedb.org/3/tv/${window.currentMediaId}/season/${s}?api_key=${API_KEY}`); const d = await res.json(); document.getElementById('episodeGrid').innerHTML = (d.episodes||[]).map(e => `<div class="pill text-[10px]" onclick="playVid('https://vidrock.net/embed/tv/${window.currentMediaId}/${s}/${e.episode_number}', this)">${e.episode_number}</div>`).join(''); }
+
+        function highlightBtn(el) { document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active-link')); el.classList.add('active-link'); }
         function closeModal() { document.getElementById('movieModal').style.display = 'none'; document.getElementById('videoPlayer').src = ''; document.body.style.overflow = 'auto'; }
+        function renderSynopsis() { const d = document.getElementById('mDesc'); const b = document.getElementById('mToggleBtn'); if(globalFullDesc.length > 90) { b.classList.remove('hidden'); d.innerText = isExpanded ? globalFullDesc : globalFullDesc.substring(0, 90) + "..."; b.innerText = isExpanded ? "ringkas" : "selengkapnya"; } else { d.innerText = globalFullDesc; b.classList.add('hidden'); } }
+        function handleToggleDesc() { isExpanded = !isExpanded; renderSynopsis(); }
+        async function loadEpisodes() { const s = document.getElementById('seasonSel').value; const res = await fetch(`https://api.themoviedb.org/3/tv/${window.currentMediaId}/season/${s}?api_key=${API_KEY}`); const d = await res.json(); document.getElementById('episodeGrid').innerHTML = (d.episodes||[]).map(e => `<div class="pill text-[10px]" onclick="playVid('https://vidrock.net/embed/tv/${window.currentMediaId}/${s}/${e.episode_number}', this)">${e.episode_number}</div>`).join(''); }
         function setFilter(t, v, el) { currentType = v; updatePill(el); loadFeed(true); }
         function setSchedule(v, el) { updatePill(el); currentSchedule=v; loadFeed(true); }
         function updatePill(el) { el.parentElement.querySelectorAll('.pill').forEach(p=>p.classList.remove('active')); el.classList.add('active'); }
@@ -419,25 +353,8 @@
         function searchAction() { searchQuery = document.getElementById('searchInp').value; loadFeed(true); }
         function toggleLib(k) { let items = JSON.parse(localStorage.getItem(k) || '[]'); const idx = items.findIndex(x => x.id == window.currentMediaId); idx > -1 ? items.splice(idx,1) : items.push({id: window.currentMediaId, type: window.currentMediaType}); localStorage.setItem(k, JSON.stringify(items)); updateLibButtons(window.currentMediaId); }
         function updateLibButtons(id) { const isL = JSON.parse(localStorage.getItem('likes') || '[]').some(x=>x.id==id); const isB = JSON.parse(localStorage.getItem('bookmarks') || '[]').some(x=>x.id==id); document.getElementById('btnLikeModal').className = isL ? 'fa-solid fa-heart text-red-500 interaction-icon' : 'fa-regular fa-heart interaction-icon'; document.getElementById('btnBookModal').className = isB ? 'fa-solid fa-bookmark text-white interaction-icon' : 'fa-regular fa-bookmark interaction-icon'; document.getElementById('btnLikeModal').onclick = () => toggleLib('likes'); document.getElementById('btnBookModal').onclick = () => toggleLib('bookmarks'); }
-        
-        async function showLibrary(k) {
-            loading = true;
-            const items = JSON.parse(localStorage.getItem(k) || '[]');
-            const grid = document.getElementById('feedGrid');
-            grid.innerHTML = ''; 
-            window.scrollTo({top: 0, behavior: 'smooth'});
-            
-            if (!items.length) {
-                grid.innerHTML = '<div class="col-span-3 text-center py-20 opacity-40 text-sm">Belum ada daftar di sini.</div>';
-                loading = false;
-                return;
-            }
-
-            const promises = items.map(item => fetch(`https://api.themoviedb.org/3/${item.type}/${item.id}?api_key=${API_KEY}&language=id-ID`).then(r => r.json()));
-            const results = await Promise.all(promises);
-            renderGrid(results.filter(m => m.id));
-            loading = false;
-        }
+        async function showLibrary(k) { loading = true; const items = JSON.parse(localStorage.getItem(k) || '[]'); const grid = document.getElementById('feedGrid'); grid.innerHTML = ''; window.scrollTo({top: 0, behavior: 'smooth'}); if (!items.length) { grid.innerHTML = '<div class="col-span-3 text-center py-20 opacity-40 text-sm">Belum ada daftar di sini.</div>'; loading = false; return; } const promises = items.map(item => fetch(`https://api.themoviedb.org/3/${item.type}/${item.id}?api_key=${API_KEY}&language=id-ID`).then(r => r.json())); const results = await Promise.all(promises); renderGrid(results.filter(m => m.id)); loading = false; }
+        window.onscroll = () => { if(window.scrollY > 500) document.getElementById('backToTop').style.display='flex'; else document.getElementById('backToTop').style.display='none'; if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000 && !loading) { if(searchQuery !== "" || currentGenre !== "" || currentYear !== "" || currentCountry !== "") { page++; loadFeed(false); } } };
     </script>
 </body>
 </html>
