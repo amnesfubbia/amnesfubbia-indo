@@ -14,7 +14,6 @@
         .ig-header { padding: 12px 15px 5px 15px; }
         .ig-logo { font-family: 'DM Sans', sans-serif; font-weight: 700; font-style: italic; font-size: 22px; letter-spacing: -0.5px; text-transform: lowercase; cursor: pointer; }
         
-        /* PERBAIKAN KOLOM PENCARIAN AGAR WARNA TIDAK BERUBAH */
         .search-container { background: #0a0a0a; border-radius: 8px; display: flex; align-items: center; padding: 7px 12px; border: 1px solid #1c1c1c; margin: 0 15px 10px 15px; }
         .search-container input { 
             background: transparent !important; 
@@ -26,7 +25,6 @@
             margin-left: 8px;
             box-shadow: none !important;
         }
-        /* Mengunci warna saat autofill browser aktif */
         .search-container input:-webkit-autofill,
         .search-container input:-webkit-autofill:hover, 
         .search-container input:-webkit-autofill:focus {
@@ -68,6 +66,14 @@
         .toggle-btn { color: #a8a8a8; cursor: pointer; font-weight: 500; margin-left: 4px; font-size: 13px; }
         .ig-hashtags { color: #e0f1ff; display: block; margin-top: 10px; font-size: 13px; word-break: break-word; }
         .ig-date { color: #a8a8a8; font-size: 11px; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.2px; }
+
+        /* CAROUSEL STYLES */
+        .carousel-container { position: relative; width: 100%; overflow: hidden; background: #000; touch-action: pan-y; }
+        .carousel-track { display: flex; transition: transform 0.3s ease-out; width: 100%; }
+        .carousel-slide { min-width: 100%; aspect-video: 16/9; background: #000; }
+        .carousel-dots { display: flex; justify-content: center; gap: 4px; padding: 10px 0; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: #333; transition: 0.3s; }
+        .dot.active { background: #0095f6; transform: scale(1.2); }
     </style>
 </head>
 <body>
@@ -127,9 +133,15 @@
 
             <div id="castContainer" class="cast-wrapper px-4 no-scrollbar"></div>
 
-            <div class="aspect-video bg-zinc-900 w-full relative">
-                <iframe id="videoPlayer" class="w-full h-full" allow="autoplay; fullscreen" allowfullscreen></iframe>
+            <div class="carousel-container" id="carouselMain">
+                <div class="carousel-track" id="carouselTrack">
+                    <div class="carousel-slide">
+                        <iframe id="videoPlayer" class="w-full h-full" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="carousel-dots" id="carouselDots"></div>
             </div>
+
             <div class="px-4 py-3 flex justify-between items-center">
                 <div class="flex gap-4">
                     <i id="btnLikeModal" class="interaction-icon"></i>
@@ -173,8 +185,11 @@
         let page = 1, loading = false, currentType = 'multi', currentGenre = '', currentYear = '', currentCountry = '', currentSchedule = 'trending', searchQuery = '';
         let isExpanded = false;
         let globalFullDesc = "";
+        
+        // Carousel Variables
+        let startX = 0, currentIdx = 0, isDragging = false;
 
-        window.onload = () => { initFilters(); loadFeed(); };
+        window.onload = () => { initFilters(); loadFeed(); initCarouselLogic(); };
 
         function initFilters() {
             const yD = document.getElementById('yearDropdown');
@@ -194,32 +209,25 @@
             if(isNew) { page = 1; grid.innerHTML = ''; }
             
             let params = `api_key=${API_KEY}&language=id-ID&page=${page}&include_adult=false`;
-            let media = (currentType === 'tv' || currentType === 'anime') ? 'tv' : 'movie';
-            let queryUrl = "";
-
-            if (currentSchedule === 'trending' && !searchQuery) {
-                queryUrl = `https://api.themoviedb.org/3/trending/${media}/day?${params}`;
-            } else {
-                let endpoint = (currentType === 'tv' || currentType === 'anime') ? 'discover/tv' : 'discover/movie';
-                queryUrl = `https://api.themoviedb.org/3/${endpoint}?${params}`;
-                
-                const today = new Date().toISOString().split('T')[0];
-                if (currentSchedule === 'popular') queryUrl += `&sort_by=popularity.desc`;
-                else if (currentSchedule === 'now_playing') {
-                    const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                    queryUrl += `&release_date.gte=${sixtyDaysAgo}&release_date.lte=${today}&sort_by=release_date.desc`;
-                } else if (currentSchedule === 'upcoming') {
-                    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                    queryUrl += `&primary_release_date.gte=${tomorrow}&sort_by=primary_release_date.asc`;
-                }
-                
-                if(currentType === 'anime') queryUrl += `&with_genres=16&with_original_language=ja&sort_by=popularity.desc`;
-                else if(currentType === 'short') queryUrl += `&with_runtime.lte=45&with_runtime.gte=2&sort_by=popularity.desc`;
-                if(currentCountry) queryUrl += (currentCountry === 'IN' ? `&with_origin_country=IN&with_original_language=hi|ta|te|kn|ml` : `&with_origin_country=${currentCountry}`);
-                if(currentGenre) queryUrl += `&with_genres=${currentGenre}`;
-                if(currentYear) queryUrl += (endpoint.includes('tv') ? `&first_air_date_year=${currentYear}` : `&primary_release_year=${currentYear}`);
+            let endpoint = (currentType === 'tv' || currentType === 'anime') ? 'discover/tv' : 'discover/movie';
+            let queryUrl = `https://api.themoviedb.org/3/${endpoint}?${params}`;
+            
+            const today = new Date().toISOString().split('T')[0];
+            if (currentSchedule === 'trending') queryUrl += `&sort_by=trending.desc`;
+            else if (currentSchedule === 'popular') queryUrl += `&sort_by=popularity.desc`;
+            else if (currentSchedule === 'now_playing') {
+                const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                queryUrl += `&release_date.gte=${sixtyDaysAgo}&release_date.lte=${today}&sort_by=release_date.desc`;
+            } else if (currentSchedule === 'upcoming') {
+                const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                queryUrl += `&primary_release_date.gte=${tomorrow}&sort_by=primary_release_date.asc`;
             }
-
+            
+            if(currentType === 'anime') queryUrl = `https://api.themoviedb.org/3/discover/tv?${params}&with_genres=16&with_original_language=ja&sort_by=popularity.desc`;
+            else if(currentType === 'short') queryUrl = `https://api.themoviedb.org/3/discover/movie?${params}&with_runtime.lte=45&with_runtime.gte=2&sort_by=popularity.desc`;
+            if(currentCountry) queryUrl += (currentCountry === 'IN' ? `&with_origin_country=IN&with_original_language=hi|ta|te|kn|ml` : `&with_origin_country=${currentCountry}`);
+            if(currentGenre) queryUrl += `&with_genres=${currentGenre}`;
+            if(currentYear) queryUrl += (endpoint.includes('tv') ? `&first_air_date_year=${currentYear}` : `&primary_release_year=${currentYear}`);
             if(searchQuery) queryUrl = `https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(searchQuery)}&api_key=${API_KEY}&language=en-US&page=${page}`;
             
             try { 
@@ -255,12 +263,20 @@
             window.currentMediaId = id; window.currentMediaType = type;
             document.getElementById('movieModal').style.display = 'block';
             document.body.style.overflow = 'hidden';
+            
+            // Reset Carousel
+            currentIdx = 0;
+            updateCarouselPos();
+
             const [rId, rEn, rCast] = await Promise.all([
                 fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}&language=id-ID&append_to_response=videos`),
                 fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}&language=en-US&append_to_response=videos`),
                 fetch(`https://api.themoviedb.org/3/${type}/${id}/credits?api_key=${API_KEY}`)
             ]);
+            
             const dId = await rId.json(), dEn = await rEn.json(), dCast = await rCast.json();
+            
+            // Render Cast
             const castCont = document.getElementById('castContainer');
             castCont.innerHTML = (dCast.cast || []).slice(0, 10).map(c => `
                 <div class="cast-item" onclick="searchActorMovies(${c.id}, '${c.name.replace(/'/g, "\\'")}')">
@@ -268,30 +284,81 @@
                     <span class="cast-name">${c.name}</span>
                 </div>
             `).join('');
+
+            // Setup Carousel Traillers
+            const track = document.getElementById('carouselTrack');
+            const dots = document.getElementById('carouselDots');
+            const vids = [...(dId.videos?.results || []), ...(dEn.videos?.results || [])].filter(v => v.site === 'YouTube');
+            
+            // Filter hanya trailer unik
+            const trailers = vids.filter((v, i, self) => i === self.findIndex((t) => t.key === v.key));
+            
+            // Reset track (Slide 0 selalu player utama)
+            track.innerHTML = `<div class="carousel-slide"><iframe id="videoPlayer" class="w-full h-full" allow="autoplay; fullscreen" allowfullscreen></iframe></div>`;
+            dots.innerHTML = `<div class="dot active"></div>`;
+
+            trailers.forEach(t => {
+                track.innerHTML += `<div class="carousel-slide"><iframe src="https://www.youtube.com/embed/${t.key}?rel=0" class="w-full h-full" allowfullscreen></iframe></div>`;
+                dots.innerHTML += `<div class="dot"></div>`;
+            });
+
             document.getElementById('mLikeDisplay').innerText = `${Math.floor((dId.vote_average || 0) * 1234).toLocaleString('id-ID')} suka`;
             document.getElementById('mTitle').innerText = dId.title || dId.name || dEn.title || dEn.name;
             globalFullDesc = dId.overview || dEn.overview || "Sinopsis tidak tersedia.";
             isExpanded = false; renderSynopsis();
+            
             const btnT = document.getElementById('mTranslateBtn');
             btnT.classList.toggle('hidden', dId.overview || !dEn.overview);
             btnT.onclick = () => window.open(`https://translate.google.com/?sl=en&tl=id&text=${encodeURIComponent(dEn.overview)}&op=translate`);
+            
             const rel = dId.release_date || dId.first_air_date || "";
             const genresArr = (dId.genres || []).slice(0, 2);
             document.getElementById('mHashtags').innerText = `#${(dId.title||dId.name||"").replace(/\s+/g, '')} #${rel.split('-')[0]} ${genresArr.map(g => "#" + g.name.replace(/\s+/g, '')).join(" ")}`;
             document.getElementById('mDateDisplay').innerText = rel ? new Date(rel).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
-            const vids = [...(dId.videos?.results || []), ...(dEn.videos?.results || [])];
-            const tr = vids.find(v => v.type === 'Trailer') || vids[0];
-            document.getElementById('videoPlayer').src = tr ? `https://www.youtube.com/embed/${tr.key}?autoplay=1&rel=0` : `https://vidrock.net/embed/${type}/${id}${type==='tv'?'/1/1':''}`;
+            
+            // Play Main Video
+            playVid(`https://vidrock.net/embed/${type}/${id}${type==='tv'?'/1/1':''}`, null);
+            
             document.getElementById('serverList').innerHTML = `
-                <button class="server-btn btn-main-server" onclick="playVid('https://vidrock.net/embed/${type}/${id}${type==='tv'?'/1/1':''}', this)">Server 1</button>
+                <button class="server-btn btn-main-server active-link" onclick="playVid('https://vidrock.net/embed/${type}/${id}${type==='tv'?'/1/1':''}', this)">Server 1</button>
                 <button class="server-btn" onclick="playVid('https://vidsrc.me/embed/${type}?tmdb=${id}', this)">Server 2</button>
                 <button class="server-btn" onclick="playVid('https://embed.smashystream.com/playere.php?tmdb=${id}', this)">Server 3</button>`;
+            
             if(type === 'tv') {
                 document.getElementById('seriesControl').classList.remove('hidden');
                 document.getElementById('seasonSel').innerHTML = (dId.seasons||[]).filter(s=>s.season_number>0).map(s=>`<option value="${s.season_number}">Season ${s.season_number}</option>`).join('');
                 loadEpisodes();
             } else { document.getElementById('seriesControl').classList.add('hidden'); }
             updateLibButtons(id);
+        }
+
+        function initCarouselLogic() {
+            const container = document.getElementById('carouselMain');
+            container.addEventListener('touchstart', e => { startX = e.touches[0].clientX; isDragging = true; }, {passive: true});
+            container.addEventListener('touchmove', e => {
+                if(!isDragging) return;
+                let moveX = e.touches[0].clientX - startX;
+                if(Math.abs(moveX) > 5) { // Prevent vertical scroll interference
+                    isDragging = true;
+                }
+            }, {passive: true});
+            container.addEventListener('touchend', e => {
+                if(!isDragging) return;
+                let endX = e.changedTouches[0].clientX;
+                let diff = startX - endX;
+                const slides = document.querySelectorAll('.carousel-slide');
+                if(diff > 50 && currentIdx < slides.length - 1) currentIdx++;
+                else if(diff < -50 && currentIdx > 0) currentIdx--;
+                updateCarouselPos();
+                isDragging = false;
+            });
+        }
+
+        function updateCarouselPos() {
+            const track = document.getElementById('carouselTrack');
+            const dots = document.querySelectorAll('.dot');
+            track.style.transform = `translateX(-${currentIdx * 100}%)`;
+            dots.forEach((d, i) => d.classList.toggle('active', i === currentIdx));
         }
 
         async function searchActorMovies(actorId, name) {
@@ -331,7 +398,13 @@
         };
 
         function handleToggleDesc() { isExpanded = !isExpanded; renderSynopsis(); }
-        function playVid(url, el) { document.getElementById('videoPlayer').src = url; highlightBtn(el); }
+        function playVid(url, el) { 
+            document.getElementById('videoPlayer').src = url; 
+            if(el) highlightBtn(el);
+            // Kembali ke slide 1 jika server diklik
+            currentIdx = 0;
+            updateCarouselPos();
+        }
         function highlightBtn(el) { document.querySelectorAll('.server-btn, .dl-link-btn').forEach(b => b.classList.remove('active-link')); el.classList.add('active-link'); }
         async function loadEpisodes() { const s = document.getElementById('seasonSel').value; const res = await fetch(`https://api.themoviedb.org/3/tv/${window.currentMediaId}/season/${s}?api_key=${API_KEY}`); const d = await res.json(); document.getElementById('episodeGrid').innerHTML = (d.episodes||[]).map(e => `<div class="pill text-[10px]" onclick="playVid('https://vidrock.net/embed/tv/${window.currentMediaId}/${s}/${e.episode_number}', this)">${e.episode_number}</div>`).join(''); }
         function closeModal() { document.getElementById('movieModal').style.display = 'none'; document.getElementById('videoPlayer').src = ''; document.body.style.overflow = 'auto'; }
