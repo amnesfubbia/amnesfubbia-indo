@@ -14,16 +14,24 @@
         /* HEADER & PROFILE */
         .profile-header { padding: 15px 15px 0 15px; background: #000; }
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .ig-logo { font-family: 'DM Sans', sans-serif; font-weight: 700; font-style: italic; font-size: 20px; }
+        .ig-logo-wrapper { display: flex; align-items: center; gap: 4px; position: relative; cursor: pointer; }
+        .ig-logo { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: -0.5px; }
+        .dot-notify { width: 7px; height: 7px; background-color: #ff3b30; border-radius: 50%; display: inline-block; margin-left: 2px; }
+        
         .profile-info { display: flex; align-items: center; gap: 25px; margin-bottom: 15px; }
-        .profile-pic { width: 77px; height: 77px; border-radius: 50%; border: 1px solid #333; padding: 3px; }
-        .profile-pic img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; filter: grayscale(1); }
+        .profile-pic-container { position: relative; width: 86px; height: 86px; }
+        .profile-pic { width: 82px; height: 82px; border-radius: 50%; border: 1px solid #333; padding: 2px; background: #000; }
+        .profile-pic img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .add-story-btn { position: absolute; bottom: 4px; right: 4px; width: 24px; height: 24px; background: #0095f6; border: 3px solid #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #fff; z-index: 10; }
+
         .stats { display: flex; flex-grow: 1; justify-content: space-around; text-align: center; }
         .stat-item { cursor: pointer; }
         .stat-val { font-weight: 700; font-size: 16px; display: block; }
         .stat-label { font-size: 12px; color: #a8a8a8; }
-        .bio { font-size: 13px; line-height: 1.4; margin-bottom: 15px; }
-        .bio-name { font-weight: 700; display: block; }
+        
+        .bio { font-size: 13px; line-height: 1.4; margin-bottom: 15px; padding-top: 5px; }
+        .bio-name-wrapper { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
+        .bio-name { font-weight: 700; font-size: 14px; display: block; }
 
         /* ACTION & FILTERS */
         .action-buttons { display: flex; gap: 6px; margin-bottom: 10px; }
@@ -35,51 +43,14 @@
         .pill-grid { display: grid; gap: 6px; }
         .pill { background: transparent; border: 1px solid #1c1c1c; color: #fff; padding: 7px 0; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; }
         
-        /* BOTTOM SHEET DROPDOWN */
         .filter-dropdown { 
-            display: none; 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            background: #121212; 
-            border-radius: 20px 20px 0 0; 
-            z-index: 5000; 
-            max-height: 60vh; 
-            overflow-y: auto; 
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
-            border-top: 1px solid #333;
-            padding-bottom: 20px;
-            animation: slideUp 0.3s ease-out;
-            overscroll-behavior: contain;
-            -webkit-overflow-scrolling: touch;
+            display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #121212; border-radius: 20px 20px 0 0; z-index: 5000; max-height: 60vh; overflow-y: auto; box-shadow: 0 -10px 40px rgba(0,0,0,0.8); border-top: 1px solid #333; padding-bottom: 20px; animation: slideUp 0.3s ease-out; overscroll-behavior: contain;
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        .sticky-reset {
-            position: sticky;
-            top: 0;
-            background: #1c1c1c;
-            z-index: 10;
-            font-weight: 800 !important;
-            color: #0095f6 !important;
-            border-bottom: 2px solid #333;
-        }
-
-        #filterOverlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 4000;
-        }
-
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .sticky-reset { position: sticky; top: 0; background: #1c1c1c; z-index: 10; font-weight: 800 !important; color: #0095f6 !important; border-bottom: 2px solid #333; }
+        #filterOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 4000; }
         .filter-item { padding: 16px; font-size: 14px; text-align: center; border-bottom: 1px solid #262626; color: #eee; cursor: pointer; }
-        .filter-item:active { background: #333; }
 
         /* HIGHLIGHTS */
         .highlights-wrapper { padding: 0 15px 15px 15px; border-bottom: 1px solid #1c1c1c; }
@@ -101,17 +72,25 @@
         .badge-rating { position: absolute; top: 6px; left: 6px; padding: 2px 5px; border-radius: 2px; font-size: 7px; font-weight: 900; z-index: 5; background: rgba(255,255,255,0.9); color: #000; }
         .badge-type { position: absolute; top: 6px; right: 6px; padding: 2px 5px; border-radius: 2px; font-size: 7px; font-weight: 900; z-index: 5; background: rgba(0,0,0,0.7); color: #fff; text-transform: uppercase; border: 0.5px solid rgba(255,255,255,0.3); }
 
-        /* SEARCH OVERLAY - FIX COLOR */
+        /* SMART SEARCH STYLES */
         #searchOverlay { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; overflow-y: auto; }
         .search-header { position: sticky; top: 0; background: #000; display: flex; align-items: center; padding: 10px 15px; gap: 10px; border-bottom: 1px solid #1c1c1c; z-index: 100; }
-        .search-input-box { flex-grow: 1; background: #262626; border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; }
+        .search-input-box { flex-grow: 1; background: #262626; border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; position: relative; }
         .search-input-box input { background: transparent !important; border: none; outline: none; color: #fff !important; font-size: 14px; width: 100%; margin-left: 8px; }
-        .search-input-box input::placeholder { color: #8e8e8e; }
+        
+        #smartSearchDropdown { 
+            position: absolute; top: 100%; left: 0; right: 0; background: #1a1a1a; 
+            border-radius: 0 0 10px 10px; border: 1px solid #333; border-top: none; 
+            display: none; z-index: 500; max-height: 300px; overflow-y: auto;
+        }
+        .smart-item { display: flex; align-items: center; padding: 10px; gap: 12px; border-bottom: 1px solid #262626; }
+        .smart-item img { width: 35px; height: 50px; object-fit: cover; border-radius: 4px; }
+        .smart-info { display: flex; flex-direction: column; }
+        .smart-name { font-size: 13px; font-weight: 600; color: #fff; }
+        .smart-meta { font-size: 11px; color: #8e8e8e; }
 
-        /* BACK TO TOP */
         #backToTop { position: fixed; bottom: 85px; right: 20px; background: rgba(255,255,255,0.3); width: 42px; height: 42px; border-radius: 50%; display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
 
-        /* MODAL */
         .modal-player { display: none; position: fixed; inset: 0; z-index: 3000; background: #000; overflow-y: auto; }
         .carousel-track { display: flex; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); width: 100%; }
         .carousel-slide { min-width: 100%; aspect-ratio: 16/9; position: relative; }
@@ -142,9 +121,10 @@
     <div id="mainProfile">
         <div class="profile-header">
             <div class="top-bar">
-                <div class="flex items-center" onclick="location.reload()">
-                    <h1 class="ig-logo">amnesfubbia <span class="opacity-40 font-normal">xx1</span></h1>
-                    <i class="fa-solid fa-circle-check text-[#0095f6] ml-1 text-[10px]"></i>
+                <div class="ig-logo-wrapper" onclick="location.reload()">
+                    <h1 class="ig-logo">amnesfubbia</h1>
+                    <i class="fa-solid fa-chevron-down text-[10px] ml-0.5"></i>
+                    <span class="dot-notify"></span>
                 </div>
                 <div class="flex gap-5">
                     <i class="fa-regular fa-square-plus text-2xl"></i>
@@ -153,7 +133,12 @@
             </div>
 
             <div class="profile-info">
-                <div class="profile-pic"><img src="https://image.tmdb.org/t/p/w200/o79fH0A9mYt1L405G65kQoR97H5.jpg"></div>
+                <div class="profile-pic-container">
+                    <div class="profile-pic">
+                        <img src="https://telegra.ph/file/17397b9134a65492d991b.jpg" alt="Profile">
+                    </div>
+                    <div class="add-story-btn"><i class="fa-solid fa-plus"></i></div>
+                </div>
                 <div class="stats">
                     <div class="stat-item" onclick="setFilter('type', 'movie')"><span class="stat-val">25.4rb</span><span class="stat-label">film</span></div>
                     <div class="stat-item" onclick="setFilter('type', 'tv')"><span class="stat-val">8.2rb</span><span class="stat-label">series</span></div>
@@ -162,7 +147,10 @@
             </div>
 
             <div class="bio">
-                <span class="bio-name">amnesfubbia xx1</span>
+                <div class="bio-name-wrapper">
+                    <span class="bio-name">amnesfubbia xx1</span>
+                    <i class="fa-solid fa-circle-check text-[#0095f6] text-[13px]"></i>
+                </div>
                 <span>dari indonesia untuk dunia</span><br>
                 <span>By Anasteas</span>
             </div>
@@ -200,14 +188,14 @@
             <i class="fa-solid fa-arrow-left text-xl text-white" onclick="closeSearch()"></i>
             <div class="search-input-box">
                 <i class="fa-solid fa-magnifying-glass text-zinc-500 text-xs"></i>
-                <input type="text" id="searchInp" placeholder="Cari film, series, anime..." onkeydown="if(event.key==='Enter') searchAction()">
+                <input type="text" id="searchInp" autocomplete="off" placeholder="Cari film, series, anime..." onkeydown="if(event.key==='Enter') searchAction()">
+                <div id="smartSearchDropdown" class="no-scrollbar"></div>
             </div>
         </div>
         <div id="searchGrid" class="movie-grid"></div>
     </div>
 
     <div id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"><i class="fa-solid fa-arrow-up"></i></div>
-
     <div id="filterOverlay" onclick="closeD()"></div>
     <div id="countryDropdown" class="filter-dropdown no-scrollbar"></div>
     <div id="genreDropdown" class="filter-dropdown no-scrollbar"></div>
@@ -240,7 +228,7 @@
                     <span id="mDesc" class="ig-caption"></span>
                     <span id="mToggleBtn" class="toggle-btn hidden" onclick="handleToggleDesc()">selengkapnya</span>
                 </div>
-                <p id="mTranslateBtn" class="text-[11px] text-zinc-500 font-bold mb-2 cursor-pointer hidden">Lihat Terjemahan...</p>
+                <p id="mTranslateBtn" class="text-[11px] text-[#0095f6] font-bold mb-2 cursor-pointer hidden" onclick="handleTranslate()">Lihat Terjemahan...</p>
                 <div id="mHashtags" class="ig-hashtags"></div>
                 <div id="mDateDisplay" class="ig-date"></div>
                 <div id="seriesControl" class="hidden mt-6 p-4 bg-zinc-950 rounded-2xl border border-zinc-900">
@@ -265,11 +253,40 @@
     <script>
         const API_KEY = 'bfa7df5310c9974f62f26c6789a8c00d';
         let page = 1, loading = false, currentType = 'multi', currentGenre = '', currentYear = '', currentCountry = '', currentSchedule = 'trending', searchQuery = '', currentCompany = '';
-        let isExpanded = false, globalFullDesc = "", currentIdx = 0, startX = 0;
+        let isExpanded = false, globalFullDesc = "", globalEnDesc = "", currentIdx = 0, startX = 0;
 
-        window.onload = () => { initFilters(); initHighlights(); loadFeed(); setupSwipe(); 
+        window.onload = () => { initFilters(); initHighlights(); loadFeed(); setupSwipe(); initSmartSearch();
             window.addEventListener('scroll', () => { document.getElementById('backToTop').style.display = window.scrollY > 500 ? 'flex' : 'none'; });
         };
+
+        function initSmartSearch() {
+            const inp = document.getElementById('searchInp');
+            const drop = document.getElementById('smartSearchDropdown');
+            let timeout = null;
+            inp.addEventListener('input', () => {
+                clearTimeout(timeout);
+                const q = inp.value.trim();
+                if(q.length < 2) { drop.style.display = 'none'; return; }
+                timeout = setTimeout(async () => {
+                    const res = await fetch(`https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(q)}&api_key=${API_KEY}&language=id-ID`);
+                    const data = await res.json();
+                    const results = (data.results || []).slice(0, 5);
+                    if(results.length) {
+                        drop.innerHTML = results.map(m => `
+                            <div class="smart-item" onclick="openModal(${m.id}, '${m.media_type || 'movie'}')">
+                                <img src="https://image.tmdb.org/t/p/w92${m.poster_path || m.profile_path}">
+                                <div class="smart-info">
+                                    <span class="smart-name">${m.title || m.name}</span>
+                                    <span class="smart-meta">${m.media_type === 'tv' ? 'Series' : 'Film'} • ${m.release_date || m.first_air_date || ''}</span>
+                                </div>
+                            </div>
+                        `).join('');
+                        drop.style.display = 'block';
+                    } else { drop.style.display = 'none'; }
+                }, 300);
+            });
+            document.addEventListener('click', (e) => { if(!e.target.closest('.search-input-box')) drop.style.display = 'none'; });
+        }
 
         function initHighlights() {
             const hls = [
@@ -288,9 +305,7 @@
                 const div = document.createElement('div');
                 div.className = 'highlight-item';
                 div.onclick = () => {
-                    currentCountry = h.c || '';
-                    currentGenre = h.g || '';
-                    currentCompany = h.com || '';
+                    currentCountry = h.c || ''; currentGenre = h.g || ''; currentCompany = h.com || '';
                     currentSchedule = 'trending'; 
                     if(h.t === 'anime') { currentType = 'tv'; currentCountry = 'JP'; currentGenre = 16; } 
                     else { currentType = 'movie'; }
@@ -356,7 +371,7 @@
 
         function openSearch() { document.getElementById('searchOverlay').style.display = 'block'; document.getElementById('searchInp').focus(); document.body.style.overflow='hidden'; }
         function closeSearch() { document.getElementById('searchOverlay').style.display = 'none'; document.body.style.overflow='auto'; searchQuery=''; }
-        function searchAction() { searchQuery = document.getElementById('searchInp').value; loadFeed(true); }
+        function searchAction() { searchQuery = document.getElementById('searchInp').value; loadFeed(true); document.getElementById('smartSearchDropdown').style.display = 'none'; }
         function toggleFilterBar() { const b = document.getElementById('filterBar'); b.style.display = b.style.display === 'block' ? 'none' : 'block'; }
         function setSchedule(v, el) { document.querySelectorAll('.btn-ig').forEach(b=>b.classList.remove('active')); el.classList.add('active'); currentSchedule=v; currentCompany=''; loadFeed(true); }
         function setFilter(k, v) { currentType=v; currentCompany=''; loadFeed(true); }
@@ -367,6 +382,7 @@
         async function openModal(id, type) {
             window.currentMediaId = id; window.currentMediaType = type;
             document.getElementById('movieModal').style.display = 'block';
+            document.getElementById('smartSearchDropdown').style.display = 'none';
             document.body.style.overflow = 'hidden';
             currentIdx = 0;
             const [rId, rEn, rCast] = await Promise.all([
@@ -392,9 +408,18 @@
             document.getElementById('castContainer').innerHTML = (dCast.cast || []).slice(0, 10).map(c => `<div class="cast-item"><div class="cast-img-border"><img src="${c.profile_path ? 'https://image.tmdb.org/t/p/w185' + c.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-3245c3f3347706a035c9744ffaa5d174e48be3b860667e406723f3bc8160f47e.svg'}"></div><span class="cast-name">${c.name}</span></div>`).join('');
             document.getElementById('mLikeDisplay').innerText = `${Math.floor((dId.vote_average || 0) * 1234).toLocaleString('id-ID')} suka`;
             document.getElementById('mTitle').innerText = dId.title || dId.name || dEn.title;
-            globalFullDesc = dId.overview || dEn.overview || "Sinopsis tidak tersedia.";
+            
+            globalFullDesc = dId.overview;
+            globalEnDesc = dEn.overview;
+            if(!globalFullDesc && globalEnDesc) {
+                globalFullDesc = globalEnDesc;
+                document.getElementById('mTranslateBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('mTranslateBtn').classList.add('hidden');
+            }
+            if(!globalFullDesc) globalFullDesc = "Sinopsis tidak tersedia.";
+            
             isExpanded = false; renderSynopsis();
-            const btnT = document.getElementById('mTranslateBtn'); btnT.classList.toggle('hidden', dId.overview || !dEn.overview);
             const rel = dId.release_date || dId.first_air_date || "";
             document.getElementById('mHashtags').innerText = `#${(dId.title||dId.name||"").replace(/\s+/g, '')} #${rel.split('-')[0]}`;
             document.getElementById('mDateDisplay').innerText = rel ? new Date(rel).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
@@ -403,25 +428,45 @@
             updateLibButtons(id);
         }
 
+        async function handleTranslate() {
+            const btn = document.getElementById('mTranslateBtn');
+            btn.innerText = "Menerjemahkan...";
+            try {
+                const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=id&dt=t&q=${encodeURIComponent(globalEnDesc)}`);
+                const data = await res.json();
+                globalFullDesc = data[0].map(x => x[0]).join('');
+                renderSynopsis();
+                btn.classList.add('hidden');
+            } catch(e) { btn.innerText = "Gagal menerjemahkan"; }
+        }
+
         function closeModal() { document.getElementById('movieModal').style.display = 'none'; document.body.style.overflow = 'auto'; }
         function renderSynopsis() { const descEl = document.getElementById('mDesc'), toggleBtn = document.getElementById('mToggleBtn'); if (globalFullDesc.length > 90) { toggleBtn.classList.remove('hidden'); descEl.innerText = isExpanded ? globalFullDesc : globalFullDesc.substring(0, 90) + "..."; toggleBtn.innerText = isExpanded ? "ringkas" : "selengkapnya"; } else { descEl.innerText = globalFullDesc; toggleBtn.classList.add('hidden'); } }
         function handleToggleDesc() { isExpanded = !isExpanded; renderSynopsis(); }
         function playVid(url, el) { document.getElementById('carouselTrack').innerHTML = `<div class="carousel-slide"><iframe src="${url}" class="w-full h-full" allowfullscreen></iframe></div>`; document.getElementById('swipeOverlay').style.display = 'none'; highlightBtn(el); }
         function highlightBtn(el) { document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active-link')); el.classList.add('active-link'); }
         async function loadEpisodes() { const s = document.getElementById('seasonSel').value; const res = await fetch(`https://api.themoviedb.org/3/tv/${window.currentMediaId}/season/${s}?api_key=${API_KEY}`); const d = await res.json(); document.getElementById('episodeGrid').innerHTML = (d.episodes||[]).map(e => `<div class="pill text-[10px]" onclick="playVid('https://vidrock.net/embed/tv/${window.currentMediaId}/${s}/${e.episode_number}', this)">${e.episode_number}</div>`).join(''); }
+        
         function setupSwipe() {
             const overlay = document.getElementById('swipeOverlay');
             overlay.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive:true});
             overlay.addEventListener('touchend', e => {
-                let diff = startX - e.changedTouches[0].clientX; const slides = document.querySelectorAll('.carousel-slide');
+                let diff = startX - e.changedTouches[0].clientX; 
+                const slides = document.querySelectorAll('.carousel-slide');
                 if(Math.abs(diff) > 50 && slides.length > 1) {
+                    let oldIdx = currentIdx;
                     if(diff > 0 && currentIdx < slides.length - 1) currentIdx++;
                     else if(diff < 0 && currentIdx > 0) currentIdx--;
                     document.getElementById('carouselTrack').style.transform = `translateX(-${currentIdx * 100}%)`;
                     document.querySelectorAll('.dot').forEach((d, i) => { d.className = `dot w-1.5 h-1.5 rounded-full ${i===currentIdx?'bg-blue-500':'bg-zinc-700'}`; });
+                    const oldVid = document.getElementById(`yt-${oldIdx}`);
+                    const newVid = document.getElementById(`yt-${currentIdx}`);
+                    if(oldVid) oldVid.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                    if(newVid) newVid.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
                 }
             });
         }
+
         function updateLibButtons(id) { const isL = JSON.parse(localStorage.getItem('likes') || '[]').some(x=>x.id==id); const isB = JSON.parse(localStorage.getItem('bookmarks') || '[]').some(x=>x.id==id); document.getElementById('btnLikeModal').className = isL ? 'fa-solid fa-heart text-red-500 interaction-icon' : 'fa-regular fa-heart interaction-icon'; document.getElementById('btnBookModal').className = isB ? 'fa-solid fa-bookmark text-white interaction-icon' : 'fa-regular fa-bookmark interaction-icon'; document.getElementById('btnLikeModal').onclick = () => toggleLib('likes'); document.getElementById('btnBookModal').onclick = () => toggleLib('bookmarks'); }
         function toggleLib(k) { let items = JSON.parse(localStorage.getItem(k) || '[]'); const idx = items.findIndex(x => x.id == window.currentMediaId); idx > -1 ? items.splice(idx,1) : items.push({id: window.currentMediaId, type: window.currentMediaType}); localStorage.setItem(k, JSON.stringify(items)); updateLibButtons(window.currentMediaId); }
         async function switchTab(mode, el) { document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active')); el.classList.add('active'); if(mode === 'likes' || mode === 'bookmarks') showLibrary(mode); else { currentType='multi'; currentSchedule='trending'; currentCompany=''; loadFeed(true); } }
