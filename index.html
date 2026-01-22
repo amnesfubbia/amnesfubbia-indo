@@ -35,31 +35,44 @@
         .pill-grid { display: grid; gap: 6px; }
         .pill { background: transparent; border: 1px solid #1c1c1c; color: #fff; padding: 7px 0; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; }
         
-        /* FIXED DROPDOWN SOLUTION */
+        /* BOTTOM SHEET DROPDOWN */
         .filter-dropdown { 
             display: none; 
             position: fixed; 
-            background: #1a1a1a; 
-            border: 1px solid #333; 
-            border-radius: 12px; 
-            z-index: 1000; 
-            width: 160px; 
-            max-height: 280px; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            background: #121212; 
+            border-radius: 20px 20px 0 0; 
+            z-index: 5000; 
+            max-height: 60vh; 
             overflow-y: auto; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-            overscroll-behavior: contain; /* Mencegah scroll tembus ke poster */
-            -webkit-overflow-scrolling: touch;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+            border-top: 1px solid #333;
+            padding-bottom: 20px;
+            animation: slideUp 0.3s ease-out;
+            overscroll-behavior: contain;
         }
-        .filter-item { padding: 14px; font-size: 12px; text-align: center; border-bottom: 1px solid #262626; color: #eee; cursor: pointer; }
+
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .sticky-reset { position: sticky; top: 0; background: #1c1c1c; z-index: 10; font-weight: 800 !important; color: #0095f6 !important; border-bottom: 2px solid #333; }
+        #filterOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 4000; }
+        .filter-item { padding: 16px; font-size: 14px; text-align: center; border-bottom: 1px solid #262626; color: #eee; cursor: pointer; }
         .filter-item:active { background: #333; }
 
         /* HIGHLIGHTS */
         .highlights-wrapper { padding: 0 15px 15px 15px; border-bottom: 1px solid #1c1c1c; }
         .highlights-container { display: flex; gap: 15px; overflow-x: auto; }
         .highlight-item { flex: 0 0 62px; text-align: center; cursor: pointer; }
-        .highlight-circle { width: 58px; height: 58px; border-radius: 50%; border: 1px solid #262626; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; background: #000; }
-        .highlight-circle i { font-size: 20px; color: #efefef; }
-        .highlight-text { font-size: 10px; color: #fff; }
+        .highlight-circle { width: 58px; height: 58px; border-radius: 50%; border: 1px solid #262626; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; background: #000; transition: border 0.3s; }
+        .highlight-circle i { font-size: 18px; color: #8e8e8e; transition: color 0.3s; }
+        .highlight-text { font-size: 10px; color: #a8a8a8; transition: color 0.3s; }
+        
+        /* Highlight Active State */
+        .highlight-item.active .highlight-circle { border: 2px solid #fff; }
+        .highlight-item.active .highlight-circle i { color: #fff; }
+        .highlight-item.active .highlight-text { color: #fff; font-weight: 600; }
 
         /* TABS */
         .tab-nav { display: flex; border-top: 1px solid #1c1c1c; }
@@ -82,7 +95,7 @@
         /* BACK TO TOP */
         #backToTop { position: fixed; bottom: 85px; right: 20px; background: rgba(255,255,255,0.3); width: 42px; height: 42px; border-radius: 50%; display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
 
-        /* MODAL - PERFECT RESTORATION */
+        /* MODAL */
         .modal-player { display: none; position: fixed; inset: 0; z-index: 3000; background: #000; overflow-y: auto; }
         .carousel-track { display: flex; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); width: 100%; }
         .carousel-slide { min-width: 100%; aspect-ratio: 16/9; position: relative; }
@@ -106,6 +119,7 @@
         .ig-date { color: #a8a8a8; font-size: 11px; margin-top: 8px; text-transform: uppercase; }
         
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #000; border-top: 1px solid #1c1c1c; display: flex; justify-content: space-around; padding: 12px 0; z-index: 300; }
+        .bottom-nav i.active { color: #fff; }
     </style>
 </head>
 <body>
@@ -158,9 +172,9 @@
         </div>
 
         <div class="tab-nav">
-            <div class="tab-item active" onclick="switchTab('grid', this)"><i class="fa-solid fa-table-cells"></i></div>
+            <div class="tab-item active" id="tabGrid" onclick="switchTab('grid', this)"><i class="fa-solid fa-table-cells"></i></div>
             <div class="tab-item" onclick="switchTab('likes', this)"><i class="fa-regular fa-heart"></i></div>
-            <div class="tab-item" onclick="switchTab('bookmarks', this)"><i class="fa-regular fa-bookmark"></i></div>
+            <div class="tab-item" id="tabBookmarks" onclick="switchTab('bookmarks', this)"><i class="fa-regular fa-bookmark"></i></div>
         </div>
 
         <main id="feedGrid" class="movie-grid"></main>
@@ -179,6 +193,7 @@
 
     <div id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"><i class="fa-solid fa-arrow-up"></i></div>
 
+    <div id="filterOverlay" onclick="closeD()"></div>
     <div id="countryDropdown" class="filter-dropdown no-scrollbar"></div>
     <div id="genreDropdown" class="filter-dropdown no-scrollbar"></div>
     <div id="yearDropdown" class="filter-dropdown no-scrollbar"></div>
@@ -229,7 +244,7 @@
     <nav class="bottom-nav">
         <i class="fa-solid fa-house cursor-pointer text-xl" onclick="location.reload()"></i>
         <i class="fa-solid fa-magnifying-glass cursor-pointer text-xl" onclick="openSearch()"></i>
-        <i class="fa-regular fa-bookmark cursor-pointer text-xl" onclick="switchTab('bookmarks')"></i>
+        <i class="fa-regular fa-bookmark cursor-pointer text-xl" id="navBookmark" onclick="switchTab('bookmarks', document.getElementById('tabBookmarks'))"></i>
     </nav>
 
     <script>
@@ -243,21 +258,26 @@
 
         function initHighlights() {
             const hls = [
-                {n: 'Anime', g: 16, i: 'fa-clapperboard', t: 'anime'},
-                {n: 'Korea', c: 'KR', i: 'fa-earth-asia'},
-                {n: 'Indonesia', c: 'ID', i: 'fa-flag'},
-                {n: 'India', c: 'IN', i: 'fa-film'},
-                {n: 'Thailand', c: 'TH', i: 'fa-video'},
+                {n: 'Anime', g: 16, i: 'fa-play', t: 'anime'},
+                {n: 'Korea', c: 'KR', i: 'fa-star'},
+                {n: 'Indonesia', c: 'ID', i: 'fa-location-dot'},
+                {n: 'India', c: 'IN', i: 'fa-clapperboard'},
+                {n: 'Thailand', c: 'TH', i: 'fa-bolt'},
                 {n: 'Disney', g: 10751, i: 'fa-wand-magic-sparkles'},
-                {n: 'Dreamwork', g: 14, i: 'fa-moon'},
+                {n: 'Dreamwork', g: 14, i: 'fa-cloud'},
                 {n: 'Ghibli', g: 16, c: 'JP', i: 'fa-leaf'},
-                {n: 'Netflix', g: 10770, i: 'fa-circle-play'}
+                {n: 'Netflix', g: 10770, i: 'fa-tv'}
             ];
             const cont = document.getElementById('highlightList');
-            hls.forEach(h => {
+            hls.forEach((h, index) => {
                 const div = document.createElement('div');
                 div.className = 'highlight-item';
+                div.id = `hl-${index}`;
                 div.onclick = () => {
+                    // Reset active states
+                    document.querySelectorAll('.highlight-item').forEach(el => el.classList.remove('active'));
+                    div.classList.add('active');
+                    
                     if(h.t === 'anime') { currentType='anime'; currentCountry='JP'; currentGenre=16; }
                     else if(h.c && h.g) { currentCountry=h.c; currentGenre=h.g; }
                     else if(h.c) { currentCountry=h.c; currentGenre=''; }
@@ -269,27 +289,41 @@
             });
         }
 
-        // --- FIXED DROPDOWN LOGIC ---
+        function initFilters() {
+            const yD = document.getElementById('yearDropdown');
+            let yearHTML = '<div class="filter-item sticky-reset" onclick="setYear(\'\')">Semua Tahun</div>';
+            for(let y=2026; y>=1900; y--) yearHTML += `<div class="filter-item" onclick="setYear(${y})">${y}</div>`;
+            yD.innerHTML = yearHTML;
+
+            const countries = [['ID','Indonesia'],['US','USA'],['KR','Korea Selatan'],['JP','Jepang'],['IN','India'],['TH','Thailand'],['CN','China'],['PH','Filipina'],['GB','Inggris'],['FR','Prancis'],['ES','Spanyol'],['IT','Italia'],['TR','Turki'],['DE','Jerman']];
+            const cD = document.getElementById('countryDropdown');
+            let countryHTML = '<div class="filter-item sticky-reset" onclick="setCountry(\'\',\'Negara\')">Semua Negara</div>';
+            countries.forEach(c => countryHTML += `<div class="filter-item" onclick="setCountry('${c[0]}','${c[1]}')">${c[1]}</div>`);
+            cD.innerHTML = countryHTML;
+
+            const genres = [[28,'Action'],[12,'Adventure'],[16,'Animasi'],[35,'Komedi'],[80,'Crime'],[99,'Dokumenter'],[18,'Drama'],[10751,'Family'],[14,'Fantasy'],[36,'History'],[27,'Horror'],[10402,'Music'],[9648,'Misteri'],[10749,'Romance'],[878,'Sci-Fi'],[53,'Thriller']];
+            const gD = document.getElementById('genreDropdown');
+            let genreHTML = '<div class="filter-item sticky-reset" onclick="setGenre(\'\',\'Genre\')">Semua Genre</div>';
+            genres.forEach(g => genreHTML += `<div class="filter-item" onclick="setGenre('${g[0]}','${g[1]}')">${g[1]}</div>`);
+            gD.innerHTML = genreHTML;
+        }
+
         function toggleFilter(e, id) {
             e.stopPropagation();
             const d = document.getElementById(id);
-            const isVisible = d.style.display === 'block';
-            closeD();
-            if(!isVisible) {
-                const rect = e.target.getBoundingClientRect();
-                d.style.display = 'block';
-                d.style.left = (rect.left - 20) + 'px';
-                d.style.top = (rect.bottom + 10) + 'px';
-                document.body.style.overflow = 'hidden'; // Stop body scroll
-            }
+            const overlay = document.getElementById('filterOverlay');
+            document.querySelectorAll('.filter-dropdown').forEach(el => el.style.display = 'none');
+            d.style.display = 'block';
+            d.scrollTop = 0;
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden'; 
         }
 
         function closeD() {
             document.querySelectorAll('.filter-dropdown').forEach(d => d.style.display = 'none');
-            document.body.style.overflow = 'auto'; // Resume body scroll
+            document.getElementById('filterOverlay').style.display = 'none';
+            document.body.style.overflow = 'auto'; 
         }
-
-        document.addEventListener('click', (e) => { if(!e.target.closest('.pill') && !e.target.closest('.filter-dropdown')) closeD(); });
 
         async function loadFeed(isNew = true) {
             if(loading) return; loading = true;
@@ -307,9 +341,7 @@
                 url += `&primary_release_date.gte=${today}`;
             }
 
-            if(currentType === 'short') { 
-                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_runtime.lte=40&with_runtime.gte=5&page=${page}`; 
-            }
+            if(currentType === 'short') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_runtime.lte=40&with_runtime.gte=5&page=${page}`; 
             if(currentCountry) url += `&with_origin_country=${currentCountry}`;
             if(currentGenre) url += `&with_genres=${currentGenre}`;
             if(currentYear) url += (endpoint === 'discover/tv' ? `&first_air_date_year=${currentYear}` : `&primary_release_year=${currentYear}`);
@@ -346,19 +378,6 @@
         function setCountry(c, n) { currentCountry=c; document.getElementById('btnCountry').innerText=n; closeD(); loadFeed(true); }
         function setGenre(g, n) { currentGenre=g; document.getElementById('btnGenre').innerText=n; closeD(); loadFeed(true); }
 
-        function initFilters() {
-            const yD = document.getElementById('yearDropdown');
-            yD.innerHTML = '<div class="filter-item" onclick="setYear(\'\')">Semua Tahun</div>';
-            for(let y=2026; y>=1990; y--) yD.innerHTML += `<div class="filter-item" onclick="setYear(${y})">${y}</div>`;
-            const cD = document.getElementById('countryDropdown');
-            cD.innerHTML = '<div class="filter-item" onclick="setCountry(\'\',\'Negara\')">Semua Negara</div>';
-            [['IN','India'],['KR','Korea'],['ID','Indonesia'],['TH','Thailand'],['US','USA']].forEach(c => cD.innerHTML += `<div class="filter-item" onclick="setCountry('${c[0]}','${c[1]}')">${c[1]}</div>`);
-            const gD = document.getElementById('genreDropdown');
-            gD.innerHTML = '<div class="filter-item" onclick="setGenre(\'\',\'Genre\')">Semua Genre</div>';
-            [[28,'Action'],[16,'Animasi'],[27,'Horror'],[10749,'Romance'],[878,'Sci-Fi']].forEach(g => gD.innerHTML += `<div class="filter-item" onclick="setGenre('${g[0]}','${g[1]}')">${g[1]}</div>`);
-        }
-
-        /* MODAL LOGIC - ORIGINAL UNTOUCHED */
         async function openModal(id, type) {
             window.currentMediaId = id; window.currentMediaType = type;
             document.getElementById('movieModal').style.display = 'block';
@@ -424,7 +443,16 @@
         }
         function updateLibButtons(id) { const isL = JSON.parse(localStorage.getItem('likes') || '[]').some(x=>x.id==id); const isB = JSON.parse(localStorage.getItem('bookmarks') || '[]').some(x=>x.id==id); document.getElementById('btnLikeModal').className = isL ? 'fa-solid fa-heart text-red-500 interaction-icon' : 'fa-regular fa-heart interaction-icon'; document.getElementById('btnBookModal').className = isB ? 'fa-solid fa-bookmark text-white interaction-icon' : 'fa-regular fa-bookmark interaction-icon'; document.getElementById('btnLikeModal').onclick = () => toggleLib('likes'); document.getElementById('btnBookModal').onclick = () => toggleLib('bookmarks'); }
         function toggleLib(k) { let items = JSON.parse(localStorage.getItem(k) || '[]'); const idx = items.findIndex(x => x.id == window.currentMediaId); idx > -1 ? items.splice(idx,1) : items.push({id: window.currentMediaId, type: window.currentMediaType}); localStorage.setItem(k, JSON.stringify(items)); updateLibButtons(window.currentMediaId); }
-        async function switchTab(mode, el) { document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active')); el.classList.add('active'); if(mode === 'likes' || mode === 'bookmarks') showLibrary(mode); else { currentType='multi'; currentSchedule='trending'; loadFeed(true); } }
+        async function switchTab(mode, el) { 
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active')); 
+            document.querySelectorAll('.bottom-nav i').forEach(i => i.classList.remove('active'));
+            
+            el.classList.add('active'); 
+            if(mode === 'bookmarks') document.getElementById('navBookmark').classList.add('active');
+            
+            if(mode === 'likes' || mode === 'bookmarks') showLibrary(mode); 
+            else { currentType='multi'; currentSchedule='trending'; loadFeed(true); } 
+        }
         async function showLibrary(k) { const items = JSON.parse(localStorage.getItem(k) || '[]'); const grid = document.getElementById('feedGrid'); grid.innerHTML = ''; if (!items.length) return; for(const i of items) { try { const r = await fetch(`https://api.themoviedb.org/3/${i.type}/${i.id}?api_key=${API_KEY}&language=id-ID`); const m = await r.json(); renderGrid([m], grid); } catch(e){} } }
         window.onscroll = () => { if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000 && !loading) { page++; loadFeed(false); } };
     </script>
