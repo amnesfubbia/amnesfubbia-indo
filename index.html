@@ -263,7 +263,7 @@
 
     <script>
         const API_KEY = 'bfa7df5310c9974f62f26c6789a8c00d';
-        let page = 1, loading = false, currentType = 'multi', currentGenre = '', currentYear = '', currentCountry = '', currentSchedule = 'trending', searchQuery = '';
+        let page = 1, loading = false, currentType = 'multi', currentGenre = '', currentYear = '', currentCountry = '', currentSchedule = 'trending', searchQuery = '', currentCompany = '';
         let isExpanded = false, globalFullDesc = "", currentIdx = 0, startX = 0;
 
         window.onload = () => { initFilters(); initHighlights(); loadFeed(); setupSwipe(); 
@@ -272,25 +272,33 @@
 
         function initHighlights() {
             const hls = [
-                {n: 'Disney', g: 10751, l: 'DSNY'},
-                {n: 'Pixar', g: 16, l: 'PIXR', c: 'US'},
-                {n: 'Dreamworks', g: 16, l: 'DRMW'},
-                {n: 'Ghibli', g: 16, c: 'JP', l: 'GHBL'},
+                {n: 'Disney', g: 10751, l: 'DSNY', t: 'movie'},
+                {n: 'Pixar', g: 16, l: 'PIXR', c: 'US', t: 'movie'},
+                {n: 'Dreamworks', g: 16, l: 'DRMW', t: 'movie'},
+                {n: 'Ghibli', com: 10342, l: 'GHBL', t: 'movie'},
                 {n: 'Anime', g: 16, l: 'ANIM', t: 'anime'},
-                {n: 'Indonesia', c: 'ID', l: 'INDO'},
-                {n: 'Korea', c: 'KR', l: 'KOR'},
-                {n: 'India', c: 'IN', l: 'INDI'},
-                {n: 'Thailand', c: 'TH', l: 'THAI'}
+                {n: 'Indonesia', c: 'ID', l: 'INDO', t: 'movie'},
+                {n: 'Korea', c: 'KR', l: 'KOR', t: 'movie'},
+                {n: 'India', c: 'IN', l: 'INDI', t: 'movie'},
+                {n: 'Thailand', c: 'TH', l: 'THAI', t: 'movie'}
             ];
             const cont = document.getElementById('highlightList');
             hls.forEach(h => {
                 const div = document.createElement('div');
                 div.className = 'highlight-item';
                 div.onclick = () => {
-                    if(h.t === 'anime') { currentType='anime'; currentCountry='JP'; currentGenre=16; }
-                    else if(h.c && h.g) { currentCountry=h.c; currentGenre=h.g; }
-                    else if(h.c) { currentCountry=h.c; currentGenre=''; }
-                    else { currentGenre=h.g; currentCountry=''; }
+                    // Reset all filters first
+                    currentCountry = h.c || '';
+                    currentGenre = h.g || '';
+                    currentCompany = h.com || '';
+                    
+                    if(h.t === 'anime') { 
+                        currentType = 'anime'; 
+                        currentCountry = 'JP'; 
+                        currentGenre = 16; 
+                    } else {
+                        currentType = 'movie'; // Highlight home page defaults to movie
+                    }
                     loadFeed(true);
                 };
                 div.innerHTML = `<div class="highlight-circle"><span class="hl-logo">${h.l}</span></div><div class="highlight-text">${h.n}</div>`;
@@ -353,6 +361,7 @@
             if(currentType === 'short') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_runtime.lte=40&with_runtime.gte=5&page=${page}`; 
             if(currentCountry) url += `&with_origin_country=${currentCountry}`;
             if(currentGenre) url += `&with_genres=${currentGenre}`;
+            if(currentCompany) url += `&with_companies=${currentCompany}`;
             if(currentYear) url += (endpoint === 'discover/tv' ? `&first_air_date_year=${currentYear}` : `&primary_release_year=${currentYear}`);
             if(searchQuery) url = `https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(searchQuery)}&api_key=${API_KEY}&language=id-ID&page=${page}`;
 
@@ -382,7 +391,7 @@
         function toggleFilterBar() { const b = document.getElementById('filterBar'); b.style.display = b.style.display === 'block' ? 'none' : 'block'; }
         
         function setSchedule(v, el) { document.querySelectorAll('.btn-ig').forEach(b=>b.classList.remove('active')); el.classList.add('active'); currentSchedule=v; loadFeed(true); }
-        function setFilter(k, v) { currentType=v; loadFeed(true); }
+        function setFilter(k, v) { currentType=v; currentCompany=''; loadFeed(true); }
         function setYear(y) { currentYear=y; document.getElementById('yearBtn').innerText=y||'Tahun'; closeD(); loadFeed(true); }
         function setCountry(c, n) { currentCountry=c; document.getElementById('btnCountry').innerText=n; closeD(); loadFeed(true); }
         function setGenre(g, n) { currentGenre=g; document.getElementById('btnGenre').innerText=n; closeD(); loadFeed(true); }
@@ -404,7 +413,7 @@
             if(vids.length > 0) {
                 vids.forEach((v, i) => {
                     track.innerHTML += `<div class="carousel-slide"><iframe id="yt-${i}" src="https://www.youtube.com/embed/${v.key}?enablejsapi=1&autoplay=${i===0?1:0}&mute=0&rel=0" class="w-full h-full" allow="autoplay; fullscreen"></iframe></div>`;
-                    dots.innerHTML += `<div class="dot w-1.5 h-1.5 rounded-full ${i===0?'bg-blue-500':'bg-zinc-700'}"></div>`;
+                    dots.innerHTML += `<div class="dot w-1.5 h-1.5 rounded-full ${i===currentIdx?'bg-blue-500':'bg-zinc-700'}"></div>`;
                 });
                 document.getElementById('swipeOverlay').style.display = 'block';
             } else {
@@ -452,7 +461,7 @@
         }
         function updateLibButtons(id) { const isL = JSON.parse(localStorage.getItem('likes') || '[]').some(x=>x.id==id); const isB = JSON.parse(localStorage.getItem('bookmarks') || '[]').some(x=>x.id==id); document.getElementById('btnLikeModal').className = isL ? 'fa-solid fa-heart text-red-500 interaction-icon' : 'fa-regular fa-heart interaction-icon'; document.getElementById('btnBookModal').className = isB ? 'fa-solid fa-bookmark text-white interaction-icon' : 'fa-regular fa-bookmark interaction-icon'; document.getElementById('btnLikeModal').onclick = () => toggleLib('likes'); document.getElementById('btnBookModal').onclick = () => toggleLib('bookmarks'); }
         function toggleLib(k) { let items = JSON.parse(localStorage.getItem(k) || '[]'); const idx = items.findIndex(x => x.id == window.currentMediaId); idx > -1 ? items.splice(idx,1) : items.push({id: window.currentMediaId, type: window.currentMediaType}); localStorage.setItem(k, JSON.stringify(items)); updateLibButtons(window.currentMediaId); }
-        async function switchTab(mode, el) { document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active')); el.classList.add('active'); if(mode === 'likes' || mode === 'bookmarks') showLibrary(mode); else { currentType='multi'; currentSchedule='trending'; loadFeed(true); } }
+        async function switchTab(mode, el) { document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active')); el.classList.add('active'); if(mode === 'likes' || mode === 'bookmarks') showLibrary(mode); else { currentType='multi'; currentSchedule='trending'; currentCompany=''; loadFeed(true); } }
         async function showLibrary(k) { const items = JSON.parse(localStorage.getItem(k) || '[]'); const grid = document.getElementById('feedGrid'); grid.innerHTML = ''; if (!items.length) return; for(const i of items) { try { const r = await fetch(`https://api.themoviedb.org/3/${i.type}/${i.id}?api_key=${API_KEY}&language=id-ID`); const m = await r.json(); renderGrid([m], grid); } catch(e){} } }
         window.onscroll = () => { if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000 && !loading) { page++; loadFeed(false); } };
     </script>
