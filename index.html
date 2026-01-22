@@ -272,10 +272,10 @@
 
         function initHighlights() {
             const hls = [
-                {n: 'Disney', g: 10751, l: 'DSNY', t: 'movie'},
-                {n: 'Pixar', g: 16, l: 'PIXR', c: 'US', t: 'movie'},
-                {n: 'Dreamworks', g: 16, l: 'DRMW', t: 'movie'},
-                {n: 'Ghibli', com: 10342, l: 'GHBL', t: 'movie'},
+                {n: 'Disney', com: '2|6125|3166|34213', l: 'DSNY', t: 'movie'}, // Disney & Walt Disney Pictures
+                {n: 'Pixar', com: '3', l: 'PIXR', t: 'movie'}, // Pixar
+                {n: 'Dreamworks', com: '521|7|1778', l: 'DRMW', t: 'movie'}, // DreamWorks & DW Animation
+                {n: 'Ghibli', com: '10342', l: 'GHBL', t: 'movie'}, // Studio Ghibli
                 {n: 'Anime', g: 16, l: 'ANIM', t: 'anime'},
                 {n: 'Indonesia', c: 'ID', l: 'INDO', t: 'movie'},
                 {n: 'Korea', c: 'KR', l: 'KOR', t: 'movie'},
@@ -287,17 +287,17 @@
                 const div = document.createElement('div');
                 div.className = 'highlight-item';
                 div.onclick = () => {
-                    // Reset all filters first
                     currentCountry = h.c || '';
                     currentGenre = h.g || '';
                     currentCompany = h.com || '';
+                    currentSchedule = 'trending'; 
                     
                     if(h.t === 'anime') { 
-                        currentType = 'anime'; 
+                        currentType = 'tv'; 
                         currentCountry = 'JP'; 
                         currentGenre = 16; 
                     } else {
-                        currentType = 'movie'; // Highlight home page defaults to movie
+                        currentType = 'movie';
                     }
                     loadFeed(true);
                 };
@@ -347,15 +347,17 @@
             const grid = searchQuery ? document.getElementById('searchGrid') : document.getElementById('feedGrid');
             if(isNew) { page = 1; grid.innerHTML = ''; }
             
-            let endpoint = (currentType === 'tv' || currentType === 'anime') ? 'discover/tv' : 'discover/movie';
+            let endpoint = (currentType === 'tv') ? 'discover/tv' : 'discover/movie';
             let url = `https://api.themoviedb.org/3/${endpoint}?api_key=${API_KEY}&language=id-ID&page=${page}&include_adult=false&sort_by=popularity.desc`;
 
-            const today = new Date().toISOString().split('T')[0];
-            if(currentSchedule === 'now_playing') {
-                const prev = new Date(Date.now() - 60*24*60*60*1000).toISOString().split('T')[0];
-                url += `&primary_release_date.gte=${prev}&primary_release_date.lte=${today}`;
-            } else if(currentSchedule === 'upcoming') {
-                url += `&primary_release_date.gte=${today}`;
+            if(currentSchedule === 'now_playing' || currentSchedule === 'upcoming') {
+                const today = new Date().toISOString().split('T')[0];
+                if(currentSchedule === 'now_playing') {
+                    const prev = new Date(Date.now() - 60*24*60*60*1000).toISOString().split('T')[0];
+                    url += `&primary_release_date.gte=${prev}&primary_release_date.lte=${today}`;
+                } else {
+                    url += `&primary_release_date.gte=${today}`;
+                }
             }
 
             if(currentType === 'short') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_runtime.lte=40&with_runtime.gte=5&page=${page}`; 
@@ -376,7 +378,7 @@
         function renderGrid(items, grid) {
             items.forEach(m => {
                 if(!m.poster_path) return;
-                const mType = m.media_type || (currentType === 'tv' || currentType === 'anime' ? 'tv' : 'movie');
+                const mType = m.media_type || (currentType === 'tv' ? 'tv' : 'movie');
                 const card = document.createElement('div');
                 card.className = 'post-card';
                 card.onclick = () => openModal(m.id, mType);
@@ -390,7 +392,7 @@
         function searchAction() { searchQuery = document.getElementById('searchInp').value; loadFeed(true); }
         function toggleFilterBar() { const b = document.getElementById('filterBar'); b.style.display = b.style.display === 'block' ? 'none' : 'block'; }
         
-        function setSchedule(v, el) { document.querySelectorAll('.btn-ig').forEach(b=>b.classList.remove('active')); el.classList.add('active'); currentSchedule=v; loadFeed(true); }
+        function setSchedule(v, el) { document.querySelectorAll('.btn-ig').forEach(b=>b.classList.remove('active')); el.classList.add('active'); currentSchedule=v; currentCompany=''; loadFeed(true); }
         function setFilter(k, v) { currentType=v; currentCompany=''; loadFeed(true); }
         function setYear(y) { currentYear=y; document.getElementById('yearBtn').innerText=y||'Tahun'; closeD(); loadFeed(true); }
         function setCountry(c, n) { currentCountry=c; document.getElementById('btnCountry').innerText=n; closeD(); loadFeed(true); }
@@ -413,7 +415,7 @@
             if(vids.length > 0) {
                 vids.forEach((v, i) => {
                     track.innerHTML += `<div class="carousel-slide"><iframe id="yt-${i}" src="https://www.youtube.com/embed/${v.key}?enablejsapi=1&autoplay=${i===0?1:0}&mute=0&rel=0" class="w-full h-full" allow="autoplay; fullscreen"></iframe></div>`;
-                    dots.innerHTML += `<div class="dot w-1.5 h-1.5 rounded-full ${i===currentIdx?'bg-blue-500':'bg-zinc-700'}"></div>`;
+                    dots.innerHTML += `<div class="dot w-1.5 h-1.5 rounded-full ${i===0?'bg-blue-500':'bg-zinc-700'}"></div>`;
                 });
                 document.getElementById('swipeOverlay').style.display = 'block';
             } else {
