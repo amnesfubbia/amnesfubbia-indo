@@ -81,14 +81,13 @@
         .filter-item { padding: 16px; font-size: 14px; text-align: center; border-bottom: 1px solid #262626; color: #eee; cursor: pointer; }
         .filter-item:active { background: #333; }
 
-        /* HIGHLIGHTS - UPDATED TO MONOCHROME LOGO */
+        /* HIGHLIGHTS */
         .highlights-wrapper { padding: 0 15px 15px 15px; border-bottom: 1px solid #1c1c1c; }
         .highlights-container { display: flex; gap: 15px; overflow-x: auto; }
         .highlight-item { flex: 0 0 62px; text-align: center; cursor: pointer; }
-        .highlight-circle { width: 58px; height: 58px; border-radius: 50%; border: 1.5px solid #262626; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; background: #000; overflow: hidden; padding: 10px; }
-        /* Efek Putih Terang pada Logo */
-        .highlight-circle img { width: 100%; height: 100%; object-fit: contain; filter: brightness(0) invert(1); }
-        .highlight-text { font-size: 10px; color: #fff; opacity: 0.8; }
+        .highlight-circle { width: 58px; height: 58px; border-radius: 50%; border: 1px solid #262626; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; background: #000; }
+        .highlight-circle .hl-logo { font-size: 10px; font-weight: 900; letter-spacing: -0.5px; text-transform: uppercase; color: #fff; text-align: center; line-height: 1; }
+        .highlight-text { font-size: 10px; color: #fff; }
 
         /* TABS */
         .tab-nav { display: flex; border-top: 1px solid #1c1c1c; }
@@ -272,16 +271,16 @@
         };
 
         function initHighlights() {
-            // Updated Highlight List with specific Logos
             const hls = [
-                {n: 'Disney', g: 10751, img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Disney_2011.png/640px-Disney_2011.png'},
-                {n: 'Pixar', g: 16, img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Pixar_wordmark.svg/800px-Pixar_wordmark.svg.png'},
-                {n: 'Dreamwork', g: 14, img: 'https://upload.wikimedia.org/wikipedia/en/thumb/4/4e/DreamWorks_Animation_logo.svg/512px-DreamWorks_Animation_logo.svg.png'},
-                {n: 'Ghibli', g: 16, c: 'JP', img: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/ca/Studio_Ghibli_logo.svg/512px-Studio_Ghibli_logo.svg.png'},
-                {n: 'Netflix', g: 10770, img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/640px-Netflix_2015_logo.svg.png'},
-                {n: 'Anime', g: 16, c: 'JP', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Crunchyroll_logo.png/640px-Crunchyroll_logo.png', t: 'anime'},
-                {n: 'Korea', c: 'KR', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Flag_of_South_Korea.svg/320px-Flag_of_South_Korea.svg.png'},
-                {n: 'Indonesia', c: 'ID', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Flag_of_Indonesia.svg/320px-Flag_of_Indonesia.svg.png'}
+                {n: 'Disney', g: 10751, l: 'DSNY'},
+                {n: 'Pixar', g: 16, l: 'PIXR', c: 'US'},
+                {n: 'Dreamworks', g: 16, l: 'DRMW'},
+                {n: 'Ghibli', g: 16, c: 'JP', l: 'GHBL'},
+                {n: 'Anime', g: 16, l: 'ANIM', t: 'anime'},
+                {n: 'Indonesia', c: 'ID', l: 'INDO'},
+                {n: 'Korea', c: 'KR', l: 'KOR'},
+                {n: 'India', c: 'IN', l: 'INDI'},
+                {n: 'Thailand', c: 'TH', l: 'THAI'}
             ];
             const cont = document.getElementById('highlightList');
             hls.forEach(h => {
@@ -294,7 +293,7 @@
                     else { currentGenre=h.g; currentCountry=''; }
                     loadFeed(true);
                 };
-                div.innerHTML = `<div class="highlight-circle"><img src="${h.img}"></div><div class="highlight-text">${h.n}</div>`;
+                div.innerHTML = `<div class="highlight-circle"><span class="hl-logo">${h.l}</span></div><div class="highlight-text">${h.n}</div>`;
                 cont.appendChild(div);
             });
         }
