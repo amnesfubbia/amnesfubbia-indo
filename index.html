@@ -20,8 +20,16 @@
         
         .profile-info { display: flex; align-items: center; gap: 25px; margin-bottom: 15px; }
         .profile-pic-container { position: relative; width: 86px; height: 86px; }
-        .profile-pic { width: 82px; height: 82px; border-radius: 50%; border: 1px solid #333; padding: 2px; background: #000; overflow: hidden; }
-        .profile-pic img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        
+        /* LOGO TEKS CSS (PENGGANTI FOTO) */
+        .profile-pic-logo { 
+            width: 82px; height: 82px; border-radius: 50%; border: 1px solid #333; padding: 2px; background: #1a1a1a; 
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .logo-text-inner {
+            font-weight: 900; font-size: 16px; color: #fff; letter-spacing: 1px; line-height: 1; text-align: center;
+        }
+
         .add-story-btn { position: absolute; bottom: 4px; right: 4px; width: 24px; height: 24px; background: #0095f6; border: 3px solid #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #fff; z-index: 10; }
 
         .stats { display: flex; flex-grow: 1; justify-content: space-around; text-align: center; }
@@ -133,8 +141,8 @@
 
             <div class="profile-info">
                 <div class="profile-pic-container">
-                    <div class="profile-pic">
-                        <img src="https://i.ibb.co.com/vC4vPq8x/39897.jpg" alt="Profile Amnesfubbia">
+                    <div class="profile-pic-logo">
+                        <div class="logo-text-inner">AM.<br>FB</div>
                     </div>
                     <div class="add-story-btn"><i class="fa-solid fa-plus"></i></div>
                 </div>
@@ -396,7 +404,7 @@
             if(vids.length > 0) {
                 vids.forEach((v, i) => {
                     track.innerHTML += `<div class="carousel-slide"><iframe id="yt-${i}" src="https://www.youtube.com/embed/${v.key}?enablejsapi=1&autoplay=${i===0?1:0}&mute=0&rel=0" class="w-full h-full" allow="autoplay; fullscreen"></iframe></div>`;
-                    dots.innerHTML += `<div class="dot w-1.5 h-1.5 rounded-full ${i===currentIdx?'bg-blue-500':'bg-zinc-700'}"></div>`;
+                    dots.innerHTML += `<div class="dot w-1.5 h-1.5 rounded-full ${i===0?'bg-blue-500':'bg-zinc-700'}"></div>`;
                 });
                 document.getElementById('swipeOverlay').style.display = 'block';
             } else {
@@ -408,14 +416,9 @@
             document.getElementById('mLikeDisplay').innerText = `${Math.floor((dId.vote_average || 0) * 1234).toLocaleString('id-ID')} suka`;
             document.getElementById('mTitle').innerText = dId.title || dId.name || dEn.title;
             
-            globalFullDesc = dId.overview;
-            globalEnDesc = dEn.overview;
-            if(!globalFullDesc && globalEnDesc) {
-                globalFullDesc = globalEnDesc;
-                document.getElementById('mTranslateBtn').classList.remove('hidden');
-            } else {
-                document.getElementById('mTranslateBtn').classList.add('hidden');
-            }
+            globalFullDesc = dId.overview; globalEnDesc = dEn.overview;
+            if(!globalFullDesc && globalEnDesc) { globalFullDesc = globalEnDesc; document.getElementById('mTranslateBtn').classList.remove('hidden'); }
+            else { document.getElementById('mTranslateBtn').classList.add('hidden'); }
             if(!globalFullDesc) globalFullDesc = "Sinopsis tidak tersedia.";
             
             isExpanded = false; renderSynopsis();
@@ -428,14 +431,10 @@
         }
 
         async function handleTranslate() {
-            const btn = document.getElementById('mTranslateBtn');
-            btn.innerText = "Menerjemahkan...";
+            const btn = document.getElementById('mTranslateBtn'); btn.innerText = "Menerjemahkan...";
             try {
                 const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=id&dt=t&q=${encodeURIComponent(globalEnDesc)}`);
-                const data = await res.json();
-                globalFullDesc = data[0].map(x => x[0]).join('');
-                renderSynopsis();
-                btn.classList.add('hidden');
+                const data = await res.json(); globalFullDesc = data[0].map(x => x[0]).join(''); renderSynopsis(); btn.classList.add('hidden');
             } catch(e) { btn.innerText = "Gagal menerjemahkan"; }
         }
 
@@ -450,16 +449,14 @@
             const overlay = document.getElementById('swipeOverlay');
             overlay.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive:true});
             overlay.addEventListener('touchend', e => {
-                let diff = startX - e.changedTouches[0].clientX; 
-                const slides = document.querySelectorAll('.carousel-slide');
+                let diff = startX - e.changedTouches[0].clientX; const slides = document.querySelectorAll('.carousel-slide');
                 if(Math.abs(diff) > 50 && slides.length > 1) {
                     let oldIdx = currentIdx;
                     if(diff > 0 && currentIdx < slides.length - 1) currentIdx++;
                     else if(diff < 0 && currentIdx > 0) currentIdx--;
                     document.getElementById('carouselTrack').style.transform = `translateX(-${currentIdx * 100}%)`;
                     document.querySelectorAll('.dot').forEach((d, i) => { d.className = `dot w-1.5 h-1.5 rounded-full ${i===currentIdx?'bg-blue-500':'bg-zinc-700'}`; });
-                    const oldVid = document.getElementById(`yt-${oldIdx}`);
-                    const newVid = document.getElementById(`yt-${currentIdx}`);
+                    const oldVid = document.getElementById(`yt-${oldIdx}`), newVid = document.getElementById(`yt-${currentIdx}`);
                     if(oldVid) oldVid.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
                     if(newVid) newVid.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
                 }
