@@ -30,8 +30,6 @@
         
         .profile-info { display: flex; align-items: center; gap: 28px; margin-bottom: 10px; }
         .profile-pic-container { position: relative; width: 84px; height: 84px; flex-shrink: 0; }
-        
-        /* LOGO DALAM DIPERTAJAM & DIKECILKAN SEDIKIT (Padding 6px) */
         .profile-pic-logo { width: 84px; height: 84px; border-radius: 50%; border: 1.5px solid #262626; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000; padding: 6px; }
         .profile-pic-logo img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
         .add-story-btn { position: absolute; bottom: 4px; right: 4px; width: 22px; height: 22px; background: #0095f6; border: 2px solid #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #fff; z-index: 10; }
@@ -63,11 +61,8 @@
         .highlights-wrapper { padding: 0 15px 15px 15px; border-bottom: 1px solid #1c1c1c; }
         .highlights-container { display: flex; gap: 15px; overflow-x: auto; }
         .highlight-item { flex: 0 0 62px; text-align: center; cursor: pointer; }
-        
-        /* BORDER PUTIH SAAT HIGHLIGHT DIPILIH */
         .highlight-circle { width: 58px; height: 58px; border-radius: 50%; border: 1px solid #262626; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; background: #000; transition: border 0.3s; }
         .highlight-item.active-hl .highlight-circle { border: 2px solid #fff; }
-        
         .highlight-circle .hl-logo { font-size: 10px; font-weight: 900; letter-spacing: -0.5px; text-transform: uppercase; color: #fff; text-align: center; line-height: 1; }
         .highlight-text { font-size: 10px; color: #fff; }
 
@@ -330,7 +325,7 @@
 
         function renderGrid(items, grid) { items.forEach(m => { if(!m.poster_path) return; const mType = m.media_type || (currentType === 'tv' ? 'tv' : 'movie'); const card = document.createElement('div'); card.className = 'post-card'; card.onclick = () => openModal(m.id, mType); card.innerHTML = `<div class="badge-rating">★ ${(m.vote_average||0).toFixed(1)}</div><div class="badge-type">${currentType==='short'?'SHORT':(mType==='tv'?'SERIES':'FILM')}</div><img src="https://image.tmdb.org/t/p/w342${m.poster_path}">`; grid.appendChild(card); }); }
         function openSearch() { document.getElementById('searchOverlay').style.display = 'block'; document.getElementById('searchInp').focus(); document.body.style.overflow='hidden'; if(!currentCastId) document.getElementById('searchGrid').innerHTML = ''; }
-        function closeSearch() { document.getElementById('searchOverlay').style.display = 'none'; document.body.style.overflow='auto'; searchQuery=''; currentCastId=''; }
+        function closeSearch() { document.getElementById('searchOverlay').style.display = 'none'; document.body.style.overflow='auto'; searchQuery=''; currentCastId=''; document.getElementById('searchInp').value=''; document.getElementById('searchGrid').innerHTML=''; document.getElementById('smartSearchDropdown').style.display='none'; }
         function searchAction() { currentLibMode = false; currentCastId = ''; searchQuery = document.getElementById('searchInp').value; loadFeed(true); document.getElementById('smartSearchDropdown').style.display = 'none'; }
         function searchByCast(castId) { closeModal(); currentCastId = castId; searchQuery = ''; document.getElementById('searchInp').value = ''; document.getElementById('searchOverlay').style.display = 'block'; document.body.style.overflow='hidden'; loadFeed(true); }
         function toggleFilterBar() { const b = document.getElementById('filterBar'); b.style.display = b.style.display === 'block' ? 'none' : 'block'; }
@@ -375,7 +370,19 @@
         function updateLibButtons(id) { const isL = JSON.parse(localStorage.getItem('likes') || '[]').some(x=>x.id==id); const isB = JSON.parse(localStorage.getItem('bookmarks') || '[]').some(x=>x.id==id); document.getElementById('btnLikeModal').className = isL ? 'fa-solid fa-heart text-red-500 interaction-icon' : 'fa-regular fa-heart interaction-icon'; document.getElementById('btnBookModal').className = isB ? 'fa-solid fa-bookmark text-white interaction-icon' : 'fa-regular fa-bookmark interaction-icon'; document.getElementById('btnLikeModal').onclick = () => toggleLib('likes'); document.getElementById('btnBookModal').onclick = () => toggleLib('bookmarks'); }
         function toggleLib(k) { let items = JSON.parse(localStorage.getItem(k) || '[]'); const idx = items.findIndex(x => x.id == window.currentMediaId); idx > -1 ? items.splice(idx,1) : items.push({id: window.currentMediaId, type: window.currentMediaType}); localStorage.setItem(k, JSON.stringify(items)); updateLibButtons(window.currentMediaId); }
         async function switchTab(mode, el) { document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active')); el.classList.add('active'); const grid = document.getElementById('feedGrid'); grid.innerHTML = ''; if(mode === 'likes' || mode === 'bookmarks') { currentLibMode = true; showLibrary(mode); } else { currentLibMode = false; currentCastId = ''; searchQuery = ''; currentType='movie'; currentSchedule='trending'; currentCompany=''; loadFeed(true); } }
-        async function showLibrary(k) { const items = JSON.parse(localStorage.getItem(k) || '[]'); const grid = document.getElementById('feedGrid'); grid.innerHTML = ''; if (!items.length) { grid.innerHTML = '<div class="col-span-3 text-center py-20 text-zinc-500 text-xs">Belum ada konten disimpan</div>'; return; } for(const i of items) { try { const r = await fetch(`https://api.themoviedb.org/3/${i.type}/${i.id}?api_key=${API_KEY}&language=id-ID`); const m = await r.json(); renderGrid([m], grid); } catch(e){} } }
+        async function showLibrary(k) { 
+            const items = JSON.parse(localStorage.getItem(k) || '[]'); 
+            const grid = document.getElementById('feedGrid'); 
+            grid.innerHTML = ''; 
+            if (!items.length) { grid.innerHTML = '<div class="col-span-3 text-center py-20 text-zinc-500 text-xs">Belum ada konten disimpan</div>'; return; } 
+            
+            // Parallel Fetching untuk menghilangkan delay
+            const promises = items.map(i => fetch(`https://api.themoviedb.org/3/${i.type}/${i.id}?api_key=${API_KEY}&language=id-ID`).then(res => res.json()));
+            try {
+                const results = await Promise.all(promises);
+                renderGrid(results, grid);
+            } catch(e) {}
+        }
         window.onscroll = () => { if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000 && !loading && !searchQuery && !currentLibMode) { page++; loadFeed(false); } };
     </script>
 </body>
