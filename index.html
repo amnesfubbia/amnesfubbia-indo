@@ -30,18 +30,21 @@
         .ig-logo { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: -0.5px; }
         .dot-notify { width: 7px; height: 7px; background-color: #ff3b30; border-radius: 50%; display: inline-block; margin-left: 2px; }
         
-        .profile-info { display: flex; align-items: center; gap: 20px; margin-bottom: 15px; }
-        .profile-pic-container { position: relative; width: 68px; height: 68px; }
-        .profile-pic-logo { width: 65px; height: 65px; border-radius: 50%; border: 1px solid #333; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000; }
-        .profile-pic-logo img { width: 100%; height: 100%; object-fit: cover; }
-        .add-story-btn { position: absolute; bottom: 1px; right: 1px; width: 20px; height: 20px; background: #0095f6; border: 2px solid #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; color: #fff; z-index: 10; }
+        /* ADJUSTED PROFILE PIC BORDER */
+        .profile-info { display: flex; align-items: center; gap: 28px; margin-bottom: 15px; }
+        .profile-pic-container { position: relative; width: 84px; height: 84px; flex-shrink: 0; }
+        .profile-pic-logo { width: 84px; height: 84px; border-radius: 50%; border: 1px solid #262626; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000; padding: 2px; }
+        .profile-pic-logo img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .add-story-btn { position: absolute; bottom: 4px; right: 4px; width: 22px; height: 22px; background: #0095f6; border: 2px solid #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #fff; z-index: 10; }
 
         /* FONT STATISTIK AUDIT */
         .stats { display: flex; flex-grow: 1; justify-content: space-around; text-align: center; }
-        .stat-val { font-weight: 700; font-size: 15px; display: block; color: #fff; }
-        .stat-label { font-size: 11px; color: #fff; font-weight: 400; }
+        .stat-item { cursor: pointer; }
+        .stat-val { font-weight: 700; font-size: 18px; display: block; color: #fff; }
+        .stat-label { font-size: 14px; color: #fff; font-weight: 400; }
         
-        .bio { font-size: 13px; line-height: 1.4; margin-bottom: 15px; padding-top: 5px; }
+        /* ADJUSTED BIO MARGIN TO CLOSE DISTANCE WITH LOGO */
+        .bio { font-size: 13px; line-height: 1.4; margin-bottom: 15px; margin-top: -5px; }
         .bio-name-wrapper { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
         .bio-name { font-weight: 700; font-size: 14px; display: block; }
 
@@ -101,7 +104,6 @@
         .dl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 15px; }
         .dl-link-btn { width: 100%; padding: 14px; border-radius: 12px; background: #000; color: #a1a1aa; font-size: 10px; font-weight: 800; text-transform: uppercase; text-align: center; border: 1px solid #1c1c1c; }
         
-        /* CAST CIRCLE GRADIENT INSTAGRAM */
         .cast-wrapper { display: flex; overflow-x: auto; gap: 15px; padding: 15px 0; scrollbar-width: none; }
         .cast-item { flex: 0 0 65px; text-align: center; cursor: pointer; }
         .cast-img-border { 
@@ -113,13 +115,11 @@
         .cast-img-border img { width: 100%; height: 100%; object-fit: cover; }
         .cast-name { font-size: 9px; font-weight: 500; color: #fff; line-height: 1.2; display: block; margin-top: 4px; }
         
-        /* TIPOGRAFI INSTAGRAM */
         .ig-post-content { padding: 0 15px; margin-top: 5px; }
         .ig-likes-count { font-weight: 700; font-size: 13px; margin-bottom: 5px; display: block; }
         .ig-username { font-weight: 700; font-size: 13px; margin-right: 5px; }
         .ig-caption { font-size: 13px; line-height: 1.4; color: #efefef; }
         
-        /* AUDIT TEKS DESKRIPSI */
         .toggle-btn { display: block; color: #a8a8a8; cursor: pointer; font-size: 13px; margin-top: 4px; font-weight: 500; }
         #mTranslateBtn { font-size: 11px; color: #a8a8a8; font-weight: 600; margin-top: 8px; cursor: pointer; display: block; }
         .ig-hashtags { color: #e0f1ff; display: block; margin-top: 10px; font-size: 13px; }
@@ -273,23 +273,18 @@
         let isExpanded = false, globalFullDesc = "", globalEnDesc = "", currentIdx = 0, startX = 0;
 
         window.onload = () => {
-            // Splash screen hanya muncul saat reload/load pertama kali
             setTimeout(() => {
                 document.getElementById('splashScreen').style.display = 'none';
                 document.getElementById('mainProfile').style.display = 'block';
             }, 2500);
-
             initFilters(); initHighlights(); loadFeed(); setupSwipe(); initSmartSearch(); 
             window.addEventListener('scroll', () => { 
                 document.getElementById('backToTop').style.display = window.scrollY > 500 ? 'flex' : 'none'; 
             }); 
         };
 
-        // Fungsi Reset Home
         function backToHome() {
-            closeModal();
-            closeSearch();
-            closeD();
+            closeModal(); closeSearch(); closeD();
             currentGenre = ''; currentYear = ''; currentCountry = ''; currentSchedule = 'trending'; currentType = 'movie'; searchQuery = ''; currentCastId = '';
             document.getElementById('btnGenre').innerText = 'Genre';
             document.getElementById('yearBtn').innerText = 'Tahun';
@@ -338,7 +333,7 @@
         function setFilter(k, v) { currentLibMode = false; currentCastId = ''; searchQuery = ''; currentType=v; currentCompany=''; loadFeed(true); }
         function setYear(y) { currentYear=y; document.getElementById('yearBtn').innerText=y||'Tahun'; closeD(); loadFeed(true); }
         function setCountry(c, n) { currentCountry=c; document.getElementById('btnCountry').innerText=n; closeD(); loadFeed(true); }
-        function setGenre(g, n) { currentGenre=g; document.getElementById('btnGenre').innerText=n; loadFeed(true); }
+        function setGenre(g, n) { currentGenre=g; document.getElementById('btnGenre').innerText=n; closeD(); loadFeed(true); }
 
         async function openModal(id, type) {
             window.currentMediaId = id; window.currentMediaType = type;
@@ -350,21 +345,10 @@
             track.innerHTML = ''; dots.innerHTML = ''; track.style.transform = 'translateX(0)';
             if(vids.length > 0) { vids.forEach((v, i) => { track.innerHTML += `<div class="carousel-slide"><iframe id="yt-${i}" src="https://www.youtube.com/embed/${v.key}?enablejsapi=1&autoplay=${i===0?1:0}&mute=0&rel=0" class="w-full h-full" allow="autoplay; fullscreen"></iframe></div>`; dots.innerHTML += `<div class="dot w-1.5 h-1.5 rounded-full ${i===currentIdx?'bg-blue-500':'bg-zinc-700'}"></div>`; }); document.getElementById('swipeOverlay').style.display = 'block'; }
             else { track.innerHTML = `<div class="carousel-slide"><iframe src="https://vidrock.net/embed/${type}/${id}${type==='tv'?'/1/1':''}" class="w-full h-full" allowfullscreen></iframe></div>`; dots.innerHTML = `<div class="dot bg-blue-500 w-1.5 h-1.5 rounded-full"></div>`; document.getElementById('swipeOverlay').style.display = 'none'; }
-            
-            // Cast Circles Render
-            document.getElementById('castContainer').innerHTML = (dCast.cast || []).slice(0, 10).map(c => `
-                <div class="cast-item" onclick="searchByCast(${c.id})">
-                    <div class="cast-img-border">
-                        <div class="inner-border">
-                            <img src="${c.profile_path ? 'https://image.tmdb.org/t/p/w185' + c.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-3245c3f3347706a035c9744ffaa5d174e48be3b860667e406723f3bc8160f47e.svg'}">
-                        </div>
-                    </div>
-                    <span class="cast-name">${c.name}</span>
-                </div>`).join('');
-
+            document.getElementById('castContainer').innerHTML = (dCast.cast || []).slice(0, 10).map(c => `<div class="cast-item" onclick="searchByCast(${c.id})"><div class="cast-img-border"><div class="inner-border"><img src="${c.profile_path ? 'https://image.tmdb.org/t/p/w185' + c.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-3245c3f3347706a035c9744ffaa5d174e48be3b860667e406723f3bc8160f47e.svg'}"></div></div><span class="cast-name">${c.name}</span></div>`).join('');
             document.getElementById('mLikeDisplay').innerText = `${Math.floor((dId.vote_average || 0) * 1234).toLocaleString('id-ID')} suka`; document.getElementById('mTitle').innerText = dId.title || dId.name || dEn.title;
             globalFullDesc = dId.overview; globalEnDesc = dEn.overview;
-            if(!globalFullDesc && globalEnDesc) { globalFullDesc = globalEnDesc; document.getElementById('mTranslateBtn').classList.remove('hidden'); } else { document.getElementById('mTranslateBtn').classList.add('hidden'); }
+            if(!globalFullDesc && globalEnDesc) { globalFullDesc = globalEnDesc; document.getElementById('mTranslateBtn').classList.remove('hidden'); } else if (globalEnDesc && globalEnDesc !== globalFullDesc) { document.getElementById('mTranslateBtn').classList.remove('hidden'); } else { document.getElementById('mTranslateBtn').classList.add('hidden'); }
             if(!globalFullDesc) globalFullDesc = "Sinopsis tidak tersedia.";
             isExpanded = false; renderSynopsis();
             const rel = dId.release_date || dId.first_air_date || ""; document.getElementById('mHashtags').innerText = `#${(dId.title||dId.name||"").replace(/\s+/g, '')} #${rel.split('-')[0]}`; document.getElementById('mDateDisplay').innerText = rel ? new Date(rel).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
@@ -384,7 +368,7 @@
         function updateLibButtons(id) { const isL = JSON.parse(localStorage.getItem('likes') || '[]').some(x=>x.id==id); const isB = JSON.parse(localStorage.getItem('bookmarks') || '[]').some(x=>x.id==id); document.getElementById('btnLikeModal').className = isL ? 'fa-solid fa-heart text-red-500 interaction-icon' : 'fa-regular fa-heart interaction-icon'; document.getElementById('btnBookModal').className = isB ? 'fa-solid fa-bookmark text-white interaction-icon' : 'fa-regular fa-bookmark interaction-icon'; document.getElementById('btnLikeModal').onclick = () => toggleLib('likes'); document.getElementById('btnBookModal').onclick = () => toggleLib('bookmarks'); }
         function toggleLib(k) { let items = JSON.parse(localStorage.getItem(k) || '[]'); const idx = items.findIndex(x => x.id == window.currentMediaId); idx > -1 ? items.splice(idx,1) : items.push({id: window.currentMediaId, type: window.currentMediaType}); localStorage.setItem(k, JSON.stringify(items)); updateLibButtons(window.currentMediaId); }
         async function switchTab(mode, el) { document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active')); el.classList.add('active'); const grid = document.getElementById('feedGrid'); grid.innerHTML = ''; if(mode === 'likes' || mode === 'bookmarks') { currentLibMode = true; showLibrary(mode); } else { currentLibMode = false; currentCastId = ''; searchQuery = ''; currentType='movie'; currentSchedule='trending'; currentCompany=''; loadFeed(true); } }
-        async function showLibrary(k) { const items = JSON.parse(localStorage.getItem(k) || '[]'); const grid = document.getElementById('feedGrid'); grid.innerHTML = ''; if (!items.length) { grid.innerHTML = '<div class="col-span-3 text-center py-20 text-zinc-500 text-xs">Belum ada konten disimpan</div>'; return; } for(const i of items) { try { const r = await fetch(`https://api.themoviedb.org/3/${i.type}/${i.id}?api_key=${API_KEY}&language=id-ID`); const m = await r.json(); renderGrid([m], grid); } catch(e){} } }
+        async function showLibrary(k) { const items = JSON.parse(localStorage.getItem(k) || '[]'); const grid = document.getElementById('feedGrid'); grid.innerHTML = ''; if (!items.length) { grid.innerHTML = '<div class="col-span-3 text-center py-20 text-zinc-500 text-xs">Belum ada konten disimpan</div>'; return; } for(const i of items) { try { const r = await fetch(`https://api.themoviedb.org/3/${i.type}/${i.id}?api_key=.API_KEY&language=id-ID`); const m = await r.json(); renderGrid([m], grid); } catch(e){} } }
         window.onscroll = () => { if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000 && !loading && !searchQuery && !currentLibMode) { page++; loadFeed(false); } };
     </script>
 </body>
