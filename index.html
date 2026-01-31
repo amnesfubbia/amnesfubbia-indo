@@ -144,38 +144,30 @@
         .about-feature { margin-top: 20px; background: #111; padding: 15px; border-radius: 12px; border: 1px solid #222; }
         .about-footer { margin-top: 40px; text-align: center; border-top: 1px solid #222; padding-top: 20px; font-size: 12px; color: #666; }
 
-        /* --- LANDSCAPE CONTROLS (FIXED) --- */
+        /* --- LANDSCAPE CONTROLS --- */
         .landscape-overlay {
             display: none; position: fixed; inset: 0; z-index: 9500; background: #000;
         }
         .landscape-video-container { width: 100%; height: 100%; position: relative; }
         
         .ls-controls {
-            position: absolute; inset: 0; background: rgba(0,0,0,0); /* Transparan agar bisa klik video */
+            position: absolute; inset: 0; background: rgba(0,0,0,0.3);
             display: flex; flex-direction: column; justify-content: space-between;
             padding: 20px; opacity: 0; transition: opacity 0.3s; z-index: 10000;
-            pointer-events: none; /* Supaya klik tembus ke video */
         }
-        /* Aktifkan pointer event hanya pada tombol agar bisa diklik */
-        .ls-controls i, .ls-controls div { pointer-events: auto; }
+        .ls-controls:hover, .ls-controls:active { opacity: 1; }
+        .ls-top { display: flex; justify-content: space-between; align-items: center; }
+        .ls-center { display: flex; justify-content: center; align-items: center; gap: 40px; }
+        .ls-btn { color: #fff; font-size: 28px; cursor: pointer; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+        .ls-lock-screen { position: absolute; inset: 0; z-index: 11000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.1); }
+        .ls-lock-btn { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); z-index: 10001; }
         
-        .ls-controls.active { opacity: 1; background: rgba(0,0,0,0.4); }
-
-        .ls-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .ls-center { display: flex; justify-content: center; align-items: center; gap: 60px; flex-grow: 1; }
-        .ls-btn { color: #fff; font-size: 24px; cursor: pointer; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
-        .ls-btn-main { font-size: 50px; }
-        
-        .ls-lock-screen { 
-            position: absolute; inset: 0; z-index: 11000; display: none; 
-            align-items: center; justify-content: center; background: rgba(0,0,0,0.01); 
-        }
-
         /* Fixed Landscape Sizing */
         .landscape-active #movieModal { overflow: hidden !important; }
-        .landscape-active .modal-player { display: block !important; position: fixed; inset: 0; z-index: 9998; }
+        .landscape-active .modal-player { display: block !important; position: fixed; inset: 0; z-index: 9999; }
         .landscape-active #modalScrollTop { height: 100vh; max-width: 100%; padding: 0; }
-        .landscape-active .carousel-slide { height: 100vh; }
+        .landscape-active .carousel-slide { height: 100vh; width: 100vw; }
+        .landscape-active #carouselTrack { height: 100vh; }
         .landscape-active .ig-post-content, 
         .landscape-active .cast-wrapper,
         .landscape-active #carouselDots,
@@ -198,32 +190,27 @@
         </div>
     </div>
 
-    <div id="landscapeOverlay" class="landscape-overlay" onclick="toggleLSUI()">
-        <div id="lsLockLayer" class="ls-lock-screen" onclick="event.stopPropagation(); unlockScreen()">
+    <div id="landscapeOverlay" class="landscape-overlay">
+        <div id="lsLockLayer" class="ls-lock-screen" onclick="unlockScreen()">
             <i class="fa-solid fa-lock text-5xl text-white opacity-40"></i>
         </div>
-        
         <div class="ls-controls" id="lsUI">
             <div class="ls-top">
-                <div class="flex items-center gap-4">
-                    <i class="fa-solid fa-arrow-left ls-btn" onclick="event.stopPropagation(); exitToModal()"></i>
-                    <div id="lsTitle" class="text-white font-bold truncate max-w-[200px]"></div>
-                </div>
-                <div class="flex items-center gap-6">
-                    <i id="lsMute" class="fa-solid fa-volume-high ls-btn" onclick="event.stopPropagation(); toggleLsMute()"></i>
-                    <i class="fa-solid fa-expand ls-btn" onclick="event.stopPropagation(); exitLandscape()"></i>
-                </div>
+                <i class="fa-solid fa-arrow-left ls-btn" onclick="exitLandscape()"></i>
+                <div id="lsTitle" class="text-white font-bold truncate max-w-[60%]"></div>
+                <div class="w-10"></div> 
             </div>
             
+            <div class="ls-lock-btn">
+                <i class="fa-solid fa-lock-open ls-btn" onclick="lockScreen()"></i>
+            </div>
+
             <div class="ls-center">
-                <i class="fa-solid fa-backward-step ls-btn text-3xl"></i>
-                <i id="lsPlay" class="fa-solid fa-pause ls-btn ls-btn-main" onclick="event.stopPropagation(); toggleLsPlay()"></i>
-                <i class="fa-solid fa-forward-step ls-btn text-3xl"></i>
+                <i id="lsMute" class="fa-solid fa-volume-high ls-btn" onclick="toggleLsMute()"></i>
+                <i id="lsPlay" class="fa-solid fa-pause ls-btn text-6xl" onclick="toggleLsPlay()"></i>
+                <i class="fa-solid fa-compress ls-btn" onclick="exitLandscape()"></i>
             </div>
-            
-            <div class="ls-bottom flex justify-start">
-                <i class="fa-solid fa-lock-open ls-btn text-xl p-2 bg-black/20 rounded-full" onclick="event.stopPropagation(); lockScreen()"></i>
-            </div>
+            <div class="ls-bottom"></div>
         </div>
     </div>
 
@@ -335,14 +322,14 @@
             </div>
             <div id="castContainer" class="cast-wrapper px-4 no-scrollbar"></div>
             <div class="relative overflow-hidden" id="mainVideoArea">
-                <div class="swipe-overlay" id="swipeOverlay"></div>
+                <div class="swipe-overlay" id="swipeOverlay" onclick="handleVideoClick(event)"></div>
                 <div class="carousel-track" id="carouselTrack"></div>
                 <div id="carouselDots" class="flex justify-center gap-2 py-3"></div>
             </div>
             <div class="px-4 py-3 flex justify-between items-center">
                 <div class="flex gap-4">
                     <i id="btnLikeModal" class="interaction-icon"></i>
-                    <i class="fa-solid fa-arrows-rotate interaction-icon" onclick="enterLandscape()"></i>
+                    <i class="fa-solid fa-expand interaction-icon" onclick="enterLandscape()"></i>
                 </div>
                 <i id="btnBookModal" class="interaction-icon"></i>
             </div>
@@ -369,7 +356,7 @@
                 </div>
                 <div id="serverList" class="grid grid-cols-4 gap-2 mt-6"></div>
                 <div class="dl-grid">
-                    <button id="btnDownload1" class="dl-link-btn" onclick="window.open(`https://dl.vidsrc.vip/${window.currentMediaType}/${window.currentMediaId}`)">Download Sekarang</button>
+                    <button id="btnDownload1" class="dl-link-btn" onclick="window.open(`https://dl.vidsrc.vip/${window.currentMediaType}/${window.currentMediaId}`)">Download</button>
                 </div>
             </div>
         </div>
@@ -383,10 +370,10 @@
 
     <script>
         const API_KEY = 'bfa7df5310c9974f62f26c6789a8c00d';
-        let page = 1, loading = false, currentType = 'multi', currentGenre = '', currentYear = '', currentCountry = '', currentSchedule = 'trending', searchQuery = '', currentCompany = '', currentLibMode = false, currentCastId = '';
+        let page = 1, loading = false, currentType = 'multi', currentGenre = '', currentYear = '', currentCountry = '', currentSchedule = 'trending', searchQuery = '', currentCompany = '', currentLibMode = false, currentLibType = '', currentCastId = '';
         let isExpanded = false, globalFullDesc = "", globalEnDesc = "", currentIdx = 0, startX = 0, isTranslated = false, originalIndoDesc = "";
         let abortController = null;
-        let isLsPaused = false, isLsMuted = false, lsUITimer;
+        let isLsPaused = false, isLsMuted = false;
 
         window.onload = () => {
             setTimeout(() => {
@@ -400,7 +387,7 @@
             }); 
         };
 
-        /* --- FIXED LANDSCAPE FUNCTIONS --- */
+        /* --- IMPROVED LANDSCAPE FUNCTIONS --- */
         async function enterLandscape() {
             const overlay = document.getElementById('landscapeOverlay');
             const lsTitle = document.getElementById('lsTitle');
@@ -408,23 +395,22 @@
             lsTitle.innerText = document.getElementById('mTitle').innerText;
             document.body.classList.add('landscape-active');
             overlay.style.display = 'block';
-            toggleLSUI(); // Tampilkan UI sebentar saat masuk
 
             try {
                 if (document.documentElement.requestFullscreen) {
                     await document.documentElement.requestFullscreen();
-                    if (screen.orientation && screen.orientation.lock) {
-                        await screen.orientation.lock('landscape');
-                    }
                 }
-            } catch (e) { console.log("Orientation lock limited"); }
+                if (screen.orientation && screen.orientation.lock) {
+                    await screen.orientation.lock('landscape').catch(err => console.log("Orientation lock ignored"));
+                }
+            } catch (e) { console.log("Fullscreen request limited"); }
         }
 
         function exitLandscape() {
             document.body.classList.remove('landscape-active');
             document.getElementById('landscapeOverlay').style.display = 'none';
             
-            if (document.exitFullscreen && document.fullscreenElement) {
+            if (document.fullscreenElement && document.exitFullscreen) {
                 document.exitFullscreen();
             }
             if (screen.orientation && screen.orientation.unlock) {
@@ -432,28 +418,12 @@
             }
         }
 
-        // Fungsi khusus tombol back landscape: Tetap di modal tapi portrait
-        function exitToModal() {
-            document.body.classList.remove('landscape-active');
-            document.getElementById('landscapeOverlay').style.display = 'none';
-            if (screen.orientation && screen.orientation.unlock) {
-                screen.orientation.unlock();
-            }
-            if (document.exitFullscreen && document.fullscreenElement) {
-                document.exitFullscreen();
-            }
-        }
-
-        function toggleLSUI() {
-            const ui = document.getElementById('lsUI');
-            if(ui.classList.contains('active')) {
-                ui.classList.remove('active');
-            } else {
-                ui.classList.add('active');
-                clearTimeout(lsUITimer);
-                lsUITimer = setTimeout(() => {
-                    ui.classList.remove('active');
-                }, 4000);
+        // Mencegah klik layar keluar dari landscape secara tidak sengaja
+        function handleVideoClick(e) {
+            if(document.body.classList.contains('landscape-active')) {
+                e.stopPropagation();
+                const ui = document.getElementById('lsUI');
+                ui.style.opacity = ui.style.opacity === "1" ? "0" : "1";
             }
         }
 
@@ -465,8 +435,9 @@
             isLsPaused = !isLsPaused;
             const cmd = isLsPaused ? 'pauseVideo' : 'playVideo';
             
+            // PostMessage untuk kontrol YouTube API
             currentIframe.contentWindow.postMessage(JSON.stringify({"event":"command","func":cmd,"args":""}), '*');
-            btn.className = isLsPaused ? 'fa-solid fa-play ls-btn ls-btn-main' : 'fa-solid fa-pause ls-btn ls-btn-main';
+            btn.className = isLsPaused ? 'fa-solid fa-play ls-btn text-6xl' : 'fa-solid fa-pause ls-btn text-6xl';
         }
 
         function toggleLsMute() {
@@ -491,7 +462,7 @@
             document.getElementById('lsLockLayer').style.display = 'none';
         }
 
-        /* --- SISA FUNGSI (TIDAK DIUBAH) --- */
+        /* --- REST OF FUNCTIONS --- */
         function updateActiveNav(el) { document.querySelectorAll('.bottom-nav i').forEach(i => i.classList.remove('active-nav')); el.classList.add('active-nav'); }
 
         function toggleSideMenu() {
@@ -828,16 +799,14 @@
             document.getElementById('mDateDisplay').innerText = rel ? new Date(rel).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
             
             document.getElementById('serverList').innerHTML = `
-                <button class="server-btn" onclick="playVid('https://vidsrc.me/embed/${type}?tmdb=${id}', this)">S1 VidSrc Me</button>
-                <button class="server-btn" onclick="playVid('https://vidrock.net/embed/${type}/${id}${seriesSuffix}', this)">S2 VidRock</button>
-                <button class="server-btn" onclick="playVid('https://vidsrc.icu/embed/${type}/${id}${seriesSuffix}', this)">S3 vidsrc icu</button>
-                <button class="server-btn" onclick="playVid('https://vidsrc.to/embed/${type}/${id}${seriesSuffix}', this)">S4 vidsrc to</button>
-                <button class="server-btn" onclick="playVid('https://www.2embed.cc/embed/${id}', this)">S5 2embed</button>
-                <button class="server-btn" onclick="playVid('https://vidfast.pro/embed/${type}/${id}${seriesSuffix}', this)">S6 vidfast</button>
-                <button class="server-btn" onclick="playVid('https://embed.smashystream.com/playere.php?tmdb=${id}', this)">S7 Smashy</button>
-                <button class="server-btn" onclick="playVid('https://vidsrc.xyz/embed/${type}/${id}${seriesSuffix}', this)">S8 xyz</button>
-                <button class="server-btn" onclick="playVid('https://vidstorm.ru/${type}/${id}${seriesSuffix}', this)">S9 vidstorm</button>
-                <button class="server-btn" onclick="playVid('https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1', this)">S10 Multi</button>
+                <button class="server-btn" onclick="playVid('https://vidsrc.me/embed/${type}?tmdb=${id}', this)">Server 1</button>
+                <button class="server-btn" onclick="playVid('https://vidrock.net/embed/${type}/${id}${seriesSuffix}', this)">Server 2</button>
+                <button class="server-btn" onclick="playVid('https://vidsrc.icu/embed/${type}/${id}${seriesSuffix}', this)">Server 3</button>
+                <button class="server-btn" onclick="playVid('https://www.2embed.cc/embed/${id}', this)">Server 4</button>
+                <button class="server-btn" onclick="playVid('https://embed.smashystream.com/playere.php?tmdb=${id}', this)">Server 5</button>
+                <button class="server-btn" onclick="playVid('https://vidsrc.xyz/embed/${type}/${id}${seriesSuffix}', this)">Server 6</button>
+                <button class="server-btn" onclick="playVid('https://vidstorm.ru/${type}/${id}${seriesSuffix}', this)">Server 7</button>
+                <button class="server-btn" onclick="playVid('https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1', this)">Server 8</button>
             `;
 
             if(type === 'tv') { document.getElementById('seriesControl').classList.remove('hidden'); document.getElementById('seasonSel').innerHTML = (dId.seasons||[]).filter(s=>s.season_number>0).map(s=>`<option value="${s.season_number}">Season ${s.season_number}</option>`).join(''); loadEpisodes(); } else { document.getElementById('seriesControl').classList.add('hidden'); }
@@ -874,6 +843,11 @@
             track.innerHTML = `<div class="carousel-slide"><iframe src="${finalUrl}" class="w-full h-full" allowfullscreen allow="autoplay"></iframe></div>`; 
             track.style.transform = 'translateX(0)'; currentIdx = 0; dots.innerHTML = ''; 
             document.getElementById('swipeOverlay').style.display = 'none'; highlightBtn(el); 
+            
+            if(document.body.classList.contains('landscape-active')) {
+                document.getElementById('lsPlay').className = 'fa-solid fa-pause ls-btn text-6xl';
+                isLsPaused = false;
+            }
         }
         
         function highlightBtn(el) { document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active-link')); el.classList.add('active-link'); }
@@ -916,7 +890,7 @@
 
         function updateLibButtons(id) { const isL = JSON.parse(localStorage.getItem('likes') || '[]').some(x=>x.id==id); const isB = JSON.parse(localStorage.getItem('bookmarks') || '[]').some(x=>x.id==id); document.getElementById('btnLikeModal').className = isL ? 'fa-solid fa-heart text-red-500 interaction-icon' : 'fa-regular fa-heart interaction-icon'; document.getElementById('btnBookModal').className = isB ? 'fa-solid fa-bookmark text-white interaction-icon' : 'fa-regular fa-bookmark interaction-icon'; document.getElementById('btnLikeModal').onclick = () => toggleLib('likes'); document.getElementById('btnBookModal').onclick = () => toggleLib('bookmarks'); }
         function toggleLib(k) { let items = JSON.parse(localStorage.getItem(k) || '[]'); const idx = items.findIndex(x => x.id == window.currentMediaId); idx > -1 ? items.splice(idx,1) : items.push({id: window.currentMediaId, type: window.currentMediaType}); localStorage.setItem(k, JSON.stringify(items)); updateLibButtons(window.currentMediaId); }
-        async function switchTab(mode, el) { document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active')); el.classList.add('active'); const grid = document.getElementById('feedGrid'); grid.innerHTML = ''; if(mode === 'likes' || mode === 'bookmarks') { currentLibMode = true; showLibrary(mode); } else { currentLibMode = false; currentCastId = ''; searchQuery = ''; currentType='multi'; currentSchedule='trending'; currentCompany=''; loadFeed(true); } }
+        async function switchTab(mode, el) { document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active')); el.classList.add('active'); const grid = document.getElementById('feedGrid'); grid.innerHTML = ''; if(mode === 'likes' || mode === 'bookmarks') { currentLibMode = true; currentLibType = mode; showLibrary(mode); } else { currentLibMode = false; currentCastId = ''; searchQuery = ''; currentType='multi'; currentSchedule='trending'; currentCompany=''; loadFeed(true); } }
         async function showLibrary(k) { const items = JSON.parse(localStorage.getItem(k) || '[]'); const grid = document.getElementById('feedGrid'); grid.innerHTML = ''; if (!items.length) { grid.innerHTML = '<div class="col-span-3 text-center py-20 text-zinc-500 text-xs">Belum ada konten disimpan</div>'; return; } const promises = items.map(i => fetch(`https://api.themoviedb.org/3/${i.type}/${i.id}?api_key=${API_KEY}&language=id-ID`).then(r => r.json())); const results = await Promise.all(promises); renderGrid(results.filter(m => m.id), grid); }
         window.onscroll = () => { if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000 && !loading && !searchQuery && !currentLibMode) { page++; loadFeed(false); } };
     </script>
