@@ -1103,7 +1103,7 @@
            menutupi video, seberapa pun ukurannya berubah. */
         .reel-header-text {
             flex-shrink: 0;
-            padding: 72px 16px 16px; /* 72px atas = kasih ruang buat .reels-topbar yang fixed + jarak lebih */
+            padding: 90px 16px 16px; /* 90px atas = kasih ruang buat .reels-topbar yang fixed + jarak lebih */
         }
         .reel-title {
             font-size: 22px; font-weight: 900; color: #fff;
@@ -1192,7 +1192,7 @@
            walau sinopsisnya panjang. */
         .reel-desc-block {
             flex: 1; min-height: 0; overflow-y: auto;
-            padding: 22px 16px 8px;
+            padding: 32px 16px 8px;
         }
         .reel-synopsis-overlay {
             font-size: 13px; color: rgba(255,255,255,0.8);
@@ -6896,14 +6896,15 @@
 
                 // Touch gestures
                 slide.addEventListener('touchstart', e => {
-                    // Skip if tap on interactive elements (di luar area video)
-                    if (e.target.closest('.reel-btn-detail, .reel-btn-watch, .reel-actions, .reel-header-text, .reel-desc-block, .reel-action-buttons')) return;
+                    // Skip cuma kalau tap tepat di tombol/link interaktif, bukan seluruh
+                    // area judul/sinopsis (biar gestur tetap jalan di ruang kosong sekitarnya)
+                    if (e.target.closest('.reel-btn-detail, .reel-btn-watch, .reel-actions, .reel-translate-btn')) return;
                     sx = e.touches[0].clientX;
                     sy = e.touches[0].clientY;
                 }, { passive: true });
 
                 slide.addEventListener('touchend', e => {
-                    if (e.target.closest('.reel-btn-detail, .reel-btn-watch, .reel-actions, .reel-header-text, .reel-desc-block, .reel-action-buttons')) return;
+                    if (e.target.closest('.reel-btn-detail, .reel-btn-watch, .reel-actions, .reel-translate-btn')) return;
                     const dx = sx - e.changedTouches[0].clientX;
                     const dy = Math.abs(sy - e.changedTouches[0].clientY);
 
