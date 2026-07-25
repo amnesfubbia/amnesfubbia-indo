@@ -1103,7 +1103,7 @@
            menutupi video, seberapa pun ukurannya berubah. */
         .reel-header-text {
             flex-shrink: 0;
-            padding: 60px 16px 16px; /* 60px atas = kasih ruang buat .reels-topbar yang fixed */
+            padding: 72px 16px 16px; /* 72px atas = kasih ruang buat .reels-topbar yang fixed + jarak lebih */
         }
         .reel-title {
             font-size: 22px; font-weight: 900; color: #fff;
@@ -1140,20 +1140,9 @@
         }
         .reel-video-wrap iframe {
             width: 100%;
-            height: calc(100% + 100px);
-            margin-top: -50px;
+            height: 100%;
             border: none; pointer-events: none;
             display: block;
-        }
-        .reel-yt-mask-top {
-            position: absolute; top: 0; left: 0; right: 0;
-            height: 40px; background: #000000;
-            z-index: 4; pointer-events: none;
-        }
-        .reel-yt-mask-bottom {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            height: 40px; background: #000000;
-            z-index: 4; pointer-events: none;
         }
 
         /* Like/Save sekarang nempel di sisi kanan VIDEO saja (bukan melayang di seluruh layar) */
@@ -1203,7 +1192,7 @@
            walau sinopsisnya panjang. */
         .reel-desc-block {
             flex: 1; min-height: 0; overflow-y: auto;
-            padding: 16px 16px 8px;
+            padding: 22px 16px 8px;
         }
         .reel-synopsis-overlay {
             font-size: 13px; color: rgba(255,255,255,0.8);
@@ -6302,10 +6291,6 @@
                         </div>
                         <div class="reel-video-wrap">
                             <iframe src="${embedUrl}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>
-                            <!-- Masker hitam solid tutup tombol header YouTube (judul, share, dll) -->
-                            <div class="reel-yt-mask-top"></div>
-                            <!-- Masker hitam solid tutup tombol footer YouTube (progress bar, play, volume, dll) -->
-                            <div class="reel-yt-mask-bottom"></div>
                             <div class="reel-heart-pop" id="heart-${reel.movieId}"><i class="fa-solid fa-heart"></i></div>
                             <div class="reel-actions">
                                 <div class="reel-action-btn ${lib.liked ? 'liked' : ''}" 
