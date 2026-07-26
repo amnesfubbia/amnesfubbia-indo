@@ -1137,6 +1137,9 @@
             z-index: 3; background: transparent;
             pointer-events: auto;
         }
+        /* Begitu tombol Watch ditekan dan streaming asli mulai main, matikan overlay
+           penghalang ini supaya user bisa berinteraksi langsung dengan player-nya */
+        .reel-video-wrap.streaming::after { pointer-events: none; }
         .reel-video-wrap iframe {
             width: 100%;
             height: 100%;
@@ -1146,7 +1149,8 @@
 
         /* Like/Save sekarang nempel di sisi kanan VIDEO saja (bukan melayang di seluruh layar) */
         .reel-actions {
-            position: absolute; bottom: 12px; right: 12px;
+            position: absolute; top: 50%; right: 12px;
+            transform: translateY(-50%);
             display: flex; flex-direction: column; align-items: center; gap: 16px;
             z-index: 10;
         }
@@ -1417,14 +1421,16 @@
         .modal-rating-bar {
             display: flex; align-items: center; gap: 8px;
             padding: 6px 15px 2px; flex-wrap: wrap;
+            margin-bottom: 5px; /* samakan dgn margin-bottom tombol Trailer/Soundtrack di sebelahnya */
         }
         .modal-rating-badge {
             display: inline-flex; align-items: center; gap: 5px;
             padding: 4px 10px; border-radius: 8px;
-            font-size: 12px; font-weight: 700; line-height: 1;
+            font-size: 11px; font-weight: 700; line-height: 1;
+            text-transform: uppercase; letter-spacing: -0.3px;
             color: #fff;
         }
-        .modal-rating-badge i { font-size: 12px; }
+        .modal-rating-badge i { font-size: 11px; }
         .modal-rating-badge.tmdb i { color: #01b4e4; }
         .modal-rating-badge.imdb i { color: #f5c518; }
 
@@ -2407,10 +2413,6 @@
                                 <i class="fa-solid fa-rotate-left"></i>
                                 <span style="font-size:8px;font-weight:800;position:absolute;bottom:2px;right:4px">10</span>
                             </button>
-                            <!-- play/pause utama -->
-                            <button id="mvPlayBtn" onclick="modalVideoCmd('playpause')" style="background:none;border:2px solid #fff;border-radius:50%;color:#fff;font-size:22px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" title="Play/Pause">
-                                <i class="fa-solid fa-pause"></i>
-                            </button>
                             <!-- forward 10s -->
                             <button onclick="modalVideoCmd('fwd10')" style="background:none;border:none;color:#fff;font-size:20px;padding:4px 8px;cursor:pointer;position:relative" title="+10s">
                                 <i class="fa-solid fa-rotate-right"></i>
@@ -3071,6 +3073,15 @@
         </div>
         <iframe id="livesportIframe" src="" style="flex:1;width:100%;border:none;display:block" allow="autoplay; encrypted-media" allowfullscreen></iframe>
         <nav class="bottom-nav" id="livesportBottomNav" style="position:sticky;bottom:0"></nav>
+    </div>
+
+    <!-- ===== IN-APP DOWNLOAD OVERLAY (supaya halaman download tidak buka tab baru) ===== -->
+    <div id="downloadModal" style="display:none;position:fixed;inset:0;z-index:9700;background:#0a0a0a;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#000;position:sticky;top:0;z-index:10">
+            <i class="fa-solid fa-chevron-left" style="font-size:20px;color:#fff;cursor:pointer" onclick="closeDownloadModal()"></i>
+            <span style="font-size:17px;font-weight:800;color:#fff">Download</span>
+        </div>
+        <iframe id="downloadIframe" src="" style="flex:1;width:100%;border:none;display:block" allow="autoplay" sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-popups"></iframe>
     </div>
 
     <!-- ===== UNIVERSAL BOTTOM NAV ===== -->
@@ -4190,6 +4201,21 @@
             }
             // Tidak perlu replaceState — history.back() sudah kembalikan ke state tv
         }
+
+        // ===== IN-APP DOWNLOAD OVERLAY — supaya link download tidak buka tab baru =====
+        function openDownloadInApp(url) {
+            musicDuckForOtherAudio();
+            document.getElementById('downloadModal').style.display = 'flex';
+            document.getElementById('downloadIframe').src = url;
+            document.body.style.overflow = 'hidden';
+            history.pushState({view: 'download'}, '');
+        }
+        function closeDownloadModal() {
+            musicResumeFromDuck();
+            document.getElementById('downloadIframe').src = '';
+            document.getElementById('downloadModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
         // Edit di sini saja untuk ubah semua nav sekaligus
         const NAV_ITEMS = [
             { id: 'homeBtnNav',   icon: 'fa-solid fa-house',          action: 'home'   },
@@ -4204,6 +4230,13 @@
             if (!el) return;
             el.innerHTML = NAV_ITEMS.map(item => {
                 const isActive = item.action === activeAction;
+                // Khusus nav bawah modal TV: ikon cari harus buka pencarian channel TV
+                // (di dalam modal), BUKAN pencarian film/series global.
+                if (containerId === 'tvBottomNav' && item.action === 'search') {
+                    return `<div id="${containerId}-${item.id}" class="nav-item-wrap" onclick="focusTvSearch()">
+                        <i class="${item.icon} cursor-pointer" style="font-size:20px"></i>
+                    </div>`;
+                }
                 // Active item: tidak perlu closeFunc (sudah di sini)
                 const onclick = (closeFunc && !isActive)
                     ? `${closeFunc}(); _navAction('${item.action}')`
@@ -4226,6 +4259,7 @@
             // Tutup semua modal yang mungkin terbuka
             try { if(document.getElementById('tvModal').style.display==='block'){ document.getElementById('tvPlayerFrame').src=''; _destroyHls(); const _tvv=document.getElementById('tvPlayerVideo'); if(_tvv){_tvv.pause();_tvv.removeAttribute('src');_tvv.load();} document.getElementById('tvModal').style.display='none'; document.body.style.overflow='auto'; }} catch(e){}
             try { if(document.getElementById('livesportModal')&&document.getElementById('livesportModal').style.display==='flex') closeLivesportModal(); } catch(e){}
+            try { if(document.getElementById('downloadModal')&&document.getElementById('downloadModal').style.display==='flex') closeDownloadModal(); } catch(e){}
             try { if(document.getElementById('musicModal')&&document.getElementById('musicModal').style.display==='flex' && target!=='music') { document.getElementById('musicModal').style.display='none'; document.body.style.overflow='auto'; } } catch(e){}
             try { if(document.getElementById('reelsModal')&&document.getElementById('reelsModal').style.display==='block') _closeReelsSilent(); } catch(e){}
             try { if(document.getElementById('movieModal').style.display==='block') _closeModalSilent(); } catch(e){}
@@ -4255,12 +4289,10 @@
                 if (_modalPlaying) {
                     postMsg('pauseVideo');
                     _modalPlaying = false;
-                    document.querySelector('#mvPlayBtn i').className = 'fa-solid fa-play';
                     document.getElementById('lsPlayBtn').className = 'fa-solid fa-play ls-btn';
                 } else {
                     postMsg('playVideo');
                     _modalPlaying = true;
-                    document.querySelector('#mvPlayBtn i').className = 'fa-solid fa-pause';
                     document.getElementById('lsPlayBtn').className = 'fa-solid fa-pause ls-btn';
                 }
             } else if (cmd === 'back10') {
@@ -4286,7 +4318,6 @@
                     newVid.closest('.carousel-slide')?.classList.add('playing');
                 }
                 _modalPlaying = true;
-                document.querySelector('#mvPlayBtn i').className = 'fa-solid fa-pause';
             }
         }
 
@@ -4959,6 +4990,7 @@
             document.getElementById('tvModal').style.display = 'block';
             document.getElementById('tvModal').scrollTop = 0;
             document.body.style.overflow = 'hidden';
+            const _gbn = document.getElementById('globalBottomNav'); if (_gbn) _gbn.style.display = 'none';
             history.pushState({view: 'tv'}, "");
             switchTvTab('embed');
         }
@@ -4971,6 +5003,7 @@
             if (video) { video.pause(); video.removeAttribute('src'); video.load(); }
             document.getElementById('tvModal').style.display = 'none';
             document.body.style.overflow = 'auto';
+            const _gbn = document.getElementById('globalBottomNav'); if (_gbn) _gbn.style.display = 'flex';
             updateActiveNav('home');
             history.replaceState({view: 'home'}, '');
         }
@@ -5150,7 +5183,7 @@
                 const downloadUrl = isTV
                     ? `https://vidvault.ru/tv/${window.currentMediaId}/${activeSeason || 1}/${activeEpisode || 1}`
                     : `https://vidvault.ru/movie/${window.currentMediaId}`;
-                window.open(downloadUrl, '_blank');
+                openDownloadInApp(downloadUrl);
             } else {
                 showToast('Media tidak ditemukan.');
             }
@@ -5162,7 +5195,7 @@
                 const url = isTV
                     ? `https://1embed.cc/download/tv/${window.currentMediaId}/${activeSeason || 1}/${activeEpisode || 1}`
                     : `https://1embed.cc/download/movie/${window.currentMediaId}`;
-                window.open(url, '_blank');
+                openDownloadInApp(url);
             } else { showToast('Media tidak ditemukan.'); }
         }
 
@@ -5172,7 +5205,7 @@
                 const downloadUrl = isTV
                     ? `https://02moviedownloader.site/api/download/tv/${window.currentMediaId}/${activeSeason || 1}/${activeEpisode || 1}`
                     : `https://02moviedownloader.site/api/download/movie/${window.currentMediaId}`;
-                window.open(downloadUrl, '_blank');
+                openDownloadInApp(downloadUrl);
             } else { showToast('Media tidak ditemukan.'); }
         }
 
@@ -5182,7 +5215,7 @@
                 const url = isTV
                     ? `https://rivestream.ru/download?type=tv&id=${window.currentMediaId}`
                     : `https://dl.peachify.top/movie/${window.currentMediaId}`;
-                window.open(url, '_blank');
+                openDownloadInApp(url);
             } else { showToast('Media tidak ditemukan.'); }
         }
 
@@ -5192,7 +5225,7 @@
                 const url = isTV
                     ? `https://rivestream.ru/download?type=tv&id=${window.currentMediaId}`
                     : `https://rivestream.ru/download?type=movie&id=${window.currentMediaId}`;
-                window.open(url, '_blank');
+                openDownloadInApp(url);
             } else { showToast('Media tidak ditemukan.'); }
         }
 
@@ -5202,7 +5235,7 @@
                 const url = isTV
                     ? `https://cinesrc.st/download/tv/${window.currentMediaId}`
                     : `https://cinesrc.st/download/movie/${window.currentMediaId}`;
-                window.open(url, '_blank');
+                openDownloadInApp(url);
             } else { showToast('Media tidak ditemukan.'); }
         }
 
@@ -5406,6 +5439,12 @@
             // LiveSport modal (di atas tvModal)
             if (document.getElementById('livesportModal').style.display === 'flex') {
                 closeLivesportModal();
+                return;
+            }
+
+            // Download overlay dalam-app
+            if (document.getElementById('downloadModal') && document.getElementById('downloadModal').style.display === 'flex') {
+                closeDownloadModal();
                 return;
             }
 
@@ -6844,7 +6883,7 @@
             const url = isTV
                 ? `https://vidvault.ru/tv/${id}/1/1`
                 : `https://vidvault.ru/movie/${id}`;
-            window.open(url, '_blank');
+            openDownloadInApp(url);
         }
 
         function openReelStream(btn, directId, directType) {
@@ -6854,7 +6893,18 @@
             if (!id || !type) return;
             if (btn && btn.classList) { btn.classList.add('pressed'); setTimeout(() => btn && btn.classList.remove('pressed'), 300); }
             const url = buildEmbedUrl(type, id, 1, 1, 1);
-            window.open(url, '_blank');
+            // Putar langsung di dalam frame reel-nya sendiri, bukan buka tab baru
+            const slide = document.querySelector(`.reel-slide[data-movie-id="${id}"]`);
+            const wrap = slide ? slide.querySelector('.reel-video-wrap') : null;
+            const iframe = wrap ? wrap.querySelector('iframe') : null;
+            if (iframe) {
+                iframe.src = url;
+                iframe.style.pointerEvents = 'auto';
+                iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock');
+                if (wrap) wrap.classList.add('streaming'); // matikan overlay penghalang tap trailer
+            } else {
+                window.open(url, '_blank'); // fallback kalau slide-nya nggak ketemu di layar
+            }
         }
 
         function openReelDownload(btn) {
@@ -6864,7 +6914,7 @@
             const url = isTV
                 ? `https://vidvault.ru/tv/${_rdsCurrentId}/1/1`
                 : `https://vidvault.ru/movie/${_rdsCurrentId}`;
-            window.open(url, '_blank');
+            openDownloadInApp(url);
         }
 
         function openReelDownload2(btn) {
@@ -6874,7 +6924,7 @@
             const url = isTV
                 ? `https://02moviedownloader.site/api/download/tv/${_rdsCurrentId}/1/1`
                 : `https://02moviedownloader.site/api/download/movie/${_rdsCurrentId}`;
-            window.open(url, '_blank');
+            openDownloadInApp(url);
         }
 
         // Setup swipe-left (open detail) + double-tap (like) + gestures on reel slides
@@ -6901,10 +6951,21 @@
                     const dy = Math.abs(sy - e.changedTouches[0].clientY);
 
                     // Swipe kiri → buka detail
-                    if (dx > 55 && dx > dy * 1.5) {
+                    if (dx > 35 && dx > dy * 1.2) {
                         const movieId = parseInt(slide.dataset.movieId);
                         const type = slide.dataset.type;
                         if (movieId && type) openReelDetail(movieId, type);
+                        return;
+                    }
+
+                    // Swipe kanan → simpan (bookmark)
+                    if (dx < -35 && Math.abs(dx) > dy * 1.2) {
+                        const movieId = parseInt(slide.dataset.movieId);
+                        const type = slide.dataset.type;
+                        const bmBtn = document.getElementById(`reel-bm-${movieId}`);
+                        if (bmBtn && !bmBtn.classList.contains('bookmarked')) {
+                            toggleReelLib('bookmarks', movieId, type, bmBtn);
+                        }
                         return;
                     }
 
@@ -8935,11 +8996,11 @@
             // Build slides - semua portrait/landscape fit screen
             track.innerHTML = images.map((img, i) => {
                 const size = img.isBackdrop ? 'original' : 'w780';
-                return `<div class="lb-slide" style="min-width:100%;height:100vh;display:flex;align-items:center;justify-content:center;background:#000">
+                return `<div class="lb-slide" style="min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000">
                     <img src="https://image.tmdb.org/t/p/${size}${img.path}"
                          loading="${Math.abs(i - _lbIdx) <= 1 ? 'eager' : 'lazy'}"
                          draggable="false"
-                         style="max-width:100%;max-height:100vh;object-fit:contain;display:block">
+                         style="max-width:100%;max-height:100%;object-fit:contain;display:block">
                 </div>`;
             }).join('');
 
@@ -9262,11 +9323,11 @@
             // Tidak perlu push history lagi karena actorPhotos sudah push
 
             track.innerHTML = window._galleryImages.map((img, i) => {
-                return `<div class="lb-slide" style="min-width:100%;height:100vh;display:flex;align-items:center;justify-content:center;background:#000">
+                return `<div class="lb-slide" style="min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000">
                     <img src="https://image.tmdb.org/t/p/w780${img.path}"
                          loading="${Math.abs(i - _lbIdx) <= 1 ? 'eager' : 'lazy'}"
                          draggable="false"
-                         style="max-width:100%;max-height:100vh;object-fit:contain;display:block">
+                         style="max-width:100%;max-height:100%;object-fit:contain;display:block">
                 </div>`;
             }).join('');
 
