@@ -1809,7 +1809,7 @@
             position: relative;
         }
         .lb-slide {
-            min-width: 100%; height: 100%;
+            height: 100%;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
@@ -1820,7 +1820,6 @@
         }
         .lb-track {
             display: flex; height: 100%;
-            width: max-content;
             will-change: transform;
         }
         /* Dots */
@@ -3075,15 +3074,6 @@
         <nav class="bottom-nav" id="livesportBottomNav" style="position:sticky;bottom:0"></nav>
     </div>
 
-    <!-- ===== IN-APP DOWNLOAD OVERLAY (supaya halaman download tidak buka tab baru) ===== -->
-    <div id="downloadModal" style="display:none;position:fixed;inset:0;z-index:9700;background:#0a0a0a;flex-direction:column">
-        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#000;position:sticky;top:0;z-index:10">
-            <i class="fa-solid fa-chevron-left" style="font-size:20px;color:#fff;cursor:pointer" onclick="closeDownloadModal()"></i>
-            <span style="font-size:17px;font-weight:800;color:#fff">Download</span>
-        </div>
-        <iframe id="downloadIframe" src="" style="flex:1;width:100%;border:none;display:block" allow="autoplay" sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-popups"></iframe>
-    </div>
-
     <!-- ===== UNIVERSAL BOTTOM NAV ===== -->
     <nav class="bottom-nav" id="globalBottomNav"></nav>
 
@@ -3203,6 +3193,7 @@
         function openMusicModal() {
             document.getElementById('musicModal').style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            const _gbn1 = document.getElementById('globalBottomNav'); if (_gbn1) _gbn1.style.display = 'none';
             history.pushState({view:'music'}, '');
             musicRenderNav('home');
             musicShowTab('home');
@@ -3212,6 +3203,7 @@
         function closeMusicModal() {
             document.getElementById('musicModal').style.display = 'none';
             document.body.style.overflow = 'auto';
+            const _gbn2 = document.getElementById('globalBottomNav'); if (_gbn2) _gbn2.style.display = 'flex';
             history.replaceState({view:'home'}, '');
             // audio TETAP lanjut — sesuai requirement
         }
@@ -4201,21 +4193,6 @@
             }
             // Tidak perlu replaceState — history.back() sudah kembalikan ke state tv
         }
-
-        // ===== IN-APP DOWNLOAD OVERLAY — supaya link download tidak buka tab baru =====
-        function openDownloadInApp(url) {
-            musicDuckForOtherAudio();
-            document.getElementById('downloadModal').style.display = 'flex';
-            document.getElementById('downloadIframe').src = url;
-            document.body.style.overflow = 'hidden';
-            history.pushState({view: 'download'}, '');
-        }
-        function closeDownloadModal() {
-            musicResumeFromDuck();
-            document.getElementById('downloadIframe').src = '';
-            document.getElementById('downloadModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
         // Edit di sini saja untuk ubah semua nav sekaligus
         const NAV_ITEMS = [
             { id: 'homeBtnNav',   icon: 'fa-solid fa-house',          action: 'home'   },
@@ -4259,7 +4236,6 @@
             // Tutup semua modal yang mungkin terbuka
             try { if(document.getElementById('tvModal').style.display==='block'){ document.getElementById('tvPlayerFrame').src=''; _destroyHls(); const _tvv=document.getElementById('tvPlayerVideo'); if(_tvv){_tvv.pause();_tvv.removeAttribute('src');_tvv.load();} document.getElementById('tvModal').style.display='none'; document.body.style.overflow='auto'; }} catch(e){}
             try { if(document.getElementById('livesportModal')&&document.getElementById('livesportModal').style.display==='flex') closeLivesportModal(); } catch(e){}
-            try { if(document.getElementById('downloadModal')&&document.getElementById('downloadModal').style.display==='flex') closeDownloadModal(); } catch(e){}
             try { if(document.getElementById('musicModal')&&document.getElementById('musicModal').style.display==='flex' && target!=='music') { document.getElementById('musicModal').style.display='none'; document.body.style.overflow='auto'; } } catch(e){}
             try { if(document.getElementById('reelsModal')&&document.getElementById('reelsModal').style.display==='block') _closeReelsSilent(); } catch(e){}
             try { if(document.getElementById('movieModal').style.display==='block') _closeModalSilent(); } catch(e){}
@@ -4854,6 +4830,7 @@
         function parseM3U(text) {
             const lines = text.split(/\r?\n/);
             const channels = [];
+            const seenNames = new Set(); // buat buang channel yang namanya sama persis (duplikat dari playlist)
             let cur = null;
             for (const line of lines) {
                 if (line.startsWith('#EXTINF')) {
@@ -4870,11 +4847,43 @@
                     };
                 } else if (line && !line.startsWith('#') && cur) {
                     cur.url = line.trim();
-                    if (!_isJunkIptvName(cur.name)) channels.push(cur);
+                    const nameKey = cur.name.toLowerCase().trim();
+                    if (!_isJunkIptvName(cur.name) && !seenNames.has(nameKey)) {
+                        seenNames.add(nameKey);
+                        channels.push(cur);
+                    }
                     cur = null;
                 }
             }
-            return channels;
+            return _collapseChannelBrands(channels);
+        }
+
+        // Beberapa channel (TVRI, JTV, Jawa Pos TV, Star TV) muncul berkali-kali di
+        // playlist dengan nama yang beda-beda dikit (mis. "TVRI Nasional", "TVRI Jatim",
+        // "TVRI Jabar", "STARTV Jakarta", dst — bukan duplikat persis, tapi tetap satu
+        // "merek" yang sama). Supaya daftar channel rapi & tidak dobel-dobel, sisakan
+        // cuma 1 per merek — diutamakan yang ada kata "Nasional"-nya, kalau tidak ada
+        // ya yang pertama ketemu. Nama dinormalisasi (buang spasi/tanda baca) dan dicek
+        // "mengandung" (bukan cuma "diawali") supaya varian penulisan apapun tetap kena.
+        function _collapseChannelBrands(channels) {
+            const BRANDS = ['tvri', 'jtv', 'jawapostv', 'staratv'];
+            const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const pickedIdxByBrand = {};
+            const result = [];
+            channels.forEach((ch) => {
+                const n = norm(ch.name);
+                const brand = BRANDS.find(b => n.includes(b));
+                if (!brand) { result.push(ch); return; }
+                if (!(brand in pickedIdxByBrand)) {
+                    pickedIdxByBrand[brand] = result.length;
+                    result.push(ch);
+                } else if (n.includes('nasional')) {
+                    // Ganti yang sudah kepilih dengan varian "Nasional" kalau baru ketemu
+                    result[pickedIdxByBrand[brand]] = ch;
+                }
+                // varian lain (regional) dari merek yang sama — dilewati, tidak ditampilkan
+            });
+            return result;
         }
 
         async function loadIptvChannels() {
@@ -5183,7 +5192,7 @@
                 const downloadUrl = isTV
                     ? `https://vidvault.ru/tv/${window.currentMediaId}/${activeSeason || 1}/${activeEpisode || 1}`
                     : `https://vidvault.ru/movie/${window.currentMediaId}`;
-                openDownloadInApp(downloadUrl);
+                window.open(downloadUrl, '_blank');
             } else {
                 showToast('Media tidak ditemukan.');
             }
@@ -5195,7 +5204,7 @@
                 const url = isTV
                     ? `https://1embed.cc/download/tv/${window.currentMediaId}/${activeSeason || 1}/${activeEpisode || 1}`
                     : `https://1embed.cc/download/movie/${window.currentMediaId}`;
-                openDownloadInApp(url);
+                window.open(url, '_blank');
             } else { showToast('Media tidak ditemukan.'); }
         }
 
@@ -5205,7 +5214,7 @@
                 const downloadUrl = isTV
                     ? `https://02moviedownloader.site/api/download/tv/${window.currentMediaId}/${activeSeason || 1}/${activeEpisode || 1}`
                     : `https://02moviedownloader.site/api/download/movie/${window.currentMediaId}`;
-                openDownloadInApp(downloadUrl);
+                window.open(downloadUrl, '_blank');
             } else { showToast('Media tidak ditemukan.'); }
         }
 
@@ -5215,7 +5224,7 @@
                 const url = isTV
                     ? `https://rivestream.ru/download?type=tv&id=${window.currentMediaId}`
                     : `https://dl.peachify.top/movie/${window.currentMediaId}`;
-                openDownloadInApp(url);
+                window.open(url, '_blank');
             } else { showToast('Media tidak ditemukan.'); }
         }
 
@@ -5225,7 +5234,7 @@
                 const url = isTV
                     ? `https://rivestream.ru/download?type=tv&id=${window.currentMediaId}`
                     : `https://rivestream.ru/download?type=movie&id=${window.currentMediaId}`;
-                openDownloadInApp(url);
+                window.open(url, '_blank');
             } else { showToast('Media tidak ditemukan.'); }
         }
 
@@ -5235,7 +5244,7 @@
                 const url = isTV
                     ? `https://cinesrc.st/download/tv/${window.currentMediaId}`
                     : `https://cinesrc.st/download/movie/${window.currentMediaId}`;
-                openDownloadInApp(url);
+                window.open(url, '_blank');
             } else { showToast('Media tidak ditemukan.'); }
         }
 
@@ -5439,12 +5448,6 @@
             // LiveSport modal (di atas tvModal)
             if (document.getElementById('livesportModal').style.display === 'flex') {
                 closeLivesportModal();
-                return;
-            }
-
-            // Download overlay dalam-app
-            if (document.getElementById('downloadModal') && document.getElementById('downloadModal').style.display === 'flex') {
-                closeDownloadModal();
                 return;
             }
 
@@ -6127,6 +6130,7 @@
             const modal = document.getElementById('reelsModal');
             modal.style.display = 'block';
             document.getElementById('reelsBottomNav').style.display = 'flex';
+            const _gbn3 = document.getElementById('globalBottomNav'); if (_gbn3) _gbn3.style.display = 'none';
             document.body.style.overflow = 'hidden';
             history.pushState({view: 'reels'}, '');
 
@@ -6143,6 +6147,7 @@
             _rdsCurrentId = null; _rdsCurrentType = null;
             document.getElementById('reelsModal').style.display = 'none';
             document.getElementById('reelsBottomNav').style.display = 'none';
+            const _gbn4 = document.getElementById('globalBottomNav'); if (_gbn4) _gbn4.style.display = 'flex';
             document.body.style.overflow = 'auto';
             // Hentikan semua video yang sedang main
             document.querySelectorAll('#reelsContainer iframe').forEach(f => {
@@ -6403,7 +6408,15 @@
                         // Attach YT Player jika belum
                         if (!slide._ytPlayer) attachYTPlayer(iframe, slide);
                     } else {
-                        if (slide._ytPlayer && slide._ytPlayer.pauseVideo) {
+                        const wrap = slide.querySelector('.reel-video-wrap');
+                        if (wrap && wrap.classList.contains('streaming')) {
+                            // Ini bukan trailer YouTube lagi — ini stream pihak ketiga (habis
+                            // tekan Watch). Perintah pauseVideo lewat postMessage nggak bakal
+                            // dimengerti situs lain, jadi videonya tetap jalan+bunyi walau sudah
+                            // discroll. Satu-satunya cara pasti berhenti: kosongkan src-nya.
+                            iframe.src = '';
+                            wrap.classList.remove('streaming');
+                        } else if (slide._ytPlayer && slide._ytPlayer.pauseVideo) {
                             try { slide._ytPlayer.pauseVideo(); } catch(e) {}
                         } else {
                             try { iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*'); } catch(e) {}
@@ -6883,7 +6896,7 @@
             const url = isTV
                 ? `https://vidvault.ru/tv/${id}/1/1`
                 : `https://vidvault.ru/movie/${id}`;
-            openDownloadInApp(url);
+            window.open(url, '_blank');
         }
 
         function openReelStream(btn, directId, directType) {
@@ -6900,7 +6913,7 @@
             if (iframe) {
                 iframe.src = url;
                 iframe.style.pointerEvents = 'auto';
-                iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock');
+                iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-modals');
                 if (wrap) wrap.classList.add('streaming'); // matikan overlay penghalang tap trailer
             } else {
                 window.open(url, '_blank'); // fallback kalau slide-nya nggak ketemu di layar
@@ -6914,7 +6927,7 @@
             const url = isTV
                 ? `https://vidvault.ru/tv/${_rdsCurrentId}/1/1`
                 : `https://vidvault.ru/movie/${_rdsCurrentId}`;
-            openDownloadInApp(url);
+            window.open(url, '_blank');
         }
 
         function openReelDownload2(btn) {
@@ -6924,7 +6937,7 @@
             const url = isTV
                 ? `https://02moviedownloader.site/api/download/tv/${_rdsCurrentId}/1/1`
                 : `https://02moviedownloader.site/api/download/movie/${_rdsCurrentId}`;
-            openDownloadInApp(url);
+            window.open(url, '_blank');
         }
 
         // Setup swipe-left (open detail) + double-tap (like) + gestures on reel slides
@@ -7764,6 +7777,11 @@
             window._isSearchMode = false;
             const sfBar2 = document.getElementById('searchFilterBar');
             if (sfBar2) sfBar2.style.display = 'none';
+            // Kalau sebelumnya lagi buka Coming Soon (kalender rilis), pastikan headernya
+            // ditutup lagi — dua-duanya pakai searchOverlay yang sama, jadi kalau nggak
+            // di-reset di sini, header kalender bisa nyangkut kelihatan di atas hasil cari.
+            const calHdr = document.getElementById('calendarHeader');
+            if (calHdr) calHdr.classList.add('hidden');
             showSearchEmptyState();
             initExploreSection();
             document.getElementById('searchInp').value = '';
@@ -7928,7 +7946,7 @@
 
                 if (rVideos.length === 0) {
                     const fallbackUrl = buildEmbedUrl(type, id, 1, 1, 1);
-                    track.innerHTML = `<div class="carousel-slide"><iframe id="player-frame" src="${fallbackUrl}" class="w-full h-full" allowfullscreen allow="autoplay; fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock"></iframe></div>`;
+                    track.innerHTML = `<div class="carousel-slide"><iframe id="player-frame" src="${fallbackUrl}" class="w-full h-full" allowfullscreen allow="autoplay; fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-modals"></iframe></div>`;
                     document.getElementById('swipeOverlay').style.display = 'none';
                     return;
                 }
@@ -7986,7 +8004,7 @@
 
                 if (vidsToDisplay.length === 0) {
                     const fallbackUrl = buildEmbedUrl(type, id, 1, 1, 1);
-                    track.innerHTML = `<div class="carousel-slide"><iframe id="player-frame" src="${fallbackUrl}" class="w-full h-full" allowfullscreen allow="autoplay; fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock"></iframe></div>`;
+                    track.innerHTML = `<div class="carousel-slide"><iframe id="player-frame" src="${fallbackUrl}" class="w-full h-full" allowfullscreen allow="autoplay; fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-modals"></iframe></div>`;
                     document.getElementById('swipeOverlay').style.display = 'none';
                     return;
                 }
@@ -8099,7 +8117,7 @@
 
             const handleTrailerError = async () => {
                 const fallbackUrl = buildEmbedUrl(type, id, 1, 1, 1); 
-                track.innerHTML = `<div class="carousel-slide"><iframe id="player-frame" src="${fallbackUrl}" class="w-full h-full" allowfullscreen allow="autoplay; fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock"></iframe></div>`; 
+                track.innerHTML = `<div class="carousel-slide"><iframe id="player-frame" src="${fallbackUrl}" class="w-full h-full" allowfullscreen allow="autoplay; fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-modals"></iframe></div>`; 
                 document.getElementById('swipeOverlay').style.display = 'none';
             };
 
@@ -8523,7 +8541,7 @@
             newIframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
             newIframe.setAttribute('scrolling', 'no');
             newIframe.setAttribute('frameborder', '0');
-            newIframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock');
+            newIframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-modals');
             
             // FIX BUG 2: fallback timer — loader pasti sembunyi setelah 6 detik.
             // CATATAN: timer ini HANYA buat sembunyiin spinner loading, BUKAN sinyal
@@ -8614,7 +8632,7 @@
             switch(srv) {
                 case 1:  url = `https://cinextream.net/api/embed/${type}/${id}${seriesSuffix}`; break;
                 case 2:  url = `https://cinesrc.st/embed/${type}/${id}${type==='tv'?`/${s}/${e}`:''}`; break;
-                case 3:  url = `https://player.cinezo.live/embed/${type}/${id}${type==='tv'?`/${s}/${e}`:''}`; break;
+                case 3:  url = `https://player.cinezo.live/embed/${type}/${id}${type==='tv'?`/${s}/${e}`:''}?autoplay=true`; break;
                 case 4:  url = `https://vidsrc.wtf/1/${type}/${id}${seriesSuffix}`; break;
                 case 5:  url = `https://111movies.com/${type}/${id}${type==='tv'?`/${s}/${e}`:''}`; break;
                 case 6:  url = `https://111movies.net/${type}/${id}${type==='tv'?`/${s}/${e}`:''}`; break;
@@ -8974,6 +8992,7 @@
 
         // ===== CUSTOM LIGHTBOX =====
         let _lbIdx = 0;
+        let _lbSlideWidth = 0; // lebar 1 slide dalam pixel — dihitung via JS, bukan persen, biar nggak ambigu
         let _lbSx = 0, _lbSy = 0, _lbDx = 0;
         let _lbDragging = false;
 
@@ -8993,10 +9012,14 @@
             document.body.style.overflow = 'hidden';
             history.pushState({view:'lightbox'}, '');
 
+            // Ukur lebar viewport lightbox dalam pixel (bukan persen) — hindari ambiguitas
+            // CSS "min-width:100%" pada child flex yang parent-nya width:auto/max-content.
+            _lbSlideWidth = document.querySelector('#lightboxModal .lb-slides').clientWidth;
+
             // Build slides - semua portrait/landscape fit screen
             track.innerHTML = images.map((img, i) => {
                 const size = img.isBackdrop ? 'original' : 'w780';
-                return `<div class="lb-slide" style="min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000">
+                return `<div class="lb-slide" style="width:${_lbSlideWidth}px;flex-shrink:0;height:100%;display:flex;align-items:center;justify-content:center;background:#000">
                     <img src="https://image.tmdb.org/t/p/${size}${img.path}"
                          loading="${Math.abs(i - _lbIdx) <= 1 ? 'eager' : 'lazy'}"
                          draggable="false"
@@ -9020,7 +9043,7 @@
             const track = document.getElementById('lbTrack');
             if (!track) return;
             track.style.transition = animate ? 'transform 0.28s cubic-bezier(0.25,1,0.5,1)' : 'none';
-            track.style.transform = `translateX(calc(-${_lbIdx} * 100%))`;
+            track.style.transform = `translateX(-${_lbIdx * _lbSlideWidth}px)`;
             const counter = document.getElementById('lbCounter');
             if (counter) counter.innerText = `${_lbIdx + 1} / ${images.length}`;
             document.querySelectorAll('.lb-dot').forEach((d, i) => {
@@ -9132,7 +9155,7 @@
                 if (Math.abs(_lbDx) < dy) return; // vertical scroll
                 // Live drag feedback
                 if (track) {
-                    track.style.transform = `translateX(calc(-${_lbIdx} * 100% + ${_lbDx}px))`;
+                    track.style.transform = `translateX(${-(_lbIdx * _lbSlideWidth) + _lbDx}px)`;
                 }
             }, { passive: true });
 
@@ -9322,8 +9345,10 @@
             modal.style.display = 'flex';
             // Tidak perlu push history lagi karena actorPhotos sudah push
 
+            _lbSlideWidth = document.querySelector('#lightboxModal .lb-slides').clientWidth;
+
             track.innerHTML = window._galleryImages.map((img, i) => {
-                return `<div class="lb-slide" style="min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000">
+                return `<div class="lb-slide" style="width:${_lbSlideWidth}px;flex-shrink:0;height:100%;display:flex;align-items:center;justify-content:center;background:#000">
                     <img src="https://image.tmdb.org/t/p/w780${img.path}"
                          loading="${Math.abs(i - _lbIdx) <= 1 ? 'eager' : 'lazy'}"
                          draggable="false"
