@@ -1,21 +1,10 @@
-Berikut adalah file HTML utuh yang sudah saya perbaiki sesuai permintaan Anda.
-
-Perubahan yang dilakukan:
-1.  Warna: Mengubah warna sekunder dari oranye (#E0824F) menjadi Hijau Islami (#2E7D32 dan variasinya).
-2.  Audio Al-Qur'an: Menambahkan tombol "▶ Putar Semua Ayat" di setiap surah. Sistem akan otomatis memutar ayat berikutnya setelah ayat sebelumnya selesai (auto-play sequence).
-3.  Pengelompokan & Kelengkapan:
-    *   Menambahkan menu khusus "Belajar Iqra & Tajwid" dengan materi lengkap (Huruf Hijaiyah, Hukum Bacaan).
-    *   Memperluas menu "Doa & Zikir" dengan sub-kategori lebih detail.
-    *   Menambahkan menu "Fiqih & Ibadah" yang lebih rinci (Tata Cara Wudhu, Mandi Wajib, dll).
-    *   Menambahkan menu "Asmaul Husna" lengkap dengan arti.
-4.  Struktur: Menu dibuat lebih hierarkis dengan sub-tombol agar tidak acak.
-
-Silakan salin kode di bawah ini dan simpan sebagai index.html.
-
-  
-  
-  Ensiklopedia Islam Lengkap
-  
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ensiklopedia Islam Lengkap</title>
+  <style>
     :root {
       --bg: #F7F5F0;
       --paper: #FFFFFF;
@@ -301,161 +290,169 @@ Silakan salin kode di bawah ini dan simpan sebagai index.html.
       .menu-grid { grid-template-columns: repeat(2, 1fr); }
       .ayat-arabic { font-size: 1.5rem; }
     }
-  
+  </style>
+</head>
+<body>
 
-  Ensiklopedia Islam
-  Al-Qur'an, Hadits, Doa, Ilmu & Panduan Ibadah
+<header>
+  <h1>Ensiklopedia Islam</h1>
+  <p>Al-Qur'an, Hadits, Doa, Ilmu & Panduan Ibadah</p>
+</header>
 
+<div class="container">
   
-  
-  
-    
-      📖
-      Al-Qur'an
-    
-    
-      📜
-      Hadits
-    
-    
-      🤲
-      Doa & Zikir
-    
-    
-      🗣️
-      Iqra & Tajwid
-    
-    
-      🕌
-      Fiqih & Ibadah
-    
-    
-      ✨
-      Asmaul Husna
-    
-    
-      📚
-      Kisah Nabi
-    
-    
-      ⚙️
-      Lainnya
-    
-  
+  <!-- MENU UTAMA -->
+  <div id="mainMenu" class="menu-grid">
+    <div class="menu-card" onclick="showSection('quran')">
+      <div class="menu-icon">📖</div>
+      <div class="menu-title">Al-Qur'an</div>
+    </div>
+    <div class="menu-card" onclick="showSection('hadits')">
+      <div class="menu-icon">📜</div>
+      <div class="menu-title">Hadits</div>
+    </div>
+    <div class="menu-card" onclick="showSection('doa')">
+      <div class="menu-icon">🤲</div>
+      <div class="menu-title">Doa & Zikir</div>
+    </div>
+    <div class="menu-card" onclick="showSection('tajwid')">
+      <div class="menu-icon">🗣️</div>
+      <div class="menu-title">Iqra & Tajwid</div>
+    </div>
+    <div class="menu-card" onclick="showSection('ibadah')">
+      <div class="menu-icon">🕌</div>
+      <div class="menu-title">Fiqih & Ibadah</div>
+    </div>
+    <div class="menu-card" onclick="showSection('asmaulhusna')">
+      <div class="menu-icon">✨</div>
+      <div class="menu-title">Asmaul Husna</div>
+    </div>
+    <div class="menu-card" onclick="showSection('kisah')">
+      <div class="menu-icon">📚</div>
+      <div class="menu-title">Kisah Nabi</div>
+    </div>
+    <div class="menu-card" onclick="showSection('lainnya')">
+      <div class="menu-icon">⚙️</div>
+      <div class="menu-title">Lainnya</div>
+    </div>
+  </div>
 
-  
-  
+  <!-- LOADING SPINNER -->
+  <div id="loader" class="loader"></div>
 
-  
-  
-    ← Kembali ke Menu
-    Daftar Surah
+  <!-- SECTION: AL-QUR'AN -->
+  <div id="quran" class="section">
+    <button class="btn btn-back" onclick="goHome()">← Kembali ke Menu</button>
+    <h2>Daftar Surah</h2>
+    <div id="surahListContainer" class="surah-list">
+      <!-- List surah will be loaded here -->
+    </div>
     
-      
-    
-    
-    
-    
-      ← Kembali ke Daftar Surah
-      
-      ▶ Putar Semua Ayat
-      
-    
-  
+    <!-- Detail Surah View (Hidden initially) -->
+    <div id="surahDetailContainer" style="display:none;">
+      <button class="btn btn-back" onclick="backToSurahList()">← Kembali ke Daftar Surah</button>
+      <div id="surahHeaderDetail"></div>
+      <button id="playAllBtn" class="btn play-all-btn" onclick="togglePlayAll()">▶ Putar Semua Ayat</button>
+      <div id="ayatListContainer"></div>
+    </div>
+  </div>
 
-  
-  
-    ← Kembali ke Menu
-    Kumpulan Hadits Pilihan
-    
-      Arbain Nawawi
-      Shahih Bukhari
-      Shahih Muslim
-    
-    
-  
+  <!-- SECTION: HADITS -->
+  <div id="hadits" class="section">
+    <button class="btn btn-back" onclick="goHome()">← Kembali ke Menu</button>
+    <h2>Kumpulan Hadits Pilihan</h2>
+    <div class="sub-menu-grid">
+      <button class="sub-btn" onclick="renderHadits('arbain')">Arbain Nawawi</button>
+      <button class="sub-btn" onclick="renderHadits('bukhari')">Shahih Bukhari</button>
+      <button class="sub-btn" onclick="renderHadits('muslim')">Shahih Muslim</button>
+    </div>
+    <div id="haditsContent"></div>
+  </div>
 
-  
-  
-    ← Kembali ke Menu
-    Doa & Zikir Harian
-    
-      Zikir Pagi
-      Zikir Petang
-      Doa Makan
-      Doa Tidur
-      Doa Kendaraan
-      Doa Kesulitan
-    
-    
-  
+  <!-- SECTION: DOA & ZIKIR -->
+  <div id="doa" class="section">
+    <button class="btn btn-back" onclick="goHome()">← Kembali ke Menu</button>
+    <h2>Doa & Zikir Harian</h2>
+    <div class="sub-menu-grid">
+      <button class="sub-btn" onclick="renderDoa('pagi')">Zikir Pagi</button>
+      <button class="sub-btn" onclick="renderDoa('petang')">Zikir Petang</button>
+      <button class="sub-btn" onclick="renderDoa('makan')">Doa Makan</button>
+      <button class="sub-btn" onclick="renderDoa('tidur')">Doa Tidur</button>
+      <button class="sub-btn" onclick="renderDoa('kendaraan')">Doa Kendaraan</button>
+      <button class="sub-btn" onclick="renderDoa('kesulitan')">Doa Kesulitan</button>
+    </div>
+    <div id="doaContent"></div>
+  </div>
 
-  
-  
-    ← Kembali ke Menu
-    Belajar Iqra & Ilmu Tajwid
-    
-      Huruf Hijaiyah
-      Hukum Nun Mati
-      Hukum Mim Mati
-      Hukum Mad
-      Qalqalah
-    
-    
-  
+  <!-- SECTION: IQRA & TAJWID -->
+  <div id="tajwid" class="section">
+    <button class="btn btn-back" onclick="goHome()">← Kembali ke Menu</button>
+    <h2>Belajar Iqra & Ilmu Tajwid</h2>
+    <div class="sub-menu-grid">
+      <button class="sub-btn" onclick="renderTajwid('huruf')">Huruf Hijaiyah</button>
+      <button class="sub-btn" onclick="renderTajwid('nunmati')">Hukum Nun Mati</button>
+      <button class="sub-btn" onclick="renderTajwid('mimmat')">Hukum Mim Mati</button>
+      <button class="sub-btn" onclick="renderTajwid('mad')">Hukum Mad</button>
+      <button class="sub-btn" onclick="renderTajwid('qalqalah')">Qalqalah</button>
+    </div>
+    <div id="tajwidContent"></div>
+  </div>
 
-  
-  
-    ← Kembali ke Menu
-    Panduan Fiqih & Ibadah
-    
-      Tata Cara Wudhu
-      Gerakan Sholat
-      Mandi Wajib
-      Panduan Zakat
-    
-    
-  
+  <!-- SECTION: FIQIH & IBADAH -->
+  <div id="ibadah" class="section">
+    <button class="btn btn-back" onclick="goHome()">← Kembali ke Menu</button>
+    <h2>Panduan Fiqih & Ibadah</h2>
+    <div class="sub-menu-grid">
+      <button class="sub-btn" onclick="renderIbadah('wudhu')">Tata Cara Wudhu</button>
+      <button class="sub-btn" onclick="renderIbadah('sholat')">Gerakan Sholat</button>
+      <button class="sub-btn" onclick="renderIbadah('mandiwajib')">Mandi Wajib</button>
+      <button class="sub-btn" onclick="renderIbadah('zakat')">Panduan Zakat</button>
+    </div>
+    <div id="ibadahContent"></div>
+  </div>
 
-  
-  
-    ← Kembali ke Menu
-    Asmaul Husna (Nama-Nama Allah)
-    
-  
+  <!-- SECTION: ASMAUL HUSNA -->
+  <div id="asmaulhusna" class="section">
+    <button class="btn btn-back" onclick="goHome()">← Kembali ke Menu</button>
+    <h2>Asmaul Husna (Nama-Nama Allah)</h2>
+    <div id="asmaulHusnaContent" class="surah-list"></div>
+  </div>
 
-  
-  
-    ← Kembali ke Menu
-    Kisah Para Nabi & Rasul
-    
-      Nabi Adam AS
-      Nabi Ibrahim AS
-      Nabi Musa AS
-      Nabi Isa AS
-      Nabi Muhammad SAW
-    
-    
-  
+  <!-- SECTION: KISAH NABI -->
+  <div id="kisah" class="section">
+    <button class="btn btn-back" onclick="goHome()">← Kembali ke Menu</button>
+    <h2>Kisah Para Nabi & Rasul</h2>
+    <div class="sub-menu-grid">
+      <button class="sub-btn" onclick="renderKisah('adam')">Nabi Adam AS</button>
+      <button class="sub-btn" onclick="renderKisah('ibrahim')">Nabi Ibrahim AS</button>
+      <button class="sub-btn" onclick="renderKisah('musa')">Nabi Musa AS</button>
+      <button class="sub-btn" onclick="renderKisah('isa')">Nabi Isa AS</button>
+      <button class="sub-btn" onclick="renderKisah('muhammad')">Nabi Muhammad SAW</button>
+    </div>
+    <div id="kisahContent"></div>
+  </div>
 
-  
-  
-    ← Kembali ke Menu
-    Ilmu Pengetahuan Islam
-    
-      Rukun Iman
-      Rukun Islam
-      Sifat 20
-      Tanda Kiamat
-    
-    
-  
+  <!-- SECTION: LAINNYA -->
+  <div id="lainnya" class="section">
+    <button class="btn btn-back" onclick="goHome()">← Kembali ke Menu</button>
+    <h2>Ilmu Pengetahuan Islam</h2>
+    <div class="sub-menu-grid">
+      <button class="sub-btn" onclick="renderLainnya('rukuniman')">Rukun Iman</button>
+      <button class="sub-btn" onclick="renderLainnya('rukunislam')">Rukun Islam</button>
+      <button class="sub-btn" onclick="renderLainnya('sifatsifat')">Sifat 20</button>
+      <button class="sub-btn" onclick="renderLainnya('kiamat')">Tanda Kiamat</button>
+    </div>
+    <div id="lainnyaContent"></div>
+  </div>
 
+</div>
+
+<script>
   // --- DATA STATIC ---
   
   const dataHadits = {
     arbain: [
-      { no: 1, teks: "Dari Amirul Mukminin, Umar bin Al-Khattab radhiyallahu ‘anhu, dia berkata: Aku mendengar Rasulullah shallallahu ‘alaihi wa sallam bersabda: "Sesungguhnya setiap amalan tergantung pada niatnya..."", sumber: "HR. Bukhari & Muslim" },
+      { no: 1, teks: "Dari Amirul Mukminin, Umar bin Al-Khattab radhiyallahu ‘anhu, dia berkata: Aku mendengar Rasulullah shallallahu ‘alaihi wa sallam bersabda: \"Sesungguhnya setiap amalan tergantung pada niatnya...\"", sumber: "HR. Bukhari & Muslim" },
       { no: 2, teks: "Dari Umar radhiyallahu ‘anhu juga, dia berkata: Ketika kami sedang duduk-duduk bersama Rasulullah shallallahu ‘alaihi wa sallam, tiba-tiba muncul seorang laki-laki...", sumber: "HR. Muslim" }
     ],
     bukhari: [
@@ -490,17 +487,17 @@ Silakan salin kode di bawah ini dan simpan sebagai index.html.
 
   const dataTajwid = {
     huruf: "Huruf Hijaiyah terdiri dari 29 huruf dasar: Alif (ا), Ba (ب), Ta (ت), Tsa (ث), Jim (ج), Ha (ح), Kho (خ), Dal (د), Dzal (ذ), Ro (ر), Zai (ز), Sin (س), Syin (ش), Shod (ص), Dho (ض), Tho (ط), Zho (ظ), 'Ain (ع), Ghain (غ), Fa (ف), Qof (ق), Kaf (ك), Lam (ل), Mim (م), Nun (ن), Wawu (و), Ha (ه), Hamzah (ء), Ya (ي).",
-    nunmati: "Hukum Nun Mati (Tanwin) bertemu huruf hijaiyah:n1. Izhar Halqi: Dibaca jelas jika bertemu Alif, Ha, Kha, 'Ain, Ghain, Ha.n2. Idghom Bighunnah: Melebur dengan dengung jika bertemu Ya, Nun, Mim, Wawu.n3. Ikhfa': Samar-samar jika bertemu 15 huruf selain di atas.",
-    mimmat: "Hukum Mim Mati:n1. Ikhfa Syafawi: Samar jika bertemu Ba.n2. Idghom Mimi: Melebur jika bertemu Mim.n3. Izhar Syafawi: Jelas jika bertemu huruf lain.",
-    mad: "Hukum Mad:n1. Mad Thobi'i: Panjang 1 alif (2 ketukan).n2. Mad Wajib Muttashil: Mad bertemu wawu/ya sukun dalam satu kata.n3. Mad Jaiz Munfashil: Mad bertemu wawu/ya sukun di kata berbeda.",
+    nunmati: "Hukum Nun Mati (Tanwin) bertemu huruf hijaiyah:\n1. Izhar Halqi: Dibaca jelas jika bertemu Alif, Ha, Kha, 'Ain, Ghain, Ha.\n2. Idghom Bighunnah: Melebur dengan dengung jika bertemu Ya, Nun, Mim, Wawu.\n3. Ikhfa': Samar-samar jika bertemu 15 huruf selain di atas.",
+    mimmat: "Hukum Mim Mati:\n1. Ikhfa Syafawi: Samar jika bertemu Ba.\n2. Idghom Mimi: Melebur jika bertemu Mim.\n3. Izhar Syafawi: Jelas jika bertemu huruf lain.",
+    mad: "Hukum Mad:\n1. Mad Thobi'i: Panjang 1 alif (2 ketukan).\n2. Mad Wajib Muttashil: Mad bertemu wawu/ya sukun dalam satu kata.\n3. Mad Jaiz Munfashil: Mad bertemu wawu/ya sukun di kata berbeda.",
     qalqalah: "Qalqalah berarti memantul. Terjadi pada huruf Qof (ق), Tho (ط), Ba (ب), Jim (ج), Dal (د) ketika berharakat sukun."
   };
 
   const dataIbadah = {
-    wudhu: "Tata Cara Wudhu:1. Niat2. Membasuh telapak tangan3. Berkumur4. Membasuh hidung5. Membasuh muka6. Membasuh tangan hingga siku7. Menyapu kepala8. Menyapu telinga9. Membasuh kaki hingga mata kaki10. Tertib (berurutan)",
-    sholat: "Rukun Sholat:1. Berdiri (bagi yang mampu)2. Niat3. Takbiratul Ihram4. Membaca Al-Fatihah5. Ruku'6. I'tidal7. Sujud8. Duduk di antara dua sujud9. Tasyahud Akhir10. Salam",
-    mandiwajib: "Sebab Mandi Wajib: Keluar mani, bersenggama, haid, nifas, wiladah (melahirkan).Cara: Niat, meratakan air ke seluruh tubuh termasuk lipatan kulit dan rambut.",
-    zakat: "Jenis Zakat:1. Zakat Fitrah: Dibayar sebelum Idul Fitri sebesar 2.5kg beras/gandum.2. Zakat Maal: Harta kekayaan yang mencapai nisab dan haul."
+    wudhu: "<strong>Tata Cara Wudhu:</strong><br>1. Niat<br>2. Membasuh telapak tangan<br>3. Berkumur<br>4. Membasuh hidung<br>5. Membasuh muka<br>6. Membasuh tangan hingga siku<br>7. Menyapu kepala<br>8. Menyapu telinga<br>9. Membasuh kaki hingga mata kaki<br>10. Tertib (berurutan)",
+    sholat: "<strong>Rukun Sholat:</strong><br>1. Berdiri (bagi yang mampu)<br>2. Niat<br>3. Takbiratul Ihram<br>4. Membaca Al-Fatihah<br>5. Ruku'<br>6. I'tidal<br>7. Sujud<br>8. Duduk di antara dua sujud<br>9. Tasyahud Akhir<br>10. Salam",
+    mandiwajib: "<strong>Sebab Mandi Wajib:</strong> Keluar mani, bersenggama, haid, nifas, wiladah (melahirkan).<br><strong>Cara:</strong> Niat, meratakan air ke seluruh tubuh termasuk lipatan kulit dan rambut.",
+    zakat: "<strong>Jenis Zakat:</strong><br>1. Zakat Fitrah: Dibayar sebelum Idul Fitri sebesar 2.5kg beras/gandum.<br>2. Zakat Maal: Harta kekayaan yang mencapai nisab dan haul."
   };
 
   const dataAsmaulHusna = [
@@ -519,8 +516,8 @@ Silakan salin kode di bawah ini dan simpan sebagai index.html.
   };
 
   const dataLainnya = {
-    rukuniman: "1. Percaya kepada Allah2. Malaikat-malaikat-Nya3. Kitab-kitab-Nya4. Rasul-rasul-Nya5. Hari Kiamat6. Qada dan Qadar",
-    rukunislam: "1. Mengucap Dua Kalimat Syahadat2. Mendirikan Sholat3. Menunaikan Zakat4. Berpuasa di Bulan Ramadhan5. Menunaikan Haji bagi yang mampu",
+    rukuniman: "1. Percaya kepada Allah<br>2. Malaikat-malaikat-Nya<br>3. Kitab-kitab-Nya<br>4. Rasul-rasul-Nya<br>5. Hari Kiamat<br>6. Qada dan Qadar",
+    rukunislam: "1. Mengucap Dua Kalimat Syahadat<br>2. Mendirikan Sholat<br>3. Menunaikan Zakat<br>4. Berpuasa di Bulan Ramadhan<br>5. Menunaikan Haji bagi yang mampu",
     sifatsifat: "Sifat Wajib Allah antara lain: Wujud (Ada), Qidam (Terdahulu), Baqa (Kekal), Mukhalafatul Lilhawaditsi (Berbeda dengan makhluk), Qiyamuhu Binafsihi (Berdiri sendiri).",
     kiamat: "Tanda Kiamat Kecil: Banyaknya pembunuhan, merebaknya zina, minum khamr berlomba-lomba membangun gedung tinggi. Tanda Besar: Matahari terbit dari barat, keluarnya Dajjal, turunnya Nabi Isa AS."
   };
@@ -594,6 +591,7 @@ Silakan salin kode di bawah ini dan simpan sebagai index.html.
     currentAudio.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
+
   // --- NAVIGATION FUNCTIONS ---
 
   function goHome() {
@@ -633,20 +631,20 @@ Silakan salin kode di bawah ini dan simpan sebagai index.html.
         const div = document.createElement('div');
         div.className = 'surah-item';
         div.onclick = () => loadSurahDetail(surah.nomor, surah.namaLatin, surah.jumlahAyat, surah.namaArab);
-        div.innerHTML = 
-          
-            {surah.nomor}
-            
-              {surah.namaLatin}
-              {surah.arti}
-            
-          
-          {surah.namaArab}
-        ;
+        div.innerHTML = `
+          <div style="display:flex; align-items:center;">
+            <div class="surah-number">${surah.nomor}</div>
+            <div class="surah-info">
+              <div class="surah-name-id">${surah.namaLatin}</div>
+              <div style="font-size:0.8rem; color:var(--muted)">${surah.arti}</div>
+            </div>
+          </div>
+          <div class="surah-name-ar">${surah.namaArab}</div>
+        `;
         container.appendChild(div);
       });
     } catch (error) {
-      container.innerHTML = 'Gagal memuat data. Periksa koneksi internet.';
+      container.innerHTML = '<p style="text-align:center; color:red;">Gagal memuat data. Periksa koneksi internet.</p>';
     } finally {
       loader.style.display = 'none';
     }
@@ -665,29 +663,29 @@ Silakan salin kode di bawah ini dan simpan sebagai index.html.
     
     loader.style.display = 'block';
     list.innerHTML = '';
-    header.innerHTML = {namaLatin} {namaArab}{jumlahAyat} Ayat;
+    header.innerHTML = `<h2>${namaLatin} ${namaArab}</h2><p>${jumlahAyat} Ayat</p>`;
 
     try {
-      const response = await fetch(https://equran.id/api/v2/surat/{nomor});
+      const response = await fetch(`https://equran.id/api/v2/surat/${nomor}`);
       const data = await response.json();
       const ayats = data.data.ayat;
 
       ayats.forEach(ayat => {
         const div = document.createElement('div');
         div.className = 'ayat-container';
-        div.innerHTML = 
-          {ayat.teksArab}
-          {ayat.teksLatin}
-          "{ayat.teksIndonesia}"
-          
-              
-             
-          
-        ;
+        div.innerHTML = `
+          <div class="ayat-arabic">${ayat.teksArab}</div>
+          <div class="ayat-transliteration">${ayat.teksLatin}</div>
+          <div class="ayat-translation">"${ayat.teksIndonesia}"</div>
+          <div class="audio-controls">
+             <audio controls src="${ayat.audio['05']}"></audio> 
+             <!-- Menggunakan audio dari Misyari Rasyid (05) atau Qori lain jika tersedia -->
+          </div>
+        `;
         list.appendChild(div);
       });
     } catch (error) {
-      list.innerHTML = 'Gagal memuat ayat.';
+      list.innerHTML = '<p>Gagal memuat ayat.</p>';
     } finally {
       loader.style.display = 'none';
     }
@@ -706,9 +704,9 @@ Silakan salin kode di bawah ini dan simpan sebagai index.html.
     const data = dataHadits[type] || [];
     let html = '';
     data.forEach(h => {
-      html += Hadits {h.no}{h.teks}Sumber: {h.sumber};
+      html += `<div class="ayat-container"><strong>Hadits ${h.no}</strong><p>${h.teks}</p><small>Sumber: ${h.sumber}</small></div>`;
     });
-    container.innerHTML = html || 'Data kosong.';
+    container.innerHTML = html || '<p>Data kosong.</p>';
   }
 
   function renderDoa(type) {
@@ -716,49 +714,54 @@ Silakan salin kode di bawah ini dan simpan sebagai index.html.
     const data = dataDoa[type] || [];
     let html = '';
     data.forEach(d => {
-      html += 
-        
-          {d.judul}
-          {d.arab}
-          {d.latin}
-          {d.arti}
-        ;
+      html += `
+        <div class="ayat-container">
+          <h3>${d.judul}</h3>
+          <div class="ayat-arabic" style="font-size:1.4rem;">${d.arab}</div>
+          <div class="ayat-transliteration">${d.latin}</div>
+          <div class="ayat-translation">${d.arti}</div>
+        </div>`;
     });
-    container.innerHTML = html || 'Data kosong.';
+    container.innerHTML = html || '<p>Data kosong.</p>';
   }
 
   function renderTajwid(type) {
     const container = document.getElementById('tajwidContent');
-    container.innerHTML = {dataTajwid[type] || 'Materi belum tersedia.'};
+    container.innerHTML = `<div class="ayat-container"><p>${dataTajwid[type] || 'Materi belum tersedia.'}</p></div>`;
   }
 
   function renderIbadah(type) {
     const container = document.getElementById('ibadahContent');
-    container.innerHTML = {dataIbadah[type] || 'Materi belum tersedia.'};
+    container.innerHTML = `<div class="ayat-container"><p>${dataIbadah[type] || 'Materi belum tersedia.'}</p></div>`;
   }
 
   function renderAsmaulHusna() {
     const container = document.getElementById('asmaulHusnaContent');
     let html = '';
     dataAsmaulHusna.forEach(item => {
-      html += 
-        
-          {item.no}
-          {item.arab}
-          {item.latin}
-          {item.arti}
-        
-      ;
+      html += `
+        <div class="surah-item" style="flex-direction:column; text-align:center;">
+          <div class="surah-number">${item.no}</div>
+          <div class="surah-name-ar" style="font-size:1.5rem; margin:8px 0;">${item.arab}</div>
+          <div class="surah-name-id">${item.latin}</div>
+          <div style="font-size:0.8rem; color:var(--muted)">${item.arti}</div>
+        </div>
+      `;
     });
     container.innerHTML = html;
   }
 
   function renderKisah(type) {
     const container = document.getElementById('kisahContent');
-    container.innerHTML = {dataKisah[type] || 'Kisah belum tersedia.'};
+    container.innerHTML = `<div class="ayat-container"><p>${dataKisah[type] || 'Kisah belum tersedia.'}</p></div>`;
   }
 
   function renderLainnya(type) {
     const container = document.getElementById('lainnyaContent');
-    container.innerHTML = ${dataLainnya[type] || 'Materi belum tersedia.'};
+    container.innerHTML = `<div class="ayat-container"><p>${dataLainnya[type] || 'Materi belum tersedia.'}</p></div>`;
   }
+
+</script>
+
+</body>
+</html>
