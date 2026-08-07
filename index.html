@@ -39,7 +39,8 @@
   #app{
     width:100%;
     max-width:430px;
-    height:var(--app-h);
+    height:100vh;
+    height:100dvh;
     background:var(--paper);
     display:flex;
     flex-direction:column;
@@ -49,7 +50,7 @@
   }
   @media (min-width:460px){
     body{align-items:center;padding:24px 0;}
-    #app{height:min(860px, 96dvh);border-radius:28px;}
+    #app{height:min(860px, 96vh);height:min(860px, 96dvh);border-radius:28px;}
   }
 
   /* TOP APP BAR */
@@ -76,7 +77,7 @@
   .appbar .iconbtn{background:none;border:none;color:#EDE7D6;font-size:1.1rem;cursor:pointer;padding:6px;}
 
   /* SCREENS */
-  .screens{flex:1 1 auto;overflow:hidden;position:relative;}
+  .screens{flex:1 1 auto;min-height:0;overflow:hidden;position:relative;}
   .screen{
     position:absolute;inset:0;
     overflow-y:auto;
@@ -110,6 +111,7 @@
     padding:10px 8px;cursor:pointer;transition:.15s;
   }
   .quick-tile:active{transform:scale(.97);background:var(--paper-2);}
+  .ic svg, .sicon svg{width:60%;height:60%;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
   .quick-tile .ic{}
   .quick-tile b{display:block;font-family:'Fraunces',serif;font-size:.78rem;line-height:1.2;}
   .quick-tile span{font-size:.66rem;color:var(--ink-soft);display:block;margin-top:2px;line-height:1.2;}
@@ -147,6 +149,9 @@
   ul.detail-list li{margin-bottom:5px;}
   .subgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
   .chip{background:var(--paper-2);padding:9px 10px;border-radius:8px;font-size:.78rem;}
+  .arabic-num{font-family:'Amiri',serif;font-size:1.6rem !important;line-height:1.4;}
+  [data-hijaiyah]{cursor:pointer;}
+  [data-hijaiyah]:active{background:rgba(63,174,106,.2);}
   .chip b{display:block;font-family:'Fraunces',serif;font-size:.86rem;margin-bottom:1px;}
 
   /* IMAN theme override inside its screen */
@@ -910,8 +915,39 @@
         <p style="font-size:.85rem;color:var(--ink-soft);margin-top:0;">Dasar iqra' dan ilmu tajwid untuk membaca Al-Qur'an dengan benar.</p>
 
         <div class="card" data-card><div class="card-head" data-toggle><div class="num">1</div><h3>Huruf Hijaiyah & Harakat</h3><div class="chev">+</div></div><div class="card-body">
-          <p>Huruf hijaiyah berjumlah 28-29 huruf, dasar dari seluruh tulisan Arab dan Al-Qur'an. Setiap huruf dapat diberi harakat (tanda baca) yang mengubah bunyinya.</p>
-          <ul class="detail-list">
+          <p>Huruf hijaiyah berjumlah 28-29 huruf, dasar dari seluruh tulisan Arab dan Al-Qur'an. Setiap huruf dapat diberi harakat (tanda baca) yang mengubah bunyinya. Ketuk huruf mana pun untuk mendengar bunyinya.</p>
+          <div class="subgrid" style="grid-template-columns:repeat(4,1fr);gap:6px;">
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ا">ا<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">alif</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ب">ب<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">ba</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ت">ت<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">ta</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ث">ث<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">tsa</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ج">ج<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">jim</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ح">ح<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">ha</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="خ">خ<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">kha</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="د">د<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">dal</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ذ">ذ<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">dzal</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ر">ر<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">ra</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ز">ز<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">zai</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="س">س<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">sin</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ش">ش<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">syin</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ص">ص<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">shad</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ض">ض<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">dhad</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ط">ط<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">tha</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ظ">ظ<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">zha</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ع">ع<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">'ain</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="غ">غ<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">ghain</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ف">ف<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">fa</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ق">ق<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">qaf</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ك">ك<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">kaf</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ل">ل<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">lam</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="م">م<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">mim</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ن">ن<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">nun</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="و">و<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">wau</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ه">ه<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">ha</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ء">ء<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">hamzah</span></div>
+            <div class="chip arabic-num" style="text-align:center;padding:10px 4px;" data-hijaiyah="ي">ي<br><span style="font-size:.6rem;font-family:'Inter',sans-serif;">ya</span></div>
+          </div>
+          <ul class="detail-list" style="margin-top:14px;">
             <li><b>Fathah ( َ )</b> — berbunyi "a", contoh: بَ dibaca "ba".</li>
             <li><b>Kasrah ( ِ )</b> — berbunyi "i", contoh: بِ dibaca "bi".</li>
             <li><b>Dhammah ( ُ )</b> — berbunyi "u", contoh: بُ dibaca "bu".</li>
@@ -970,20 +1006,28 @@
         </div></div>
 
         <div class="subhead">Angka Arab</div>
-        <div class="card" data-card><div class="card-head" data-toggle><div class="num">✦</div><h3>Penulisan Angka 0-10 dalam Arab</h3><div class="chev">+</div></div><div class="card-body">
+        <div class="card" data-card><div class="card-head" data-toggle><div class="num">✦</div><h3>Penulisan Angka Arab</h3><div class="chev">+</div></div><div class="card-body">
           <p>Angka Arab (disebut juga angka Hindi-Arab) ditulis dan dibaca dari kiri ke kanan, berbeda dengan huruf Arab yang dibaca kanan ke kiri.</p>
           <div class="subgrid" style="grid-template-columns:1fr 1fr;">
-            <div class="chip"><b>٠</b>Sifr (0)</div>
-            <div class="chip"><b>١</b>Wahid (1)</div>
-            <div class="chip"><b>٢</b>Itsnan (2)</div>
-            <div class="chip"><b>٣</b>Tsalatsah (3)</div>
-            <div class="chip"><b>٤</b>Arba'ah (4)</div>
-            <div class="chip"><b>٥</b>Khamsah (5)</div>
-            <div class="chip"><b>٦</b>Sittah (6)</div>
-            <div class="chip"><b>٧</b>Sab'ah (7)</div>
-            <div class="chip"><b>٨</b>Tsamaniyah (8)</div>
-            <div class="chip"><b>٩</b>Tis'ah (9)</div>
-            <div class="chip"><b>١٠</b>'Asyarah (10)</div>
+            <div class="chip"><b class="arabic-num">٠</b>Sifr (0)</div>
+            <div class="chip"><b class="arabic-num">١</b>Wahid (1)</div>
+            <div class="chip"><b class="arabic-num">٢</b>Itsnan (2)</div>
+            <div class="chip"><b class="arabic-num">٣</b>Tsalatsah (3)</div>
+            <div class="chip"><b class="arabic-num">٤</b>Arba'ah (4)</div>
+            <div class="chip"><b class="arabic-num">٥</b>Khamsah (5)</div>
+            <div class="chip"><b class="arabic-num">٦</b>Sittah (6)</div>
+            <div class="chip"><b class="arabic-num">٧</b>Sab'ah (7)</div>
+            <div class="chip"><b class="arabic-num">٨</b>Tsamaniyah (8)</div>
+            <div class="chip"><b class="arabic-num">٩</b>Tis'ah (9)</div>
+            <div class="chip"><b class="arabic-num">١٠</b>'Asyarah (10)</div>
+            <div class="chip"><b class="arabic-num">١١</b>Ahada 'asyar (11)</div>
+            <div class="chip"><b class="arabic-num">١٢</b>Itsnaa 'asyar (12)</div>
+            <div class="chip"><b class="arabic-num">١٥</b>Khamsata 'asyar (15)</div>
+            <div class="chip"><b class="arabic-num">٢٠</b>'Isyruun (20)</div>
+            <div class="chip"><b class="arabic-num">٣٠</b>Tsalaatsuun (30)</div>
+            <div class="chip"><b class="arabic-num">٥٠</b>Khamsuun (50)</div>
+            <div class="chip"><b class="arabic-num">١٠٠</b>Mi'ah (100)</div>
+            <div class="chip"><b class="arabic-num">١٠٠٠</b>Alf (1000)</div>
           </div>
         </div></div>
 
@@ -1507,8 +1551,9 @@
         <div class="subhead">Bacaan & Ketentuan Tambahan</div>
         <div class="card" data-card><div class="card-head" data-toggle><div class="num">✦</div><h3>Tuma'ninah</h3><div class="chev">+</div></div><div class="card-body"><p>Diam sejenak dengan tenang pada setiap gerakan sholat (ruku, i'tidal, sujud, duduk) sebelum berpindah ke gerakan berikutnya. Tuma'ninah termasuk rukun sholat — tanpanya, sholat tidak sah.</p></div></div>
         <div class="card" data-card><div class="card-head" data-toggle><div class="num">✦</div><h3>Qunut Subuh</h3><div class="chev">+</div></div><div class="card-body">
-          <div class="arabic">اللَّهُمَّ اهْدِنِي فِيمَنْ هَدَيْتَ وَعَافِنِي فِيمَنْ عَافَيْتَ</div>
-          <p>"Ya Allah, berilah aku petunjuk sebagaimana orang yang telah Engkau beri petunjuk, dan berilah aku keselamatan sebagaimana orang yang telah Engkau beri keselamatan..."</p>
+          <div class="arabic">اللَّهُمَّ اهْدِنِي فِيمَنْ هَدَيْتَ، وَعَافِنِي فِيمَنْ عَافَيْتَ، وَتَوَلَّنِي فِيمَنْ تَوَلَّيْتَ، وَبَارِكْ لِي فِيمَا أَعْطَيْتَ، وَقِنِي شَرَّ مَا قَضَيْتَ، فَإِنَّكَ تَقْضِي وَلَا يُقْضَى عَلَيْكَ، وَإِنَّهُ لَا يَذِلُّ مَنْ وَالَيْتَ، وَلَا يَعِزُّ مَنْ عَادَيْتَ، تَبَارَكْتَ رَبَّنَا وَتَعَالَيْتَ، فَلَكَ الْحَمْدُ عَلَى مَا قَضَيْتَ، أَسْتَغْفِرُكَ وَأَتُوبُ إِلَيْكَ، وَصَلَّى اللَّهُ عَلَى سَيِّدِنَا مُحَمَّدٍ النَّبِيِّ الْأُمِّيِّ وَعَلَى آلِهِ وَصَحْبِهِ وَسَلَّمَ</div>
+          <p style="font-family:'Fraunces',serif;font-style:italic;margin-top:2px;">Allaahummahdinii fiiman hadaiit, wa 'aafinii fiiman 'aafaiit, wa tawallanii fiiman tawallaiit, wa baarik lii fiimaa a'thaiit, wa qinii syarra maa qadhaiit, fa innaka taqdhii wa laa yuqdhaa 'alaiik, wa innahu laa yadzillu man waalaiit, wa laa ya'izzu man 'aadaiit, tabaarakta rabbanaa wa ta'aalaiit, falakal hamdu 'alaa maa qadhaiit, astaghfiruka wa atuubu ilaiik, wa shallallaahu 'alaa sayyidinaa muhammadinin nabiyyil ummiyyi wa 'alaa aalihii wa shahbihii wa sallam.</p>
+          <p>"Ya Allah, berilah aku petunjuk sebagaimana orang yang telah Engkau beri petunjuk, berilah aku keselamatan sebagaimana orang yang telah Engkau beri keselamatan, uruslah aku sebagaimana orang yang telah Engkau urus, berkahilah untukku apa yang telah Engkau berikan, dan lindungilah aku dari keburukan yang telah Engkau tetapkan. Sesungguhnya Engkaulah yang menetapkan dan tidak ada yang menetapkan atas-Mu. Sesungguhnya tidak akan hina orang yang Engkau bela, dan tidak akan mulia orang yang Engkau musuhi. Maha Berkah Engkau wahai Tuhan kami dan Maha Tinggi Engkau. Segala puji bagi-Mu atas apa yang telah Engkau tetapkan, aku memohon ampun dan bertaubat kepada-Mu. Semoga Allah melimpahkan rahmat dan salam kepada junjungan kami Nabi Muhammad ﷺ beserta keluarga dan sahabatnya."</p>
           <p style="margin-top:6px;">Dibaca pada i'tidal rakaat kedua sholat Subuh (mazhab Syafi'i), sebagai doa memohon petunjuk dan perlindungan.</p>
         </div></div>
         <div class="card" data-card><div class="card-head" data-toggle><div class="num">✦</div><h3>Sujud Sahwi</h3><div class="chev">+</div></div><div class="card-body">
@@ -2469,6 +2514,8 @@
   }
 
   document.addEventListener('click', (e)=>{
+    const hijaiyahChip = e.target.closest('[data-hijaiyah]');
+    if(hijaiyahChip){ speakArabic(hijaiyahChip.dataset.hijaiyah); return; }
     const playVerse = e.target.closest('.play-verse');
     if(playVerse){
       e.stopPropagation();
@@ -2694,6 +2741,46 @@
       el.insertAdjacentElement('afterend', btn);
     });
   }
+  // ---- Replace emoji menu icons with minimalist green line-icons ----
+  const ICONS = {
+    moon: '<svg viewBox="0 0 24 24"><path d="M21 12.5A9 9 0 1 1 11.5 3 7 7 0 0 0 21 12.5z"/></svg>',
+    kaaba: '<svg viewBox="0 0 24 24"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-7h6v7"/></svg>',
+    book: '<svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M20 18H6.5A2.5 2.5 0 0 0 4 20.5"/></svg>',
+    letters: '<svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="15" y2="12"/><line x1="4" y1="17" x2="18" y2="17"/></svg>',
+    scroll: '<svg viewBox="0 0 24 24"><path d="M6 4h11a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2V6a2 2 0 0 1 2-2z"/><path d="M15 8h-6"/><path d="M15 12h-6"/></svg>',
+    people: '<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M15.5 12.3c2.6.3 4.5 2.5 4.5 5.2"/></svg>',
+    mosque: '<svg viewBox="0 0 24 24"><path d="M4 21v-7l3-3 3 3v7"/><path d="M14 21v-7l3-3 3 3v7"/><path d="M10 21v-9a2 2 0 0 1 4 0v9"/><line x1="2" y1="21" x2="22" y2="21"/><circle cx="12" cy="4" r="1.2"/></svg>',
+    sword: '<svg viewBox="0 0 24 24"><line x1="5" y1="19" x2="17" y2="7"/><path d="M13 3l6 6-2 2-6-6z"/><line x1="4" y1="20" x2="7" y2="17"/></svg>',
+    gift: '<svg viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11"/><line x1="4" y1="13" x2="20" y2="13"/><path d="M12 9v11"/><path d="M9 9c-1.5 0-3-1-3-2.5S7.5 4 9 4c1.5 0 3 2 3 5"/><path d="M15 9c1.5 0 3-1 3-2.5S16.5 4 15 4c-1.5 0-3 2-3 5"/></svg>',
+    calendar: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>',
+    droplet: '<svg viewBox="0 0 24 24"><path d="M12 3s7 7.5 7 12a7 7 0 0 1-14 0c0-4.5 7-12 7-12z"/></svg>',
+    compass: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9l-2 6-6 2 2-6z"/></svg>',
+    sparkle: '<svg viewBox="0 0 24 24"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M4.5 4.5l4 4M15.5 15.5l4 4M19.5 4.5l-4 4M8.5 15.5l-4 4"/></svg>',
+    flower: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.4"/><circle cx="12" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/></svg>',
+    hourglass: '<svg viewBox="0 0 24 24"><path d="M6 3h12"/><path d="M6 21h12"/><path d="M6 3c0 5 12 5 12 0-5" /><path d="M6 3c0 5 6 6 6 9s-6 4-6 9"/><path d="M18 3c0 5-6 6-6 9s6 4 6 9"/></svg>',
+    heart: '<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-9.5-9C1 7.5 3 4 6.5 4 9 4 11 6 12 7.5 13 6 15 4 17.5 4 21 4 23 7.5 21.5 11 19 15.5 12 20 12 20z"/></svg>',
+    beads: '<svg viewBox="0 0 24 24"><circle cx="6" cy="7" r="1.6"/><circle cx="10" cy="4.5" r="1.6"/><circle cx="15" cy="5" r="1.6"/><circle cx="18.5" cy="8" r="1.6"/><circle cx="19" cy="13" r="1.6"/><circle cx="16" cy="17" r="1.6"/><circle cx="11" cy="19" r="1.6"/><circle cx="6.5" cy="16" r="1.6"/><circle cx="4" cy="11" r="1.6"/></svg>',
+    scale: '<svg viewBox="0 0 24 24"><line x1="12" y1="3" x2="12" y2="21"/><line x1="5" y1="7" x2="19" y2="7"/><path d="M3 7l3-4 3 4-3 5z"/><path d="M15 7l3-4 3 4-3 5z"/><line x1="8" y1="21" x2="16" y2="21"/></svg>',
+    coin: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9c0-1.5 1.3-2.5 3-2.5s3 1 3 2.2c0 3-6 1.5-6 4.6 0 1.4 1.3 2.4 3 2.4s3-1 3-2.4"/><line x1="12" y1="5" x2="12" y2="19"/></svg>',
+    calc: '<svg viewBox="0 0 24 24"><rect x="4" y="2.5" width="16" height="19" rx="2"/><line x1="7" y1="6.5" x2="17" y2="6.5"/><circle cx="7.5" cy="11" r="1"/><circle cx="12" cy="11" r="1"/><circle cx="16.5" cy="11" r="1"/><circle cx="7.5" cy="15" r="1"/><circle cx="12" cy="15" r="1"/><circle cx="16.5" cy="15" r="1"/><circle cx="7.5" cy="19" r="1"/><circle cx="12" cy="19" r="1"/><circle cx="16.5" cy="19" r="1"/></svg>',
+  };
+  const EMOJI_MAP = {
+    '🌙':'moon','🕋':'kaaba','📖':'book','🔡':'letters','🔤':'letters','📜':'scroll','🧕':'people',
+    '🕌':'mosque','⚔️':'sword','🐑':'gift','🗓️':'calendar','💧':'droplet','🧭':'compass','📅':'calendar',
+    '🕊️':'sparkle','✨':'sparkle','🕯️':'sparkle','🌸':'flower','⏳':'hourglass','🤍':'heart','🤲':'heart',
+    '📿':'beads','📗':'book','⚖️':'scale','📘':'book','🌟':'sparkle','💰':'coin','🧮':'calc'
+  };
+  function replaceEmojiIcons(){
+    document.querySelectorAll('.ic, .sicon').forEach(el=>{
+      const key = el.textContent.trim();
+      if(ICONS[EMOJI_MAP[key]]){
+        el.innerHTML = ICONS[EMOJI_MAP[key]];
+        el.style.color = 'var(--clay)';
+      }
+    });
+  }
+  replaceEmojiIcons();
+
   injectArabicVoiceButtons();
 
   // Unify existing manual voice/play buttons with clean SVG icons
