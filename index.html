@@ -69,6 +69,49 @@ main{padding:10px 18px}
 .result b{display:block}.result small{color:var(--muted)}
 @media(min-width:600px){body{padding:0 20px}.app{box-shadow:0 0 80px #000}}
 
+
+/* DAILY HOME CARD */
+.daily-card{padding:18px}
+.daily-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.hijri-label,.quote-label{font-size:10px;letter-spacing:1.2px;font-weight:800;color:var(--teal)}
+.daily-top h2{font-size:20px;margin:5px 0 2px}
+.gregorian-date{font-size:12px;color:var(--muted)}
+.moon{width:46px;height:46px;border-radius:15px;background:rgba(22,199,160,.12);display:grid;place-items:center;font-size:24px;color:var(--teal)}
+.prayer-box{margin-top:15px;padding:13px;border:1px solid var(--line);background:var(--surface2);border-radius:16px}
+.prayer-location{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:11px;margin-bottom:10px}
+.current-prayer{display:flex;align-items:center;justify-content:space-between}
+.current-prayer small{display:block;color:var(--muted);font-size:9px;letter-spacing:.7px}
+.current-prayer strong{display:block;font-size:15px;margin-top:3px}
+.prayer-time{font-size:27px;font-weight:800;color:var(--teal)}
+.prayer-row{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+.prayer-row span{text-align:center;color:var(--muted);font-size:9px}
+.prayer-row b{display:block;color:var(--text);font-size:10px;margin-top:3px}
+.quote-box{margin-top:14px;padding-top:13px;border-top:1px solid var(--line);line-height:1.5;font-size:13px}
+.quote-box small{display:block;color:var(--muted);font-size:10px;margin-top:6px}
+body.theme-light .hero{background:linear-gradient(135deg,#ffffff,#eef7f4);border-color:#d7e5e0}
+body.theme-light .daily-card{color:#13211d}
+body.theme-light .daily-card .hijri-label,
+body.theme-light .daily-card .quote-label{color:#087d68}
+body.theme-light .prayer-box{background:#f3f8f6;border-color:#d7e5e0}
+body.theme-light .moon{background:#e3f5f0}
+body.theme-light .card,
+body.theme-light .subitem,
+body.theme-light .short,
+body.theme-light .result,
+body.theme-light .detail,
+body.theme-light .page-head,
+body.theme-light .search{box-shadow:0 3px 14px rgba(17,50,42,.05)}
+body.theme-teal .hero{background:linear-gradient(135deg,#0b4b41,#08362f);border-color:#2b7569}
+body.theme-teal .prayer-box{background:#0a3b34;border-color:#2b7569}
+body.theme-teal .card,
+body.theme-teal .subitem,
+body.theme-teal .short,
+body.theme-teal .result,
+body.theme-teal .detail,
+body.theme-teal .page-head,
+body.theme-teal .search{background:#0a3b34;border-color:#2b7569}
+body.theme-teal .surface{background:#0a3b34}
+
 /* SILMIKAFFAH THEME SYSTEM */
 .splash{position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .45s,visibility .45s}
 .splash.hide{opacity:0;visibility:hidden}
@@ -117,9 +160,39 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
 
 <main>
 <section id="home" class="page active">
-  <div class="hero">
-    <h2>Assalamu'alaikum 👋</h2>
-    <p>Pelajari Islam secara menyeluruh dalam satu aplikasi yang terstruktur dan mudah digunakan.</p>
+  <div class="hero daily-card">
+    <div class="daily-top">
+      <div>
+        <div class="hijri-label">HARI INI</div>
+        <h2 id="hijriDate">Memuat tanggal Hijriah...</h2>
+        <div class="gregorian-date" id="gregorianDate"></div>
+      </div>
+      <div class="moon">☪</div>
+    </div>
+
+    <div class="prayer-box">
+      <div class="prayer-location"><span>📍</span><span id="locationText">Mencari lokasi GPS...</span></div>
+      <div class="current-prayer">
+        <div>
+          <small>SHOLAT SAAT INI</small>
+          <strong id="currentPrayer">Memuat...</strong>
+        </div>
+        <div class="prayer-time" id="currentPrayerTime">--:--</div>
+      </div>
+      <div class="prayer-row" id="prayerRow">
+        <span>Subuh <b>--:--</b></span>
+        <span>Dzuhur <b>--:--</b></span>
+        <span>Ashar <b>--:--</b></span>
+        <span>Maghrib <b>--:--</b></span>
+        <span>Isya <b>--:--</b></span>
+      </div>
+    </div>
+
+    <div class="quote-box">
+      <div class="quote-label">✦ KUTIPAN HARI INI</div>
+      <div id="dailyQuote">Memuat kutipan...</div>
+      <small id="quoteSource"></small>
+    </div>
   </div>
 
   <div class="section-title"><h2>Menu Utama</h2><small>10 kategori</small></div>
@@ -386,6 +459,108 @@ function openSearchResult(title,icon,parent){showDetail(title,icon,`Hasil pencar
 function toggle(el){el.classList.toggle('on')}
 function escapeAttr(s){return s.replace(/'/g,"&#39;")}
 
+
+const dailyQuotes = [
+  {text:'“Sesungguhnya amal itu tergantung pada niatnya.”', source:'HR. Bukhari dan Muslim'},
+  {text:'“Sebaik-baik kalian adalah yang belajar Al-Qur’an dan mengajarkannya.”', source:'HR. Bukhari'},
+  {text:'“Allah tidak membebani seseorang melainkan sesuai dengan kesanggupannya.”', source:'QS. Al-Baqarah: 286'},
+  {text:'“Ingatlah, hanya dengan mengingat Allah hati menjadi tenteram.”', source:'QS. Ar-Ra’d: 28'},
+  {text:'“Dan barangsiapa bertawakal kepada Allah, niscaya Allah akan mencukupkan keperluannya.”', source:'QS. At-Talaq: 3'},
+  {text:'“Sesungguhnya Allah menyukai orang-orang yang bertobat dan menyukai orang-orang yang menyucikan diri.”', source:'QS. Al-Baqarah: 222'},
+  {text:'“Barangsiapa menempuh jalan untuk mencari ilmu, Allah mudahkan baginya jalan menuju surga.”', source:'HR. Muslim'},
+  {text:'“Maka sesungguhnya bersama kesulitan ada kemudahan.”', source:'QS. Al-Insyirah: 5'}
+];
+
+function initDailyHome(){
+  const now=new Date();
+  try{
+    const hijri=new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(now);
+    document.getElementById('hijriDate').textContent=hijri;
+  }catch(e){
+    document.getElementById('hijriDate').textContent='Tanggal Hijriah';
+  }
+  document.getElementById('gregorianDate').textContent=new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(now);
+
+  const q=dailyQuotes[Math.floor(Math.random()*dailyQuotes.length)];
+  document.getElementById('dailyQuote').textContent=q.text;
+  document.getElementById('quoteSource').textContent=q.source;
+
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      pos=>loadPrayerTimes(pos.coords.latitude,pos.coords.longitude),
+      ()=>fallbackPrayer()
+    );
+  }else fallbackPrayer();
+}
+
+function degToRad(d){return d*Math.PI/180}
+function radToDeg(r){return r*180/Math.PI}
+function fixAngle(a){return ((a%360)+360)%360}
+function sunDeclination(jd){
+  const n=jd-2451545.0;
+  const L=fixAngle(280.46+0.9856474*n);
+  const g=fixAngle(357.528+0.9856003*n);
+  const lambda=L+1.915*Math.sin(degToRad(g))+0.020*Math.sin(degToRad(2*g));
+  const e=23.439-0.0000004*n;
+  return radToDeg(Math.asin(Math.sin(degToRad(e))*Math.sin(degToRad(lambda))));
+}
+function julianDate(date){
+  return date.getTime()/86400000+2440587.5;
+}
+function solarTimes(date,lat,lon){
+  const jd=julianDate(new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate())));
+  const n=jd-2451545.0;
+  const L=fixAngle(280.46+0.9856474*n);
+  const g=fixAngle(357.528+0.9856003*n);
+  const lambda=L+1.915*Math.sin(degToRad(g))+0.020*Math.sin(degToRad(2*g));
+  const e=23.439-0.0000004*n;
+  const ra=radToDeg(Math.atan2(Math.cos(degToRad(e))*Math.sin(degToRad(lambda)),Math.cos(degToRad(lambda))))/15;
+  const eqt=(L/15)-fixAngle(ra+24)%24;
+  const dec=sunDeclination(jd);
+  const tz=-date.getTimezoneOffset()/60;
+  function angleTime(angle){
+    const cosH=(Math.cos(degToRad(angle))-Math.sin(degToRad(lat))*Math.sin(degToRad(dec)))/(Math.cos(degToRad(lat))*Math.cos(degToRad(dec)));
+    if(cosH>1||cosH<-1)return null;
+    return Math.acos(cosH)*12/Math.PI;
+  }
+  const noon=12+tz-(lon/15)-eqt;
+  const sunrise=noon-angleTime(90.833);
+  const sunset=noon+angleTime(90.833);
+  const fajr=noon-angleTime(108);
+  const isha=noon+angleTime(108);
+  // Asr, standard shadow factor 1.
+  const asrAngle=radToDeg(Math.atan(1/(1+Math.tan(Math.abs(degToRad(lat-dec))))));
+  const asr=noon+angleTime(asrAngle);
+  return {Subuh:fajr,Dzuhur:noon,Ashar:asr,Maghrib:sunset,Isya:isha};
+}
+function fmtTime(hours){
+  if(hours==null||!isFinite(hours))return '--:--';
+  hours=(hours+24)%24;
+  const h=Math.floor(hours),m=Math.round((hours-h)*60);
+  const hh=(h+(m===60?1:0))%24, mm=m===60?0:m;
+  return String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
+}
+function loadPrayerTimes(lat,lon){
+  const times=solarTimes(new Date(),lat,lon);
+  const keys=['Subuh','Dzuhur','Ashar','Maghrib','Isya'];
+  document.getElementById('locationText').textContent=`GPS ${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+  document.getElementById('prayerRow').innerHTML=keys.map(k=>`<span>${k}<b>${fmtTime(times[k])}</b></span>`).join('');
+  const now=new Date();
+  const current=now.getHours()+now.getMinutes()/60;
+  let active='Isya', activeTime=times.Isya;
+  if(current<times.Subuh){active='Subuh';activeTime=times.Subuh}
+  else if(current<times.Dzuhur){active='Dzuhur';activeTime=times.Dzuhur}
+  else if(current<times.Ashar){active='Ashar';activeTime=times.Ashar}
+  else if(current<times.Maghrib){active='Maghrib';activeTime=times.Maghrib}
+  document.getElementById('currentPrayer').textContent=active;
+  document.getElementById('currentPrayerTime').textContent=fmtTime(activeTime);
+}
+function fallbackPrayer(){
+  document.getElementById('locationText').textContent='Lokasi GPS belum diizinkan';
+  document.getElementById('currentPrayer').textContent='Aktifkan lokasi';
+  document.getElementById('currentPrayerTime').textContent='--:--';
+}
+
 function setTheme(theme){
   document.body.classList.remove('theme-light','theme-teal');
   if(theme==='light') document.body.classList.add('theme-light');
@@ -395,6 +570,7 @@ function setTheme(theme){
   localStorage.setItem('silmikaffah-theme',theme);
 }
 (function(){
+  initDailyHome();
   const saved=localStorage.getItem('silmikaffah-theme') || 'amoled';
   setTheme(saved);
   setTimeout(()=>document.getElementById('splash').classList.add('hide'),1500);
