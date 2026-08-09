@@ -102,16 +102,6 @@ body.theme-light .result,
 body.theme-light .detail,
 body.theme-light .page-head,
 body.theme-light .search{box-shadow:0 3px 14px rgba(17,50,42,.05)}
-body.theme-teal .hero{background:linear-gradient(135deg,#0b4b41,#08362f);border-color:#2b7569}
-body.theme-teal .prayer-box{background:#0a3b34;border-color:#2b7569}
-body.theme-teal .card,
-body.theme-teal .subitem,
-body.theme-teal .short,
-body.theme-teal .result,
-body.theme-teal .detail,
-body.theme-teal .page-head,
-body.theme-teal .search{background:#0a3b34;border-color:#2b7569}
-body.theme-teal .surface{background:#0a3b34}
 
 /* SILMIKAFFAH THEME SYSTEM */
 .splash{position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .45s,visibility .45s;animation:splashAutoHide .45s ease 1.5s forwards}@keyframes splashAutoHide{to{opacity:0;visibility:hidden;pointer-events:none}}
@@ -125,11 +115,8 @@ body.theme-teal .surface{background:#0a3b34}
 @keyframes load{0%{transform:translateX(-120%)}100%{transform:translateX(380%)}}
 
 body.theme-light{--bg:#f5f8f7;--surface:#fff;--surface2:#eef4f2;--teal:#078f76;--teal2:#056d5b;--text:#12201c;--muted:#64746e;--line:#dce7e3}
-body.theme-teal{--bg:#062e28;--surface:#0b4037;--surface2:#0e5045;--teal:#64e3c5;--teal2:#2db99d;--text:#f4fffc;--muted:#b4d6ce;--line:#246258}
 body.theme-light header{background:rgba(245,248,247,.94)}
 body.theme-light .bottom{background:rgba(255,255,255,.96)}
-body.theme-teal header{background:rgba(6,46,40,.94)}
-body.theme-teal .bottom{background:rgba(8,58,50,.96)}
 
 .theme-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
 .theme-option{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:13px;padding:12px 7px;text-align:center}
@@ -137,7 +124,7 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
 .theme-option small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
 .theme-option.active{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal) inset}
 .theme-dot{width:26px;height:26px;border-radius:50%;margin:auto;border:1px solid var(--line)}
-.dot-amoled{background:#000}.dot-light{background:#fff}.dot-teal{background:#0d6658}
+.dot-amoled{background:#000}.dot-light{background:#fff}
 
 
 .icon,.big,.mini,.nav-svg{color:var(--teal)}
@@ -230,9 +217,9 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
 
   <div class="section-title"><h2>Akses Cepat</h2></div>
   <div class="shortcut">
-    <button class="short" onclick="openTool('Jadwal Sholat')"><div class="short-icon">${miniIcon('Jadwal Sholat')}</div><small>Jadwal Sholat</small></button>
-    <button class="short" onclick="openTool('Arah Kiblat')"><div class="short-icon">${miniIcon('Arah Kiblat')}</div><small>Arah Kiblat</small></button>
-    <button class="short" onclick="openCategory('8')"><div class="short-icon">${miniIcon('Doa & Dzikir')}</div><small>Doa & Dzikir</small></button>
+    <button class="short" onclick="openTool('Jadwal Sholat')"><div class="short-icon" data-short-icon="Jadwal Sholat"></div><small>Jadwal Sholat</small></button>
+    <button class="short" onclick="openTool('Arah Kiblat')"><div class="short-icon" data-short-icon="Arah Kiblat"></div><small>Arah Kiblat</small></button>
+    <button class="short" onclick="openCategory('8')"><div class="short-icon" data-short-icon="Doa & Dzikir"></div><small>Doa & Dzikir</small></button>
   </div>
 </section>
 
@@ -278,7 +265,7 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
       <div class="theme-options">
         <button class="theme-option active" id="theme-amoled" onclick="setTheme('amoled')"><div class="theme-dot dot-amoled"></div><strong>Gelap</strong><small>AMOLED</small></button>
         <button class="theme-option" id="theme-light" onclick="setTheme('light')"><div class="theme-dot dot-light"></div><strong>Terang</strong><small>Putih</small></button>
-        <button class="theme-option" id="theme-teal" onclick="setTheme('teal')"><div class="theme-dot dot-teal"></div><strong>Hijau Teal</strong><small>Teal</small></button>
+        
       </div>
     </div>
     <div class="setting"><div>Ukuran Font<small>Atur ukuran teks aplikasi</small></div><span>›</span></div>
@@ -332,7 +319,8 @@ function lineIcon(type, size=30){
   book:`<svg ${common}><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21V5.5Z"/><path d="M4 18h16"/></svg>`,
   hands:`<svg ${common}><path d="M8 11V5a1.5 1.5 0 0 1 3 0v5"/><path d="M11 10V3.8a1.5 1.5 0 0 1 3 0V10"/><path d="M14 10V5.2a1.5 1.5 0 0 1 3 0v6"/><path d="M17 11V8a1.5 1.5 0 0 1 3 0v5c0 4.4-2.7 7-7 7h-1.5C8.4 20 6 18.2 4.5 15L3 11.7a1.5 1.5 0 0 1 2.7-1.3L8 13"/></svg>`,
   compass:`<svg ${common}><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8 4.8-2.2Z"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>`,
-  bookmark:`<svg ${common}><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-3.7L6 21V4.5Z"/></svg>`
+  bookmark:`<svg ${common}><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-3.7L6 21V4.5Z"/></svg>`,
+  moon:`<svg ${common}><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"/></svg>`
  };
  return m[type]||m.book;
 }
@@ -346,13 +334,23 @@ function moonIcon(){
 
 function miniIcon(name){
  const n=(name||'').toLowerCase();
- if(n.includes('sholat')||n.includes('masjid')||n.includes('haji')) return lineIcon('mosque',21);
- if(n.includes('iman')||n.includes('akhlak')||n.includes('keluarga')) return lineIcon('heart',21);
- if(n.includes('kitab')||n.includes('qur')||n.includes('hadis')||n.includes('ilmu')) return lineIcon('book',21);
- if(n.includes('sejarah')||n.includes('sirah')||n.includes('perang')) return lineIcon('history',21);
- if(n.includes('doa')||n.includes('dzikir')) return lineIcon('hands',21);
- if(n.includes('kiblat')||n.includes('jadwal')) return lineIcon('compass',21);
+ if(n.includes('sholat')||n.includes('masjid')||n.includes('haji')||n.includes('umrah')) return lineIcon('mosque',21);
+ if(n.includes('iman')||n.includes('allah')||n.includes('malaikat')||n.includes('rasul')||n.includes('akhlak')||n.includes('keluarga')||n.includes('pernikahan')||n.includes('munakahat')) return lineIcon('heart',21);
+ if(n.includes('kitab')||n.includes('qur')||n.includes('hadis')||n.includes('ilmu')||n.includes('bahasa arab')||n.includes('pendidikan')||n.includes('tafsir')) return lineIcon('book',21);
+ if(n.includes('sejarah')||n.includes('sirah')||n.includes('perang')||n.includes('tokoh')||n.includes('sahabat')||n.includes('peradaban')) return lineIcon('history',21);
+ if(n.includes('doa')||n.includes('dzikir')||n.includes('zikir')||n.includes('tasbih')) return lineIcon('hands',21);
+ if(n.includes('kiblat')||n.includes('jadwal')||n.includes('arah')) return lineIcon('compass',21);
+ if(n.includes('bookmark')||n.includes('koleksi')||n.includes('simpan')) return lineIcon('bookmark',21);
+ if(n.includes('zakat')||n.includes('faraid')||n.includes('waris')||n.includes('fikih')||n.includes('ushul')||n.includes('qawaid')||n.includes('muamalah')) return lineIcon('book',21);
+ if(n.includes('puasa')||n.includes('ramadan')||n.includes('hari akhir')||n.includes('qada')||n.includes('qadar')) return lineIcon('moon',21);
+ if(n.includes('pencarian')||n.includes('search')||n.includes('referensi')||n.includes('sumber')||n.includes('catatan')) return lineIcon('bookmark',21);
  return lineIcon('book',21);
+}
+
+function renderQuickAccessIcons(){
+  document.querySelectorAll('[data-short-icon]').forEach(el=>{
+    el.innerHTML=miniIcon(el.dataset.shortIcon || '');
+  });
 }
 
 const iconMap={'1':'mosque','2':'heart','3':'books','4':'family','5':'heart','6':'history','7':'book','8':'hands','9':'compass','10':'bookmark'};
@@ -680,18 +678,19 @@ function renderPrayerTimes(lat,lon){
 function fallbackPrayer(){useDefaultLocation();}
 
 function setTheme(theme){
+  if(theme!=='light' && theme!=='amoled') theme='amoled';
   document.body.classList.remove('theme-light','theme-teal');
   if(theme==='light') document.body.classList.add('theme-light');
-  if(theme==='teal') document.body.classList.add('theme-teal');
   document.querySelectorAll('.theme-option').forEach(x=>x.classList.remove('active'));
   const el=document.getElementById('theme-'+theme); if(el) el.classList.add('active');
   localStorage.setItem('silmikaffah-theme',theme);
 }
 (function(){
   try{ initDailyHome(); }catch(e){ console.warn('Home init:',e); }
+  try{ renderQuickAccessIcons(); }catch(e){ console.warn('Icon init:',e); }
   try{
-    const saved=localStorage.getItem('silmikaffah-theme') || 'amoled';
-    setTheme(saved);
+    const saved=localStorage.getItem('silmikaffah-theme');
+    setTheme(saved==='light' ? 'light' : 'amoled');
   }catch(e){ console.warn('Theme init:',e); }
   setTimeout(()=>{
     const splash=document.getElementById('splash');
