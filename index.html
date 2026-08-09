@@ -43,13 +43,14 @@ main{padding:10px 18px}
 .shortcut{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .short{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:13px 8px;text-align:center;color:var(--text)}
 .short div{font-size:22px}.short small{display:block;margin-top:5px;color:var(--muted)}
-.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);background:rgba(8,14,12,.96);border-top:1px solid var(--line);backdrop-filter:blur(18px);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 8px calc(8px + env(safe-area-inset-bottom));z-index:20}
-.navbtn{background:none;border:0;color:var(--muted);font-size:11px;padding:5px 2px}
-.navbtn span{display:grid;place-items:center}.navbtn{min-height:46px}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);background:rgba(8,14,12,.96);border-top:1px solid var(--line);backdrop-filter:blur(18px);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:8px 0 calc(8px + env(safe-area-inset-bottom));z-index:20}
+.navbtn{background:none;border:0;color:var(--muted);font-size:11px;padding:0;margin:0;min-width:0;width:100%;height:48px;display:flex;align-items:center;justify-content:center}
+.navbtn span{display:grid;place-items:center}.nav-svg{width:30px;height:30px}
+
 .navbtn.active{color:var(--teal)}
 .page{display:none}
 .page.active{display:block}
-.back{border:0;background:none;color:var(--teal);padding:5px 0 15px;font-weight:700}
+.back{border:0;background:none;color:var(--teal);padding:8px 4px 16px;font-weight:700;font-size:15px;display:inline-flex;align-items:center;gap:6px}
 .page-head{display:flex;gap:13px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:17px;margin-bottom:16px}
 .page-head .big{font-size:34px}.page-head h2{margin:0;font-size:20px}.page-head p{margin:4px 0 0;color:var(--muted);font-size:13px}
 .sublist{display:grid;gap:9px}
@@ -144,7 +145,13 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
 .mini{width:24px;height:24px;display:grid;place-items:center;flex:none}
 .nav-svg{display:grid;place-items:center;width:28px;height:28px}.navbtn{padding:7px 2px}
 
-</style>
+
+.moon{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;color:var(--teal);opacity:.9}
+.moon svg{width:52px;height:52px}
+.short{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.short-icon{height:28px;display:grid;place-items:center;color:var(--teal)}
+.location-icon{color:var(--teal);display:inline-flex;align-items:center}
+
 </head>
 <body>
 
@@ -173,11 +180,11 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
         <h2 id="hijriDate">Memuat tanggal Hijriah...</h2>
         <div class="gregorian-date" id="gregorianDate"></div>
       </div>
-      <div class="moon">☪</div>
+      <div class="moon" id="moonIcon"></div>
     </div>
 
     <div class="prayer-box">
-      <div class="prayer-location"><span>📍</span><span id="locationText">Mencari lokasi GPS...</span></div>
+      <div class="prayer-location"><span class="location-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.1 7-12a7 7 0 0 0-14 0c0 5.9 7 12 7 12Z"/><circle cx="12" cy="9" r="2.2"/></svg></span><span id="locationText">Mencari lokasi GPS...</span></div>
       <div class="current-prayer">
         <div>
           <small>SHOLAT BERIKUTNYA</small>
@@ -206,20 +213,20 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
 
   <div class="section-title"><h2>Akses Cepat</h2></div>
   <div class="shortcut">
-    <button class="short" onclick="openTool('Jadwal Sholat','🕐')"><div>🕐</div><small>Jadwal Sholat</small></button>
-    <button class="short" onclick="openTool('Arah Kiblat','🧭')"><div>🧭</div><small>Arah Kiblat</small></button>
-    <button class="short" onclick="openCategory('8')"><div>🤲</div><small>Doa & Dzikir</small></button>
+    <button class="short" onclick="openTool('Jadwal Sholat')"><div class="short-icon">${miniIcon('Jadwal Sholat')}</div><small>Jadwal Sholat</small></button>
+    <button class="short" onclick="openTool('Arah Kiblat')"><div class="short-icon">${miniIcon('Arah Kiblat')}</div><small>Arah Kiblat</small></button>
+    <button class="short" onclick="openCategory('8')"><div class="short-icon">${miniIcon('Doa & Dzikir')}</div><small>Doa & Dzikir</small></button>
   </div>
 </section>
 
 <section id="category" class="page">
-  <button class="back" onclick="showPage('home')">← Kembali</button>
+  <button class="back" onclick="goBack()">← Kembali</button>
   <div id="categoryHead"></div>
   <div class="sublist" id="submenu"></div>
 </section>
 
 <section id="detail" class="page">
-  <button class="back" onclick="showPage('category')">← Kembali</button>
+  <button class="back" onclick="goBack()">← Kembali</button>
   <div id="detailBox"></div>
 </section>
 
@@ -277,7 +284,7 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
 </main>
 
 <nav class="bottom">
-  <button class="navbtn active" data-page="home" aria-label="Home" onclick="showPage('home')">
+  <button class="navbtn active" data-page="home" aria-label="Home" onclick="goRoot('home')">
     <span class="nav-svg"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21v-8h14v8"/><path d="M7 13V9l5-4 5 4v4"/></svg></span>
   </button>
   <button class="navbtn" data-page="rukun-iman" aria-label="Rukun Iman" onclick="openNavCategory('2','rukun-iman')">
@@ -286,10 +293,10 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
   <button class="navbtn" data-page="rukun-islam" aria-label="Rukun Islam" onclick="openNavCategory('1','rukun-islam')">
     <span class="nav-svg"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21v-8h14v8"/><path d="M7 13V9l5-4 5 4v4"/><path d="M12 5V2"/><path d="M10.5 2h3"/></svg></span>
   </button>
-  <button class="navbtn" data-page="collection" aria-label="Koleksi" onclick="showPage('collection')">
+  <button class="navbtn" data-page="collection" aria-label="Koleksi" onclick="goRoot('collection')">
     <span class="nav-svg"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-3.7L6 21V4.5Z"/></svg></span>
   </button>
-  <button class="navbtn" data-page="settings" aria-label="Pengaturan" onclick="showPage('settings')">
+  <button class="navbtn" data-page="settings" aria-label="Pengaturan" onclick="goRoot('settings')">
     <span class="nav-svg"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-2.5V20a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.5a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 7.8 9l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2H15v.2a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2V14h-.2a1.7 1.7 0 0 0-1.6 1Z"/></svg></span>
   </button>
 </nav>
@@ -312,6 +319,14 @@ function lineIcon(type, size=30){
  };
  return m[type]||m.book;
 }
+
+function moonIcon(){
+ return `<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+ <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"/>
+ <path d="M16.8 7.2v3.2M15.2 8.8h3.2"/>
+ </svg>`;
+}
+
 function miniIcon(name){
  const n=(name||'').toLowerCase();
  if(n.includes('sholat')||n.includes('masjid')||n.includes('haji')) return lineIcon('mosque',21);
@@ -461,18 +476,48 @@ tools.forEach(t=>{
  tl.innerHTML += `<button class="subitem" onclick="openTool('${t[1]}')"><span class="left"><span class="mini">${miniIcon(t[0])}</span><span><b>${t[1]}</b><small style="color:var(--muted);display:block">${t[2]}</small></span></span><span class="arrow">›</span></button>`;
 });
 
-function openNavCategory(id, navKey){
-  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===navKey));
-  openCategory(id);
-}
-function showPage(id){
+let pageHistory=[];
+let currentPage='home';
+
+function activatePage(id){
  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
- document.getElementById(id).classList.add('active');
+ const el=document.getElementById(id);
+ if(el) el.classList.add('active');
  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
  window.scrollTo({top:0,behavior:'smooth'});
 }
-function openCategory(id){
+function showPage(id){
+ if(!document.getElementById(id)) return;
+ if(currentPage!==id) pageHistory.push(currentPage);
+ currentPage=id;
+ activatePage(id);
+}
+function goRoot(id, navKey){
+ pageHistory=[];
+ currentPage=id;
+ activatePage(navKey || id);
+}
+function goBack(){
+ if(pageHistory.length){
+   const previous=pageHistory.pop();
+   currentPage=previous;
+   activatePage(previous);
+ }else{
+   currentPage='home';
+   activatePage('home');
+ }
+}
+function openNavCategory(id, navKey){
+ pageHistory=[];
+ currentPage='home';
+ openCategory(id, navKey);
+}
+function openCategory(id, navKey){
  const c=categories.find(x=>x.id===id); if(!c)return;
+ if(currentPage!=='category'){
+   pageHistory.push(currentPage);
+ }
+ currentPage='category';
  document.getElementById('categoryHead').innerHTML=`<div class="page-head"><div class="big">${lineIcon(iconMap[c.id]||"book",34)}</div><div><h2>${c.name}</h2><p>${c.desc}</p></div></div>`;
  const list=document.getElementById('submenu'); list.innerHTML='';
  c.subs.forEach(s=>{
@@ -480,6 +525,8 @@ function openCategory(id){
  });
  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
  document.getElementById('category').classList.add('active');
+ document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===navKey));
+ window.scrollTo({top:0,behavior:'smooth'});
 }
 function openSub(name,icon,parent){
  const data=submenuData[name] || {title:name,icon:icon,sections:['Pengantar','Materi Utama','Dalil / Referensi','Catatan']};
@@ -501,7 +548,7 @@ function searchAll(q){
    if(c.name.toLowerCase().includes(term)) found.push([c.icon,c.name,'Kategori']);
    c.subs.forEach(s=>{if(s[1].toLowerCase().includes(term))found.push([s[0],s[1],c.name]);});
  });
- document.getElementById('results').innerHTML=found.length?found.map(x=>`<button class="result" onclick="openSearchResult('${escapeAttr(x[1])}','${x[0]}','${escapeAttr(x[2])}')"><b>${x[0]} ${x[1]}</b><small>${x[2]}</small></button>`).join(''):'<div class="empty">Tidak ditemukan.</div>';
+ document.getElementById('results').innerHTML=found.length?found.map(x=>`<button class="result" onclick="openSearchResult('${escapeAttr(x[1])}','${x[0]}','${escapeAttr(x[2])}')"><b><span class="mini">${miniIcon(x[1])}</span>${x[1]}</b><small>${x[2]}</small></button>`).join(''):'<div class="empty">Tidak ditemukan.</div>';
  showPage('search');
 }
 function openSearchResult(title,icon,parent){showDetail(title,icon,`Hasil pencarian dari kategori <b>${parent}</b>.`);}
@@ -539,6 +586,7 @@ function setHijriDate(date){
     const hijri=new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(localNoon).replace(' AH',' H');
     if(!/Muharram|Safar|Rabi|Jumada|Rajab|Shaaban|Ramadan|Shawwal|Dhul|Dhu/.test(hijri)) throw new Error('unsupported');
     document.getElementById('hijriDate').textContent=hijri;
+    document.getElementById('moonIcon').innerHTML=moonIcon();
   }catch(e){
     const anchor=new Date(2026,7,9,12,0,0);
     const d=new Date(date.getFullYear(),date.getMonth(),date.getDate(),12,0,0);
@@ -548,6 +596,7 @@ function setHijriDate(date){
     while(day>30){day-=30;mi++;} while(day<1){day+=30;mi--;}
     if(mi<0){mi=11;year--;}
     document.getElementById('hijriDate').textContent=`${day} ${months[mi]} ${year} H`;
+    document.getElementById('moonIcon').innerHTML=moonIcon();
   }
 }
 function requestGPS(){
@@ -645,3 +694,7 @@ function setTheme(theme){
   .card p{font-size:10px!important;line-height:1.35!important}
 }
 </style>
+
+<script>
+window.addEventListener('load',()=>{ currentPage='home'; pageHistory=[]; activatePage('home'); });
+</script>
