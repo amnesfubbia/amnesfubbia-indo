@@ -34,7 +34,7 @@ main{padding:10px 18px}
 .section-title{display:flex;justify-content:space-between;align-items:center;margin:20px 0 11px}
 .section-title h2{font-size:17px;margin:0}
 .section-title small{color:var(--teal)}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
 .card{border:1px solid var(--line);background:var(--surface);border-radius:18px;padding:15px;text-align:left;color:var(--text);min-height:108px;transition:.2s}
 .card:hover{transform:translateY(-2px);border-color:#24534a}
 .card .icon{font-size:27px;margin-bottom:10px}
@@ -163,7 +163,7 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
   <div class="hero daily-card">
     <div class="daily-top">
       <div>
-        <div class="hijri-label">HARI INI</div>
+        <div class="hijri-label">HARI INI • KALENDER HIJRIAH</div>
         <h2 id="hijriDate">Memuat tanggal Hijriah...</h2>
         <div class="gregorian-date" id="gregorianDate"></div>
       </div>
@@ -174,7 +174,7 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
       <div class="prayer-location"><span>📍</span><span id="locationText">Mencari lokasi GPS...</span></div>
       <div class="current-prayer">
         <div>
-          <small>SHOLAT SAAT INI</small>
+          <small>SHOLAT BERIKUTNYA</small>
           <strong id="currentPrayer">Memuat...</strong>
         </div>
         <div class="prayer-time" id="currentPrayerTime">--:--</div>
@@ -474,7 +474,7 @@ const dailyQuotes = [
 function initDailyHome(){
   const now=new Date();
   try{
-    const hijri=new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(now);
+    const hijri=new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(now).replace(' AH',' H');
     document.getElementById('hijriDate').textContent=hijri;
   }catch(e){
     document.getElementById('hijriDate').textContent='Tanggal Hijriah';
@@ -547,11 +547,21 @@ function loadPrayerTimes(lat,lon){
   document.getElementById('prayerRow').innerHTML=keys.map(k=>`<span>${k}<b>${fmtTime(times[k])}</b></span>`).join('');
   const now=new Date();
   const current=now.getHours()+now.getMinutes()/60;
-  let active='Isya', activeTime=times.Isya;
-  if(current<times.Subuh){active='Subuh';activeTime=times.Subuh}
-  else if(current<times.Dzuhur){active='Dzuhur';activeTime=times.Dzuhur}
-  else if(current<times.Ashar){active='Ashar';activeTime=times.Ashar}
-  else if(current<times.Maghrib){active='Maghrib';activeTime=times.Maghrib}
+  const upcoming=[
+    ['Subuh',times.Subuh],
+    ['Dzuhur',times.Dzuhur],
+    ['Ashar',times.Ashar],
+    ['Maghrib',times.Maghrib],
+    ['Isya',times.Isya]
+  ].filter(x=>x[1]!=null && x[1]>current);
+  let active, activeTime;
+  if(upcoming.length){
+    [active,activeTime]=upcoming[0];
+  }else{
+    // After Isya, the next prayer is tomorrow's Subuh.
+    active='Subuh';
+    activeTime=times.Subuh;
+  }
   document.getElementById('currentPrayer').textContent=active;
   document.getElementById('currentPrayerTime').textContent=fmtTime(activeTime);
 }
@@ -579,3 +589,12 @@ function setTheme(theme){
 </script>
 </body>
 </html>
+<style>
+@media(max-width:430px){
+  .cards{grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
+  .card{padding:11px 9px!important;border-radius:15px!important}
+  .card .icon{font-size:24px!important}
+  .card h3{font-size:13px!important;line-height:1.2!important}
+  .card p{font-size:10px!important;line-height:1.35!important}
+}
+</style>
