@@ -45,7 +45,7 @@ main{padding:10px 18px}
 .short div{font-size:22px}.short small{display:block;margin-top:5px;color:var(--muted)}
 .bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);background:rgba(8,14,12,.96);border-top:1px solid var(--line);backdrop-filter:blur(18px);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 8px calc(8px + env(safe-area-inset-bottom));z-index:20}
 .navbtn{background:none;border:0;color:var(--muted);font-size:11px;padding:5px 2px}
-.navbtn span{display:block;font-size:21px;margin-bottom:3px}
+.navbtn span{display:grid;place-items:center}.navbtn{min-height:46px}
 .navbtn.active{color:var(--teal)}
 .page{display:none}
 .page.active{display:block}
@@ -142,7 +142,7 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
 .icon,.big,.mini,.nav-svg{color:var(--teal)}
 .icon svg,.big svg,.mini svg,.nav-svg svg{display:block}
 .mini{width:24px;height:24px;display:grid;place-items:center;flex:none}
-.nav-svg{display:block}
+.nav-svg{display:grid;place-items:center;width:28px;height:28px}.navbtn{padding:7px 2px}
 
 </style>
 </head>
@@ -231,12 +231,12 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
 <section id="collection" class="page">
   <div class="section-title"><h2>Referensi & Koleksi</h2></div>
   <div class="sublist">
-    <button class="subitem" onclick="showDetail('Bookmark','🔖','Semua materi yang kamu simpan untuk dibaca kembali.')"><span class="left"><span class="mini">🔖</span>Bookmark</span><span class="arrow">›</span></button>
-    <button class="subitem" onclick="showDetail('Favorit','⭐','Kumpulan materi yang ditandai sebagai favorit.')"><span class="left"><span class="mini">⭐</span>Favorit</span><span class="arrow">›</span></button>
-    <button class="subitem" onclick="showDetail('Terakhir Dibaca','🕘','Materi yang terakhir kamu buka.')"><span class="left"><span class="mini">🕘</span>Terakhir Dibaca</span><span class="arrow">›</span></button>
-    <button class="subitem" onclick="showDetail('Riwayat','📜','Riwayat aktivitas dan bacaan kamu.')"><span class="left"><span class="mini">📜</span>Riwayat</span><span class="arrow">›</span></button>
-    <button class="subitem" onclick="showDetail('Catatan','📝','Catatan pribadi untuk materi yang sedang dipelajari.')"><span class="left"><span class="mini">📝</span>Catatan</span><span class="arrow">›</span></button>
-    <button class="subitem" onclick="showDetail('Referensi & Sumber','📚','Informasi sumber dan referensi setiap materi.')"><span class="left"><span class="mini">📚</span>Referensi & Sumber</span><span class="arrow">›</span></button>
+    <button class="subitem" onclick="showDetail('Bookmark','','Semua materi yang kamu simpan untuk dibaca kembali.')"><span class="left"><span class="mini"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-3.7L6 21V4.5Z"/></svg></span>Bookmark</span><span class="arrow">›</span></button>
+    <button class="subitem" onclick="showDetail('Favorit','','Kumpulan materi yang ditandai sebagai favorit.')"><span class="left"><span class="mini"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 8.8c0 5.1-8.8 10.2-8.8 10.2S3.2 13.9 3.2 8.8A4.8 4.8 0 0 1 12 6.1a4.8 4.8 0 0 1 8.8 2.7Z"/></svg></span>Favorit</span><span class="arrow">›</span></button>
+    <button class="subitem" onclick="showDetail('Terakhir Dibaca','','Materi yang terakhir kamu buka.')"><span class="left"><span class="mini"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>Terakhir Dibaca</span><span class="arrow">›</span></button>
+    <button class="subitem" onclick="showDetail('Riwayat','','Riwayat aktivitas dan bacaan kamu.')"><span class="left"><span class="mini"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg></span>Riwayat</span><span class="arrow">›</span></button>
+    <button class="subitem" onclick="showDetail('Catatan','','Catatan pribadi untuk materi yang sedang dipelajari.')"><span class="left"><span class="mini"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18H5z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg></span>Catatan</span><span class="arrow">›</span></button>
+    <button class="subitem" onclick="showDetail('Referensi & Sumber','','Informasi sumber dan referensi setiap materi.')"><span class="left"><span class="mini"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21V5.5Z"/><path d="M4 18h16"/></svg></span>Referensi & Sumber</span><span class="arrow">›</span></button>
   </div>
 </section>
 
@@ -277,11 +277,21 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
 </main>
 
 <nav class="bottom">
-  <button class="navbtn active" data-page="home" onclick="showPage('home')"><span class="nav-svg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21v-8h14v8"/><path d="M7 13V9l5-4 5 4v4"/></svg></span>Home</button>
-  <button class="navbtn" data-page="search" onclick="focusSearch()"><span class="nav-svg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></span>Cari</button>
-  <button class="navbtn" data-page="collection" onclick="showPage('collection')"><span class="nav-svg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-3.7L6 21V4.5Z"/></svg></span>Koleksi</button>
-  <button class="navbtn" data-page="tools" onclick="showPage('tools')"><span class="nav-svg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8 4.8-2.2Z"/></svg></span>Alat</button>
-  <button class="navbtn" data-page="settings" onclick="showPage('settings')"><span class="nav-svg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-2.5V20a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.5a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 7.8 9l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2H15v.2a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2V14h-.2a1.7 1.7 0 0 0-1.6 1Z"/></svg></span>Pengaturan</button>
+  <button class="navbtn active" data-page="home" aria-label="Home" onclick="showPage('home')">
+    <span class="nav-svg"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21v-8h14v8"/><path d="M7 13V9l5-4 5 4v4"/></svg></span>
+  </button>
+  <button class="navbtn" data-page="rukun-iman" aria-label="Rukun Iman" onclick="openNavCategory('2','rukun-iman')">
+    <span class="nav-svg"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 8.8c0 5.1-8.8 10.2-8.8 10.2S3.2 13.9 3.2 8.8A4.8 4.8 0 0 1 12 6.1a4.8 4.8 0 0 1 8.8 2.7Z"/></svg></span>
+  </button>
+  <button class="navbtn" data-page="rukun-islam" aria-label="Rukun Islam" onclick="openNavCategory('1','rukun-islam')">
+    <span class="nav-svg"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21v-8h14v8"/><path d="M7 13V9l5-4 5 4v4"/><path d="M12 5V2"/><path d="M10.5 2h3"/></svg></span>
+  </button>
+  <button class="navbtn" data-page="collection" aria-label="Koleksi" onclick="showPage('collection')">
+    <span class="nav-svg"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-3.7L6 21V4.5Z"/></svg></span>
+  </button>
+  <button class="navbtn" data-page="settings" aria-label="Pengaturan" onclick="showPage('settings')">
+    <span class="nav-svg"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-2.5V20a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.5a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 7.8 9l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2H15v.2a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2V14h-.2a1.7 1.7 0 0 0-1.6 1Z"/></svg></span>
+  </button>
 </nav>
 </div>
 
@@ -433,13 +443,13 @@ const submenuData = {
 
 
 const tools = [
- ['🕐','Jadwal Sholat','Menampilkan jadwal sholat berdasarkan lokasi.'],
- ['🧭','Arah Kiblat','Menentukan arah kiblat menggunakan sensor perangkat.'],
- ['🔔','Pengingat Sholat','Pengingat waktu sholat.'],
- ['📿','Pengingat Dzikir','Pengingat dzikir yang dapat diatur.'],
- ['📿','Tasbih Digital','Menghitung dzikir secara digital.'],
- ['🔔','Notifikasi Ibadah','Notifikasi untuk aktivitas ibadah.'],
- ['🕌','Lokasi Masjid','Mencari masjid di sekitar pengguna.']
+ ['Jadwal Sholat','Jadwal Sholat','Menampilkan jadwal sholat berdasarkan lokasi.'],
+ ['Arah Kiblat','Arah Kiblat','Menentukan arah kiblat menggunakan sensor perangkat.'],
+ ['Pengingat Sholat','Pengingat Sholat','Pengingat waktu sholat.'],
+ ['Pengingat Dzikir','Pengingat Dzikir','Pengingat dzikir yang dapat diatur.'],
+ ['Tasbih Digital','Tasbih Digital','Menghitung dzikir secara digital.'],
+ ['Notifikasi Ibadah','Notifikasi Ibadah','Notifikasi untuk aktivitas ibadah.'],
+ ['Lokasi Masjid','Lokasi Masjid','Mencari masjid di sekitar pengguna.']
 ];
 
 const grid=document.getElementById('categoryGrid');
@@ -448,9 +458,13 @@ categories.forEach(c=>{
 });
 const tl=document.getElementById('toolsList');
 tools.forEach(t=>{
- tl.innerHTML += `<button class="subitem" onclick="openTool('${t[1]}','${t[0]}')"><span class="left"><span class="mini">${t[0]}</span><span><b>${t[1]}</b><small style="color:var(--muted)">${t[2]}</small></span></span><span class="arrow">›</span></button>`;
+ tl.innerHTML += `<button class="subitem" onclick="openTool('${t[1]}')"><span class="left"><span class="mini">${miniIcon(t[0])}</span><span><b>${t[1]}</b><small style="color:var(--muted);display:block">${t[2]}</small></span></span><span class="arrow">›</span></button>`;
 });
 
+function openNavCategory(id, navKey){
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===navKey));
+  openCategory(id);
+}
 function showPage(id){
  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
  document.getElementById(id).classList.add('active');
@@ -464,19 +478,20 @@ function openCategory(id){
  c.subs.forEach(s=>{
    list.innerHTML += `<button class="subitem" onclick="openSub('${escapeAttr(s[1])}','${s[0]}','${escapeAttr(c.name)}')"><span class="left"><span class="mini">${miniIcon(s[1])}</span>${s[1]}</span><span class="arrow">›</span></button>`;
  });
- showPage('category');
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.getElementById('category').classList.add('active');
 }
 function openSub(name,icon,parent){
  const data=submenuData[name] || {title:name,icon:icon,sections:['Pengantar','Materi Utama','Dalil / Referensi','Catatan']};
  const sectionHtml=data.sections.map((s,i)=>`<button class="subitem" onclick="showDetail('${escapeAttr(s)}','${data.icon}','${escapeAttr(data.title)}')"><span class="left"><span class="mini">${miniIcon(s)}</span>${s}</span><span class="arrow">›</span></button>`).join('');
- document.getElementById('detailBox').innerHTML=`<div class="page-head"><div class="big">${data.icon}</div><div><h2>${data.title}</h2><p>${parent} • ${data.sections.length} bagian</p></div></div><div class="section-title"><h2>Submateri</h2></div><div class="sublist">${sectionHtml}</div>`;
+ document.getElementById('detailBox').innerHTML=`<div class="page-head"><div class="big">${miniIcon(data.title)}</div><div><h2>${data.title}</h2><p>${parent} • ${data.sections.length} bagian</p></div></div><div class="section-title"><h2>Submateri</h2></div><div class="sublist">${sectionHtml}</div>`;
  showPage('detail');
 }
 function showDetail(title,icon,content){
- document.getElementById('detailBox').innerHTML=`<div class="page-head"><div class="big">${icon}</div><div><h2>${title}</h2><p>Silmikaffah • Islam Secara Menyeluruh</p></div></div><div class="detail"><h3>${title}</h3><p>${content}</p><p class="arabic">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p><p>Halaman materi ini disiapkan untuk memuat penjelasan yang terstruktur, dalil atau sumber yang relevan, terjemahan bila diperlukan, dan referensi yang dapat diverifikasi.</p><div class="source">Sumber & Referensi: akan diisi pada tahap database/konten.</div></div>`;
+ document.getElementById('detailBox').innerHTML=`<div class="page-head"><div class="big">${miniIcon(title)}</div><div><h2>${title}</h2><p>Silmikaffah • Islam Secara Menyeluruh</p></div></div><div class="detail"><h3>${title}</h3><p>${content}</p><p class="arabic">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p><p>Halaman materi ini disiapkan untuk memuat penjelasan yang terstruktur, dalil atau sumber yang relevan, terjemahan bila diperlukan, dan referensi yang dapat diverifikasi.</p><div class="source">Sumber & Referensi: akan diisi pada tahap database/konten.</div></div>`;
  showPage('detail');
 }
-function openTool(name,icon){showDetail(name,icon,'Fitur ini akan menjadi alat interaktif pada tahap pengembangan berikutnya.');}
+function openTool(name){showDetail(name,'', 'Fitur ini akan menjadi alat interaktif pada tahap pengembangan berikutnya.');}
 function focusSearch(){showPage('search');setTimeout(()=>document.getElementById('searchInput').focus(),100)}
 function searchAll(q){
  if(!q){document.getElementById('results').innerHTML='<div class="empty">Ketik sesuatu pada kotak pencarian di atas.</div>';return;}
