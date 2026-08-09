@@ -138,6 +138,12 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
 .theme-dot{width:26px;height:26px;border-radius:50%;margin:auto;border:1px solid var(--line)}
 .dot-amoled{background:#000}.dot-light{background:#fff}.dot-teal{background:#0d6658}
 
+
+.icon,.big,.mini,.nav-svg{color:var(--teal)}
+.icon svg,.big svg,.mini svg,.nav-svg svg{display:block}
+.mini{width:24px;height:24px;display:grid;place-items:center;flex:none}
+.nav-svg{display:block}
+
 </style>
 </head>
 <body>
@@ -271,15 +277,43 @@ body.theme-teal .bottom{background:rgba(8,58,50,.96)}
 </main>
 
 <nav class="bottom">
-  <button class="navbtn active" data-page="home" onclick="showPage('home')"><span>⌂</span>Home</button>
-  <button class="navbtn" data-page="search" onclick="focusSearch()"><span>⌕</span>Cari</button>
-  <button class="navbtn" data-page="collection" onclick="showPage('collection')"><span>🔖</span>Koleksi</button>
-  <button class="navbtn" data-page="tools" onclick="showPage('tools')"><span>🧭</span>Alat</button>
-  <button class="navbtn" data-page="settings" onclick="showPage('settings')"><span>⚙</span>Pengaturan</button>
+  <button class="navbtn active" data-page="home" onclick="showPage('home')"><span class="nav-svg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21v-8h14v8"/><path d="M7 13V9l5-4 5 4v4"/></svg></span>Home</button>
+  <button class="navbtn" data-page="search" onclick="focusSearch()"><span class="nav-svg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></span>Cari</button>
+  <button class="navbtn" data-page="collection" onclick="showPage('collection')"><span class="nav-svg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-3.7L6 21V4.5Z"/></svg></span>Koleksi</button>
+  <button class="navbtn" data-page="tools" onclick="showPage('tools')"><span class="nav-svg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8 4.8-2.2Z"/></svg></span>Alat</button>
+  <button class="navbtn" data-page="settings" onclick="showPage('settings')"><span class="nav-svg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-2.5V20a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.5a1.7 1.7 0 0 0 1.6-1A1.7 1.7 0 0 0 7.8 9l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2H15v.2a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2V14h-.2a1.7 1.7 0 0 0-1.6 1Z"/></svg></span>Pengaturan</button>
 </nav>
 </div>
 
 <script>
+
+function lineIcon(type, size=30){
+ const common=`width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"`;
+ const m={
+  mosque:`<svg ${common}><path d="M3 21h18"/><path d="M5 21v-8h14v8"/><path d="M7 13V9l5-4 5 4v4"/><path d="M9 21v-5h6v5"/><path d="M12 5V2"/><path d="M10.5 2h3"/></svg>`,
+  heart:`<svg ${common}><path d="M20.8 8.8c0 5.1-8.8 10.2-8.8 10.2S3.2 13.9 3.2 8.8A4.8 4.8 0 0 1 12 6.1a4.8 4.8 0 0 1 8.8 2.7Z"/></svg>`,
+  books:`<svg ${common}><path d="M4 5.5h13a2 2 0 0 1 2 2V19H6a2 2 0 0 0-2 2V5.5Z"/><path d="M6 19h13"/><path d="M7 5V3h12v14"/><path d="M9 9h7M9 12h6"/></svg>`,
+  family:`<svg ${common}><circle cx="9" cy="7" r="3"/><circle cx="16.5" cy="9" r="2.5"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M14 15a4.5 4.5 0 0 1 6 4"/></svg>`,
+  history:`<svg ${common}><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg>`,
+  book:`<svg ${common}><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21V5.5Z"/><path d="M4 18h16"/></svg>`,
+  hands:`<svg ${common}><path d="M8 11V5a1.5 1.5 0 0 1 3 0v5"/><path d="M11 10V3.8a1.5 1.5 0 0 1 3 0V10"/><path d="M14 10V5.2a1.5 1.5 0 0 1 3 0v6"/><path d="M17 11V8a1.5 1.5 0 0 1 3 0v5c0 4.4-2.7 7-7 7h-1.5C8.4 20 6 18.2 4.5 15L3 11.7a1.5 1.5 0 0 1 2.7-1.3L8 13"/></svg>`,
+  compass:`<svg ${common}><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8 4.8-2.2Z"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>`,
+  bookmark:`<svg ${common}><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-3.7L6 21V4.5Z"/></svg>`
+ };
+ return m[type]||m.book;
+}
+function miniIcon(name){
+ const n=(name||'').toLowerCase();
+ if(n.includes('sholat')||n.includes('masjid')||n.includes('haji')) return lineIcon('mosque',21);
+ if(n.includes('iman')||n.includes('akhlak')||n.includes('keluarga')) return lineIcon('heart',21);
+ if(n.includes('kitab')||n.includes('qur')||n.includes('hadis')||n.includes('ilmu')) return lineIcon('book',21);
+ if(n.includes('sejarah')||n.includes('sirah')||n.includes('perang')) return lineIcon('history',21);
+ if(n.includes('doa')||n.includes('dzikir')) return lineIcon('hands',21);
+ if(n.includes('kiblat')||n.includes('jadwal')) return lineIcon('compass',21);
+ return lineIcon('book',21);
+}
+
+const iconMap={'1':'mosque','2':'heart','3':'books','4':'family','5':'heart','6':'history','7':'book','8':'hands','9':'compass','10':'bookmark'};
 const categories = [
  {id:'1',icon:'☪️',name:'Rukun Islam',desc:'Lima rukun Islam dan cabang pembahasannya',subs:[
   ['🕌','Syahadat'],['🧎','Sholat'],['💰','Zakat'],['🌙','Puasa'],['🕋','Haji & Umrah']]},
@@ -410,7 +444,7 @@ const tools = [
 
 const grid=document.getElementById('categoryGrid');
 categories.forEach(c=>{
- grid.innerHTML += `<button class="card" onclick="openCategory('${c.id}')"><div class="icon">${c.icon}</div><b>${c.name}</b><small>${c.desc}</small></button>`;
+ grid.innerHTML += `<button class="card" onclick="openCategory('${c.id}')"><div class="icon">${lineIcon(iconMap[c.id]||"book",28)}</div><b>${c.name}</b><small>${c.desc}</small></button>`;
 });
 const tl=document.getElementById('toolsList');
 tools.forEach(t=>{
@@ -425,16 +459,16 @@ function showPage(id){
 }
 function openCategory(id){
  const c=categories.find(x=>x.id===id); if(!c)return;
- document.getElementById('categoryHead').innerHTML=`<div class="page-head"><div class="big">${c.icon}</div><div><h2>${c.name}</h2><p>${c.desc}</p></div></div>`;
+ document.getElementById('categoryHead').innerHTML=`<div class="page-head"><div class="big">${lineIcon(iconMap[c.id]||"book",34)}</div><div><h2>${c.name}</h2><p>${c.desc}</p></div></div>`;
  const list=document.getElementById('submenu'); list.innerHTML='';
  c.subs.forEach(s=>{
-   list.innerHTML += `<button class="subitem" onclick="openSub('${escapeAttr(s[1])}','${s[0]}','${escapeAttr(c.name)}')"><span class="left"><span class="mini">${s[0]}</span>${s[1]}</span><span class="arrow">›</span></button>`;
+   list.innerHTML += `<button class="subitem" onclick="openSub('${escapeAttr(s[1])}','${s[0]}','${escapeAttr(c.name)}')"><span class="left"><span class="mini">${miniIcon(s[1])}</span>${s[1]}</span><span class="arrow">›</span></button>`;
  });
  showPage('category');
 }
 function openSub(name,icon,parent){
  const data=submenuData[name] || {title:name,icon:icon,sections:['Pengantar','Materi Utama','Dalil / Referensi','Catatan']};
- const sectionHtml=data.sections.map((s,i)=>`<button class="subitem" onclick="showDetail('${escapeAttr(s)}','${data.icon}','${escapeAttr(data.title)}')"><span class="left"><span class="mini">${i===0?'📖':i===1?'📚':i===2?'📜':'›'}</span>${s}</span><span class="arrow">›</span></button>`).join('');
+ const sectionHtml=data.sections.map((s,i)=>`<button class="subitem" onclick="showDetail('${escapeAttr(s)}','${data.icon}','${escapeAttr(data.title)}')"><span class="left"><span class="mini">${miniIcon(s)}</span>${s}</span><span class="arrow">›</span></button>`).join('');
  document.getElementById('detailBox').innerHTML=`<div class="page-head"><div class="big">${data.icon}</div><div><h2>${data.title}</h2><p>${parent} • ${data.sections.length} bagian</p></div></div><div class="section-title"><h2>Submateri</h2></div><div class="sublist">${sectionHtml}</div>`;
  showPage('detail');
 }
@@ -473,98 +507,96 @@ const dailyQuotes = [
 
 function initDailyHome(){
   const now=new Date();
-  try{
-    const hijri=new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(now).replace(' AH',' H');
-    document.getElementById('hijriDate').textContent=hijri;
-  }catch(e){
-    document.getElementById('hijriDate').textContent='Tanggal Hijriah';
-  }
+  setHijriDate(now);
   document.getElementById('gregorianDate').textContent=new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(now);
-
   const q=dailyQuotes[Math.floor(Math.random()*dailyQuotes.length)];
   document.getElementById('dailyQuote').textContent=q.text;
   document.getElementById('quoteSource').textContent=q.source;
 
-  if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(
-      pos=>loadPrayerTimes(pos.coords.latitude,pos.coords.longitude),
-      ()=>fallbackPrayer()
-    );
-  }else fallbackPrayer();
+  const cached=localStorage.getItem('silmikaffah-gps');
+  if(cached){
+    try{const p=JSON.parse(cached); renderPrayerTimes(p.lat,p.lon);}catch(e){requestGPS();}
+  }else requestGPS();
+}
+function setHijriDate(date){
+  try{
+    const localNoon=new Date(date.getFullYear(),date.getMonth(),date.getDate(),12,0,0);
+    const hijri=new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(localNoon).replace(' AH',' H');
+    if(!/Muharram|Safar|Rabi|Jumada|Rajab|Shaaban|Ramadan|Shawwal|Dhul|Dhu/.test(hijri)) throw new Error('unsupported');
+    document.getElementById('hijriDate').textContent=hijri;
+  }catch(e){
+    const anchor=new Date(2026,7,9,12,0,0);
+    const d=new Date(date.getFullYear(),date.getMonth(),date.getDate(),12,0,0);
+    const days=Math.round((d-anchor)/86400000);
+    const months=['Muharram','Safar','Rabiul Awal','Rabiul Akhir','Jumadil Awal','Jumadil Akhir','Rajab','Syaban','Ramadan','Syawal','Dzulqa’dah','Dzulhijjah'];
+    let day=26+days, mi=1, year=1448;
+    while(day>30){day-=30;mi++;} while(day<1){day+=30;mi--;}
+    if(mi<0){mi=11;year--;}
+    document.getElementById('hijriDate').textContent=`${day} ${months[mi]} ${year} H`;
+  }
+}
+function requestGPS(){
+  document.getElementById('locationText').textContent='Mengambil lokasi…';
+  if(!navigator.geolocation){useDefaultLocation();return;}
+  navigator.geolocation.getCurrentPosition(
+    pos=>{const lat=pos.coords.latitude,lon=pos.coords.longitude;localStorage.setItem('silmikaffah-gps',JSON.stringify({lat,lon}));renderPrayerTimes(lat,lon);},
+    ()=>useDefaultLocation(),
+    {enableHighAccuracy:false,maximumAge:300000,timeout:3500}
+  );
+}
+function useDefaultLocation(){
+  const lat=-7.2575,lon=112.7521;
+  document.getElementById('locationText').textContent='Lokasi belum diizinkan • Surabaya (perkiraan)';
+  renderPrayerTimes(lat,lon);
 }
 
 function degToRad(d){return d*Math.PI/180}
 function radToDeg(r){return r*180/Math.PI}
 function fixAngle(a){return ((a%360)+360)%360}
-function sunDeclination(jd){
-  const n=jd-2451545.0;
-  const L=fixAngle(280.46+0.9856474*n);
-  const g=fixAngle(357.528+0.9856003*n);
-  const lambda=L+1.915*Math.sin(degToRad(g))+0.020*Math.sin(degToRad(2*g));
-  const e=23.439-0.0000004*n;
-  return radToDeg(Math.asin(Math.sin(degToRad(e))*Math.sin(degToRad(lambda))));
+function fixHour(h){return ((h%24)+24)%24}
+function dsin(d){return Math.sin(degToRad(d))}
+function dcos(d){return Math.cos(degToRad(d))}
+function dtan(d){return Math.tan(degToRad(d))}
+function darccos(x){return radToDeg(Math.acos(Math.max(-1,Math.min(1,x))))}
+function julian(date){
+  const y=date.getFullYear(),m=date.getMonth()+1,d=date.getDate();
+  let Y=y,M=m;if(M<=2){Y--;M+=12}
+  const A=Math.floor(Y/100),B=2-A+Math.floor(A/4);
+  return Math.floor(365.25*(Y+4716))+Math.floor(30.6001*(M+1))+d+B-1524.5;
 }
-function julianDate(date){
-  return date.getTime()/86400000+2440587.5;
+function sunPosition(jd){
+  const D=jd-2451545,g=fixAngle(357.529+0.98560028*D),q=fixAngle(280.459+0.98564736*D);
+  const L=fixAngle(q+1.915*dsin(g)+0.020*dsin(2*g)),e=23.439-0.00000036*D;
+  const ra=radToDeg(Math.atan2(dcos(e)*dsin(L),dcos(L)))/15;
+  return {decl:radToDeg(Math.asin(dsin(e)*dsin(L))),eqt:q/15-fixHour(ra)};
 }
-function solarTimes(date,lat,lon){
-  const jd=julianDate(new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate())));
-  const n=jd-2451545.0;
-  const L=fixAngle(280.46+0.9856474*n);
-  const g=fixAngle(357.528+0.9856003*n);
-  const lambda=L+1.915*Math.sin(degToRad(g))+0.020*Math.sin(degToRad(2*g));
-  const e=23.439-0.0000004*n;
-  const ra=radToDeg(Math.atan2(Math.cos(degToRad(e))*Math.sin(degToRad(lambda)),Math.cos(degToRad(lambda))))/15;
-  const eqt=(L/15)-fixAngle(ra+24)%24;
-  const dec=sunDeclination(jd);
-  const tz=-date.getTimezoneOffset()/60;
-  function angleTime(angle){
-    const cosH=(Math.cos(degToRad(angle))-Math.sin(degToRad(lat))*Math.sin(degToRad(dec)))/(Math.cos(degToRad(lat))*Math.cos(degToRad(dec)));
-    if(cosH>1||cosH<-1)return null;
-    return Math.acos(cosH)*12/Math.PI;
+function prayerTimes(date,lat,lon){
+  const tz=-date.getTimezoneOffset()/60,s=sunPosition(julian(date));
+  const noon=fixHour(12-s.eqt+tz-lon/15);
+  function angleTime(angle,dir){
+    const term=(-dsin(angle)-dsin(s.decl)*dsin(lat))/(dcos(s.decl)*dcos(lat));
+    return noon+(dir==='ccw'?-1:1)*darccos(term)/15;
   }
-  const noon=12+tz-(lon/15)-eqt;
-  const sunrise=noon-angleTime(90.833);
-  const sunset=noon+angleTime(90.833);
-  const fajr=noon-angleTime(108);
-  const isha=noon+angleTime(108);
-  // Asr, standard shadow factor 1.
-  const asrAngle=radToDeg(Math.atan(1/(1+Math.tan(Math.abs(degToRad(lat-dec))))));
-  const asr=noon+angleTime(asrAngle);
-  return {Subuh:fajr,Dzuhur:noon,Ashar:asr,Maghrib:sunset,Isya:isha};
+  const fajr=angleTime(20,'ccw'),asrAngle=radToDeg(Math.atan(1/(1+dtan(Math.abs(lat-s.decl)))));
+  return {Subuh:fajr,Dzuhur:noon,Ashar:angleTime(asrAngle,'cw'),Maghrib:angleTime(.833,'cw'),Isya:angleTime(18,'cw')};
 }
 function fmtTime(hours){
   if(hours==null||!isFinite(hours))return '--:--';
-  hours=(hours+24)%24;
-  const h=Math.floor(hours),m=Math.round((hours-h)*60);
-  const hh=(h+(m===60?1:0))%24, mm=m===60?0:m;
-  return String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
+  hours=fixHour(hours);let h=Math.floor(hours),m=Math.round((hours-h)*60);
+  if(m===60){h=(h+1)%24;m=0}
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
 }
-function loadPrayerTimes(lat,lon){
-  const times=solarTimes(new Date(),lat,lon);
-  const keys=['Subuh','Dzuhur','Ashar','Maghrib','Isya'];
+function renderPrayerTimes(lat,lon){
+  const t=prayerTimes(new Date(),lat,lon),keys=['Subuh','Dzuhur','Ashar','Maghrib','Isya'];
   document.getElementById('locationText').textContent=`GPS ${lat.toFixed(2)}, ${lon.toFixed(2)}`;
-  document.getElementById('prayerRow').innerHTML=keys.map(k=>`<span>${k}<b>${fmtTime(times[k])}</b></span>`).join('');
-  const now=new Date();
-  const current=now.getHours()+now.getMinutes()/60;
-  const upcoming=[
-    ['Subuh',times.Subuh],
-    ['Dzuhur',times.Dzuhur],
-    ['Ashar',times.Ashar],
-    ['Maghrib',times.Maghrib],
-    ['Isya',times.Isya]
-  ].filter(x=>x[1]!=null && x[1]>current);
-  let active, activeTime;
-  if(upcoming.length){
-    [active,activeTime]=upcoming[0];
-  }else{
-    // After Isya, the next prayer is tomorrow's Subuh.
-    active='Subuh';
-    activeTime=times.Subuh;
-  }
+  document.getElementById('prayerRow').innerHTML=keys.map(k=>`<span>${k}<b>${fmtTime(t[k])}</b></span>`).join('');
+  const now=new Date(),current=now.getHours()+now.getMinutes()/60;
+  const next=keys.map(k=>[k,t[k]]).find(x=>x[1]>current);
+  const active=next?next[0]:'Subuh',activeTime=next?next[1]:t.Subuh;
   document.getElementById('currentPrayer').textContent=active;
   document.getElementById('currentPrayerTime').textContent=fmtTime(activeTime);
 }
+function fallbackPrayer(){useDefaultLocation();}
 function fallbackPrayer(){
   document.getElementById('locationText').textContent='Lokasi GPS belum diizinkan';
   document.getElementById('currentPrayer').textContent='Aktifkan lokasi';
