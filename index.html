@@ -114,7 +114,7 @@ body.theme-teal .search{background:#0a3b34;border-color:#2b7569}
 body.theme-teal .surface{background:#0a3b34}
 
 /* SILMIKAFFAH THEME SYSTEM */
-.splash{position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .45s,visibility .45s}
+.splash{position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .45s,visibility .45s;animation:splashAutoHide .45s ease 1.5s forwards}@keyframes splashAutoHide{to{opacity:0;visibility:hidden;pointer-events:none}}
 .splash.hide{opacity:0;visibility:hidden}
 .splash-logo{width:118px;height:118px;border-radius:28px;display:grid;place-items:center;margin-bottom:18px;overflow:hidden}
 .splash-logo img{width:100%;height:100%;object-fit:contain}
@@ -661,11 +661,6 @@ function renderPrayerTimes(lat,lon){
   document.getElementById('currentPrayerTime').textContent=fmtTime(activeTime);
 }
 function fallbackPrayer(){useDefaultLocation();}
-function fallbackPrayer(){
-  document.getElementById('locationText').textContent='Lokasi GPS belum diizinkan';
-  document.getElementById('currentPrayer').textContent='Aktifkan lokasi';
-  document.getElementById('currentPrayerTime').textContent='--:--';
-}
 
 function setTheme(theme){
   document.body.classList.remove('theme-light','theme-teal');
@@ -676,10 +671,17 @@ function setTheme(theme){
   localStorage.setItem('silmikaffah-theme',theme);
 }
 (function(){
-  initDailyHome();
-  const saved=localStorage.getItem('silmikaffah-theme') || 'amoled';
-  setTheme(saved);
-  setTimeout(()=>document.getElementById('splash').classList.add('hide'),1500);
+  try{ initDailyHome(); }catch(e){ console.warn('Home init:',e); }
+  try{
+    const saved=localStorage.getItem('silmikaffah-theme') || 'amoled';
+    setTheme(saved);
+  }catch(e){ console.warn('Theme init:',e); }
+  setTimeout(()=>{
+    const splash=document.getElementById('splash');
+    if(splash) splash.classList.add('hide');
+    const home=document.getElementById('home');
+    if(home) home.classList.add('active');
+  },1500);
 })();
 
 </script>
