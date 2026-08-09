@@ -118,7 +118,7 @@ body.theme-light{--bg:#f5f8f7;--surface:#fff;--surface2:#eef4f2;--teal:#078f76;-
 body.theme-light header{background:rgba(245,248,247,.94)}
 body.theme-light .bottom{background:rgba(255,255,255,.96)}
 
-.theme-options{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.theme-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
 .theme-option{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:13px;padding:12px 7px;text-align:center}
 .theme-option strong{display:block;font-size:12px;margin-top:5px}
 .theme-option small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
@@ -152,7 +152,11 @@ body.theme-light .bottom{background:rgba(255,255,255,.96)}
 <body>
 
 <div id="splash" class="splash">
-  <div class="splash-logo"><img src="logo.png" alt="Silmikaffah" onerror="this.style.display='none'"></div>
+  <div class="splash-logo"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-label="Logo Silmikaffah">
+<rect x="8" y="8" width="84" height="84" rx="12" fill="#000"/>
+<path d="M23 72V28h39l15 15v29H61V48H38v24H23Z" fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round"/>
+<path d="M38 28v20h23M61 48l16 16M38 48l23 24" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></div>
   <div class="splash-name">Silmikaffah</div>
   <div class="splash-tagline">Islam Secara Menyeluruh</div>
   <div class="splash-loader"><i></i></div>
@@ -161,7 +165,11 @@ body.theme-light .bottom{background:rgba(255,255,255,.96)}
 <div class="app">
 <header>
   <div class="brand">
-    <div class="logo"><img src="logo.png" alt="Silmikaffah" onerror="this.style.display='none'"></div>
+    <div class="logo"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-label="Logo Silmikaffah">
+<rect x="8" y="8" width="84" height="84" rx="12" fill="#000"/>
+<path d="M23 72V28h39l15 15v29H61V48H38v24H23Z" fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round"/>
+<path d="M38 28v20h23M61 48l16 16M38 48l23 24" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></div>
     <div><h1>Silmikaffah</h1><p>Islam Secara Menyeluruh</p></div>
   </div>
   <div class="search"><span>⌕</span><input id="searchInput" placeholder="Cari ilmu, doa, hadis, kitab..." oninput="searchAll(this.value)"></div>
@@ -642,34 +650,14 @@ function sunPosition(jd){
   return {decl:radToDeg(Math.asin(dsin(e)*dsin(L))),eqt:q/15-fixHour(ra)};
 }
 function prayerTimes(date,lat,lon){
-  const tz=-date.getTimezoneOffset()/60;
-  const s=sunPosition(julian(date));
+  const tz=-date.getTimezoneOffset()/60,s=sunPosition(julian(date));
   const noon=fixHour(12-s.eqt+tz-lon/15);
-
-  // Solar altitude in degrees. Negative values are below the horizon.
-  function hourAngle(altitude){
-    const term=(dsin(altitude)-dsin(lat)*dsin(s.decl))/
-               (dcos(lat)*dcos(s.decl));
-    return darccos(term)/15;
+  function angleTime(angle,dir){
+    const term=(-dsin(angle)-dsin(s.decl)*dsin(lat))/(dcos(s.decl)*dcos(lat));
+    return noon+(dir==='ccw'?-1:1)*darccos(term)/15;
   }
-
-  const fajr=noon-hourAngle(-20);
-  const sunrise=noon-hourAngle(-0.833);
-  const sunset=noon+hourAngle(-0.833);
-  const isya=noon+hourAngle(-18);
-
-  // Asr: shadow factor 1 (Shafi'i/Hanafi-style selectable later).
-  const shadow=1+dtan(Math.abs(lat-s.decl));
-  const asrAltitude=-radToDeg(Math.atan(1/shadow));
-  const asr=noon+hourAngle(asrAltitude);
-
-  return {
-    Subuh:fajr,
-    Dzuhur:noon,
-    Ashar:asr,
-    Maghrib:sunset,
-    Isya:isya
-  };
+  const fajr=angleTime(20,'ccw'),asrAngle=radToDeg(Math.atan(1/(1+dtan(Math.abs(lat-s.decl)))));
+  return {Subuh:fajr,Dzuhur:noon,Ashar:angleTime(asrAngle,'cw'),Maghrib:angleTime(.833,'cw'),Isya:angleTime(18,'cw')};
 }
 function fmtTime(hours){
   if(hours==null||!isFinite(hours))return '--:--';
@@ -683,8 +671,7 @@ function renderPrayerTimes(lat,lon){
   document.getElementById('prayerRow').innerHTML=keys.map(k=>`<span>${k}<b>${fmtTime(t[k])}</b></span>`).join('');
   const now=new Date(),current=now.getHours()+now.getMinutes()/60;
   const next=keys.map(k=>[k,t[k]]).find(x=>x[1]>current);
-  const active=next?next[0]:'Subuh';
-  const activeTime=next?next[1]:t.Subuh;
+  const active=next?next[0]:'Subuh',activeTime=next?next[1]:t.Subuh;
   document.getElementById('currentPrayer').textContent=active;
   document.getElementById('currentPrayerTime').textContent=fmtTime(activeTime);
 }
@@ -705,12 +692,6 @@ function setTheme(theme){
     const saved=localStorage.getItem('silmikaffah-theme');
     setTheme(saved==='light' ? 'light' : 'amoled');
   }catch(e){ console.warn('Theme init:',e); }
-  setInterval(()=>{
-    try{
-      const cached=localStorage.getItem('silmikaffah-gps');
-      if(cached){ const p=JSON.parse(cached); renderPrayerTimes(p.lat,p.lon); }
-    }catch(e){}
-  },60000);
   setTimeout(()=>{
     const splash=document.getElementById('splash');
     if(splash) splash.classList.add('hide');
